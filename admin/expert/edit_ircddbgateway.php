@@ -69,9 +69,8 @@ if($_POST) {
 				if ($value == '') { 
 					$content .= $key."= \n";
 					}
-			    else if ((strcmp($key, 'xlxHostsFileUrl') == 0) || strstr($key, 'Password')) {
+				else if ((strcmp($key, 'xlxHostsFileUrl') == 0) || strstr($key, 'Password')) {
 					$content .= $key."=\"".$value."\"\n";
-
 					}
 				else {
 					$content .= $key."=".$value."\n";

@@ -69,6 +69,9 @@ if($_POST) {
                                 if ($value == '') { 
                                         $content .= $key."=".$value." \n"; 
                                         }
+				else if (strstr($key, 'Password')) {
+					$content .= $key."=\"".$value."\"\n";
+					}
                                 else {
                                         $content .= $key."=".$value."\n";
                                         }
