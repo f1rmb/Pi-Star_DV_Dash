@@ -50,6 +50,7 @@
 				<li class="subs"><a href="edit_dapnetapi.php">DAPNet API</a></li>
 			    </ul>
 			</li>
+			<li class="subs"><a href="edit_aprsgateway.php">APRS Gateway</a></li>
 		    </ul>
 		</li>
 
@@ -73,6 +74,7 @@
 			    </ul>
 			</li>
 			<li class="subs"><a href="fulledit_gpsd.php">GPSd</a></li>
+			<li class="subs"><a href="fulledit_aprsgateway.php">APRS Gateway</a></li>
 			<li class="subs"><a href="fulledit_wpaconfig.php">WiFi</a></li>
 			<li class="subs"><a href="fulledit_cron.php">System Cron</a></li>
 			<li class="subs"><a href="fulledit_rssidat.php">RSSI Data</a></li>
