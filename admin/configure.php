@@ -496,6 +496,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 
 	// Stop the DV Services
 	system('sudo systemctl stop gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
+	system('sudo systemctl stop aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
 	system('sudo systemctl stop dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
 	system('sudo systemctl stop mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
 	system('sudo systemctl stop ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service
@@ -3074,6 +3075,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	// Start the DV Services
 	system('sudo systemctl daemon-reload > /dev/null 2>/dev/null &');			// Restart Systemd to account for any service changes
 	system('sudo systemctl start gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
+	system('sudo systemctl start aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
 	system('sudo systemctl start dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
 	system('sudo systemctl start mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
 	system('sudo systemctl start ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service

@@ -67,6 +67,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 	  }
           $output .= shell_exec("sudo cp /etc/wpa_supplicant/wpa_supplicant.conf $backupDir 2>&1");
           $output .= shell_exec("sudo cp /etc/pistar-css.ini $backupDir 2>&1");
+          $output .= shell_exec("sudo cp /etc/aprsgateway $backupDir 2>&1");
           $output .= shell_exec("sudo cp /etc/ircddbgateway $backupDir 2>&1");
           $output .= shell_exec("sudo cp /etc/mmdvmhost $backupDir 2>&1");
           $output .= shell_exec("sudo cp /etc/dstarrepeater $backupDir 2>&1");
@@ -175,6 +176,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 			// Stop the DV Services
 			shell_exec('sudo systemctl stop cron.service 2>&1');		//Cron
 			shell_exec('sudo systemctl stop gpsd.service 2>&1');		//GPSd Service
+			shell_exec('sudo systemctl stop aprsgateway.service 2>&1');	//APRSGateway Service
 			shell_exec('sudo systemctl stop dstarrepeater.service 2>&1');	//D-Star Radio Service
 			shell_exec('sudo systemctl stop mmdvmhost.service 2>&1');	//MMDVMHost Radio Service
 			shell_exec('sudo systemctl stop ircddbgateway.service 2>&1');	//ircDDBGateway Service
@@ -215,6 +217,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 			// Start the services
 			$output .= "Starting Services.\n";
 			shell_exec('sudo systemctl start gpsd.service 2>&1');			//GPSd Service
+			shell_exec('sudo systemctl start aprsgateway.service 2>&1');		//APRSGateway Service
 			shell_exec('sudo systemctl start dstarrepeater.service 2>&1');		//D-Star Radio Service
 			shell_exec('sudo systemctl start mmdvmhost.service 2>&1');		//MMDVMHost Radio Service
 			shell_exec('sudo systemctl start ircddbgateway.service 2>&1');		//ircDDBGateway Service
