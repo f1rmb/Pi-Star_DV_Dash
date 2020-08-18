@@ -222,6 +222,10 @@ function formatSize( $bytes ) {
 			$DAPNETGateway_Ver = exec('/usr/local/bin/DAPNETGateway -v | cut -d\' \' -f 3-');
 			echo "  <tr>";getStatusClass(isProcessRunning("DAPNETGateway"), true); echo "DAPNETGateway</td><td align=\"left\">".$DAPNETGateway_Ver."</td></tr>\n";
 		    }
+		    if (is_executable('/usr/local/bin/APRSGateway')) {
+			$APRSGateway_Ver = exec('/usr/local/bin/APRSGateway -v| cut -d\' \' -f 3-');
+			echo "  <tr>";getStatusClass(isProcessRunning("APRSGateway"), true); echo "APRSGateway</td><td align=\"left\">".$APRSGateway_Ver."</td></tr>\n";
+		    }
 		    if (is_executable('/usr/sbin/gpsd')) {
 			$GPSD_Ver = exec('/usr/sbin/gpsd -V | cut -d\' \' -f 2-');
 			echo "  <tr>";getStatusClass(isProcessRunning("gpsd"), true); echo "GPSd</td><td align=\"left\">".$GPSD_Ver."</td></tr>\n";

@@ -651,6 +651,11 @@ input.toggle-round-flat:focus + label {
     padding-right: 0.2em;
 }
 
+.disabled-service-cell {
+    color: <?php echo $textModeCellDisabledColor; ?>;
+    background: <?php echo $backgroundModeCellDisabledColor; ?>;
+}
+
 .active-service-cell {
     color: <?php echo $textServiceCellActiveColor; ?>;
     background: <?php echo $backgroundServiceCellActiveColor; ?>;
