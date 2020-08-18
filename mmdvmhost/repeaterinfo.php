@@ -64,6 +64,11 @@ if (file_exists('/etc/dmr2nxdn')) {
 	$dmr2nxdnConfigFile = '/etc/dmr2nxdn';
 	if (fopen($dmr2nxdnConfigFile,'r')) { $configdmr2nxdn = parse_ini_file($dmr2nxdnConfigFile, true); }
 }
+// Load the aprsgateway config file
+if (file_exists('/etc/aprsgateway')) {
+    $aprsGatewayConfigFile = '/etc/aprsgateway';
+    if (fopen($aprsGatewayConfigFile,'r')) { $configaprsgateway = parse_ini_file($aprsGatewayConfigFile, true); }
+}
 ?>
 
 <table>
@@ -166,7 +171,7 @@ echo "<tr><th colspan=\"2\">".$lang['dstar_repeater']."</th></tr>\n";
 echo "<tr><th>RPT1</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $configdstar['callsign'])."</td></tr>\n";
 echo "<tr><th>RPT2</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $configdstar['gateway'])."</td></tr>\n";
 echo "<tr><th colspan=\"2\">".$lang['dstar_net']."</th></tr>\n";
-echo "<tr><th>APRS</th><td style=\"background: #ffffff;\">".substr($configs['aprsHostname'], 0, 16)."</td></tr>\n";
+echo "<tr><th>APRS</th><td style=\"background: #ffffff;\">".substr($configaprsgateway['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
 echo "<tr><th>IRC</th><td style=\"background: #ffffff;\">".substr($configs['ircddbHostname'], 0 ,16)."</td></tr>\n";
 echo "<tr><td colspan=\"2\" style=\"background: #ffffff;\">".getActualLink($reverseLogLinesMMDVM, "D-Star")."</td></tr>\n";
 echo "</table>\n";
