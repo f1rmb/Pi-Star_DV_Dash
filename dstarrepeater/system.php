@@ -30,22 +30,7 @@ function getServiceStatusClass($active) {
 }
 
 ?>
-<b><?php echo $lang['hardware_info'];?></b>
 <table style="table-layout: fixed;">
-  <tr>
-    <th><a class="tooltip" href="#"><?php echo $lang['hostname'];?><br /><span><b>System IP Address:<br /><?php echo str_replace(',', ',<br />', exec('hostname -I'));?></b></span></a></th>
-    <th><a class="tooltip" href="#"><?php echo $lang['kernel'];?><span><b>Release</b></span></a></th>
-    <th colspan="2"><a class="tooltip" href="#"><?php echo $lang['platform'];?><span><b>Uptime:<br /><?php echo str_replace(',', ',<br />', exec('uptime -p'));?></b></span></a></th>
-    <th colspan="2"><a class="tooltip" href="#"><?php echo $lang['cpu_load'];?><span><b>CPU Load</b></span></a></th>
-    <th><a class="tooltip" href="#"><?php echo $lang['cpu_temp'];?><span><b>CPU Temp</b></span></a></th>
-  </tr>
-  <tr>
-    <td><?php echo php_uname('n');?></td>
-    <td><?php echo php_uname('r');?></td>
-    <td colspan="2"><?php echo exec('platformDetect.sh');?></td>
-    <td colspan="2">1m:<?php echo $cpuLoad[0];?> / 5m:<?php echo $cpuLoad[1];?> / 15m:<?php echo $cpuLoad[2];?></td>
-    <?php echo $cpuTempHTML; ?>
-  </tr>
   <tr>
     <th colspan="7"><?php echo $lang['service_status'];?></th>
   </tr>

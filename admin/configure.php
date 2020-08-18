@@ -367,6 +367,9 @@ $MYCALL=strtoupper($callsign);
     <title><?php echo "$MYCALL"." - ".$lang['digital_voice']." ".$lang['dashboard']." - ".$lang['configuration'];?></title>
     <link rel="stylesheet" type="text/css" href="/css/font-awesome-4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/pistar-css.php?version=0.94" />
+    <script type="text/javascript" src="/jquery.min.js"></script>
+    <script type="text/javascript" src="/jquery-floatThead.min.js"></script>
+    <script type="text/javascript" src="/functions.js"></script>
     <script type="text/javascript">
 	function disablesubmitbuttons() {
 		var inputs = document.getElementsByTagName('input');
@@ -429,26 +432,21 @@ $MYCALL=strtoupper($callsign);
 // Hardware Detail
 if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 //HTML output starts here
-?>
-    <h2><?php echo $lang['hardware_info'];?></h2>
-    <table style="table-layout: fixed;">
-    <tr>
-    <th><a class="tooltip" href="#"><?php echo $lang['hostname'];?><br /><span><b>System IP Address:<br /><?php echo str_replace(',', ',<br />', exec('hostname -I'));?></b></span></a></th>
-    <th><a class="tooltip" href="#"><?php echo $lang['kernel'];?><span><b>Release</b>This is the version<br />number of the Linux Kernel running<br />on this Raspberry Pi.</span></a></th>
-    <th colspan="2"><a class="tooltip" href="#"><?php echo $lang['platform'];?><span><b>Uptime:<br /><?php echo str_replace(',', ',<br />', exec('uptime -p'));?></b></span></a></th>
-    <th colspan="2"><a class="tooltip" href="#"><?php echo $lang['cpu_load'];?><span><b>CPU Load</b></span></a></th>
-    <th><a class="tooltip" href="#"><?php echo $lang['cpu_temp'];?><span><b>CPU Temp</b></span></a></th>
-    </tr>
-    <tr>
-    <td><?php echo php_uname('n');?></td>
-    <td><?php echo php_uname('r');?></td>
-    <td colspan="2"><?php echo exec('platformDetect.sh');?></td>
-    <td colspan="2">1m:<?php echo $cpuLoad[0];?> / 5m:<?php echo $cpuLoad[1];?> / 15m:<?php echo $cpuLoad[2];?></td>
-    <?php echo $cpuTempHTML; ?>
-    </tr>
-    </table>
-<br />
-<?php if (!empty($_POST)):
+    echo '<div class="contentwide">'."\n";
+    echo '<script type="text/javascript">'."\n";
+    echo 'function reloadHwInfo(){'."\n";
+    echo '  $("#hwInfo").load("/dstarrepeater/hw_info.php",function(){ setTimeout(reloadHwInfo, 15000) });'."\n";
+    echo '}'."\n";
+    echo 'setTimeout(reloadHwInfo, 15000);'."\n";
+    echo '$(window).trigger(\'resize\');'."\n";
+    echo '</script>'."\n";
+    echo '<div id="hwInfo">'."\n";
+    include 'dstarrepeater/hw_info.php';
+    echo '</div>'."\n";
+    echo '</div>'."\n";
+    echo '<br />'."\n";
+
+    if (!empty($_POST)):
 	// Make the root filesystem writable
 	system('sudo mount -o remount,rw /');
 

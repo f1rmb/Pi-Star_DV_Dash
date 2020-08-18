@@ -2,6 +2,7 @@
 require_once('config/version.php');
 require_once('config/ircddblocal.php');
 require_once('config/language.php');
+
 $configs = array();
 if ($configfile = fopen($gatewayConfigPath,'r')) {
         while ($line = fgets($configfile)) {
@@ -74,20 +75,43 @@ $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 	
 <?php
 // Output some default features
-if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
+if ($_SERVER["PHP_SELF"] == "/index.php")
+{
     echo '<div class="contentwide">'."\n";
-	echo '<script type="text/javascript">'."\n";
-	echo 'function reloadSysInfo(){'."\n";
-	echo '  $("#sysInfo").load("/dstarrepeater/system.php",function(){ setTimeout(reloadSysInfo,15000) });'."\n";
-	echo '}'."\n";
-	echo 'setTimeout(reloadSysInfo,15000);'."\n";
-	echo '$(window).trigger(\'resize\');'."\n";
-	echo '</script>'."\n";
-	echo '<div id="sysInfo">'."\n";
-	include 'dstarrepeater/system.php';				// Basic System Info
-	echo '</div>'."\n";
-	echo '</div>'."\n";
-	}
+    echo '<script type="text/javascript">'."\n";
+    echo 'function reloadHwInfo(){'."\n";
+    echo '  $("#hwInfo").load("/dstarrepeater/hw_info.php",function(){ setTimeout(reloadHwInfo, 15000) });'."\n";
+    echo '}'."\n";
+    echo 'setTimeout(reloadHwInfo, 15000);'."\n";
+    echo '$(window).trigger(\'resize\');'."\n";
+    echo '</script>'."\n";
+    echo '<div id="hwInfo">'."\n";
+    include 'dstarrepeater/hw_info.php';
+    echo '</div>'."\n";
+    echo '</div>'."\n";
+    echo '<br />'."\n";
+}
+else if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
+    echo '<div class="contentwide">'."\n";
+    echo '<script type="text/javascript">'."\n";
+    echo 'function reloadHwInfo(){'."\n";
+    echo '  $("#hwInfo").load("/dstarrepeater/hw_info.php",function(){ setTimeout(reloadHwInfo, 15000) });'."\n";
+    echo '}'."\n";
+    echo 'function reloadSysInfo(){'."\n";
+    echo '  $("#sysInfo").load("/dstarrepeater/system.php",function(){ setTimeout(reloadSysInfo,15000) });'."\n";
+    echo '}'."\n";
+    echo 'setTimeout(reloadHwInfo,15000);'."\n";
+    echo 'setTimeout(reloadSysInfo,15000);'."\n";
+    echo '$(window).trigger(\'resize\');'."\n";
+    echo '</script>'."\n";
+    echo '<div id="hwInfo">'."\n";
+    include 'dstarrepeater/hw_info.php';			// Basic System Info
+    echo '</div>'."\n";
+    echo '<div id="sysInfo">'."\n";
+    include 'dstarrepeater/system.php';				// Basic System Info
+    echo '</div>'."\n";
+    echo '</div>'."\n";
+}
 // First lets figure out if we are in MMDVMHost mode, or dstarrepeater mode;
 if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 	include 'config/config.php';					// MMDVMDash Config
