@@ -34,15 +34,15 @@ if ($configdstarfile = fopen('/etc/dstarrepeater','r')) {
 // Load the ircDDBGateway config file
 $configs = array();
 if ($configfile = fopen($gatewayConfigPath,'r')) {
-        while ($line = fgets($configfile)) {
-		if (strpos($line, '=') !== false) {
-                	list($key,$value) = preg_split('/=/',$line);
-                	$value = trim(str_replace('"','',$value));
-                	if ($key != 'ircddbPassword' && strlen($value) > 0)
-                	$configs[$key] = $value;
-		}
-        }
-        fclose($configfile);
+    while ($line = fgets($configfile)) {
+	if (strpos($line, '=') !== false) {
+            list($key,$value) = preg_split('/=/',$line);
+            $value = trim(str_replace('"','',$value));
+            if ($key != 'ircddbPassword' && strlen($value) > 0)
+                $configs[$key] = $value;
+	}
+    }
+    fclose($configfile);
 }
 
 // Load the mmdvmhost config file
@@ -59,6 +59,31 @@ function ensureFileExists($fname) {
 	exec('sudo sudo rm -rf /tmp/cfgupdate && mkdir -p /tmp/cfgupdate && sudo unzip /usr/local/bin/config_clean.zip -d /tmp/cfgupdate && sudo rm -f /etc/'.$fname.' && sudo mv -f /tmp/cfgupdate/'.$fname.' /etc/'.$fname.' && sudo chmod 644 /etc/'.$fname.' && sudo chown root:root /etc/'.$fname.' && sudo rm -rf /tmp/cfgupdate');
 	exec('sudo mount -o remount,ro /');
     }
+}
+
+function clearAprsDotFi(&$cfgFile, $suffix) {
+    $cfgAprsEnabled = 0;
+    $cfgAprsSuffix = $suffix;
+    $cfgAprsDescription = "APRS Description";
+    
+    // Old config if present, get rid of it
+    if (isset($cfgFile['aprs.fi']))
+    {
+	$cfgAprsEnabled = $cfgFile['aprs.fi']['Enable'];
+	if (isset($cfgFile['aprs.fi']['Suffix']) && !empty($cfgFile['aprs.fi']['Suffix']))
+	{
+	    $cfgAprsSuffix = $cfgFile['aprs.fi']['Suffix'];
+	}
+	$cfgAprsDescription = $cfgFile['aprs.fi']['Description'];
+	unset($cfgFile['aprs.fi']);
+    }
+    
+    // Add default APRS config
+    $cfgFile['APRS']['Enable'] = $cfgAprsEnabled;
+    $cfgFile['APRS']['Address'] = "127.0.0.1";
+    $cfgFile['APRS']['Port'] = "8673";
+    $cfgFile['APRS']['Suffix'] = $cfgAprsSuffix;
+    $cfgFile['APRS']['Description'] = $cfgAprsDescription;
 }
 
 // Load the ysf2dmr config file
@@ -112,6 +137,14 @@ if (file_exists('/etc/nxdngateway')) {
 if (file_exists('/etc/nxdn2dmr')) {
 	$nxdn2dmrConfigFile = '/etc/nxdn2dmr';
 	if (fopen($nxdn2dmrConfigFile,'r')) { $confignxdn2dmr = parse_ini_file($nxdn2dmrConfigFile, true); }
+}
+
+// Load the APRSGateway config file
+ensureFileExists('aprsgateway');
+// Load the aprsgateway config file
+if (file_exists('/etc/aprsgateway')) {
+	$aprsGatewayConfigFile = '/etc/aprsgateway';
+	if (fopen($aprsGatewayConfigFile,'r')) { $configaprsgateway = parse_ini_file($aprsGatewayConfigFile, true); }
 }
 
 //
@@ -187,7 +220,7 @@ if (isset($confignxdngateway['Mobile GPS']))
 }
 
 // GPSd
-if (isset($configmmdvm['GPSD']) != TRUE)
+if (!isset($configmmdvm['GPSD']) || !isset($configmmdvm['GPSD']['Enable']) || !isset($configmmdvm['GPSD']['Address']) ||!isset($configmmdvm['GPSD']['Port']))
 {
     $configmmdvm['GPSD']['Enable'] = 0;
     $configmmdvm['GPSD']['Address'] = "127.0.0.1";
@@ -206,6 +239,44 @@ if ($configmmdvm['GPSD']['Enable'] == 1)
 	$configmmdvm['GPSD']['Port'] = "2947";
     }
 }
+
+// Ensure ircDDBGateway file contains the new APRS configuration
+if (isset($configs['aprsHostname']))
+{
+    exec('sudo mount -o remount,rw /');
+    exec('sudo sed -i "/mobileGPS.*/d;/aprsPassword.*/d;s/aprsHostname=.*/aprsAddress=127.0.0.1/g;s/aprsPort=.*/aprsPort=8673/g" /etc/ircddbgateway');
+    exec('sudo mount -o remount,ro /');
+
+    // Re-read new ircDDBGateway config file
+    unset($configs);
+    $configs = array();
+    if ($configfile = fopen($gatewayConfigPath,'r')) {
+	while ($line = fgets($configfile)) {
+	    if (strpos($line, '=') !== false) {
+		list($key,$value) = preg_split('/=/',$line);
+		$value = trim(str_replace('"','',$value));
+		if ($key != 'ircddbPassword' && strlen($value) > 0)
+                    $configs[$key] = $value;
+	    }
+	}
+	fclose($configfile);
+    }    
+}
+
+//
+// aprs.fi to APRS conversion (ysf2* are still using aprs.fi direct access)
+//
+// Ensure NXDNGateway file contains the new APRS configuration
+if (isset($confignxdngateway['aprs.fi']) || !isset($confignxdngateway['APRS']))
+{
+    clearAprsDotFi($confignxdngateway, "N");
+}
+// Ensure YSFGateway file contains the new APRS configuration
+if (isset($configysfgateway['aprs.fi']) || !isset($configysfgateway['APRS']))
+{
+    clearAprsDotFi($configysfgateway, "Y");
+}
+
 
 // DAPNet Gateway config
 if (file_exists('/etc/dapnetgateway')) {
@@ -647,11 +718,9 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	  system($rollURL0);
 	  }
 
-	// Set the APRS Host for ircDDBGateway
+	// Set the APRS Server for APRSGateway
 	if (empty($_POST['selectedAPRSHost']) != TRUE ) {
-	  $rollAPRSHost = 'sudo sed -i "/aprsHostname=/c\\aprsHostname='.escapeshellcmd($_POST['selectedAPRSHost']).'" /etc/ircddbgateway';
-	  system($rollAPRSHost);
-	  $configysfgateway['aprs.fi']['Server'] = escapeshellcmd($_POST['selectedAPRSHost']);
+	  $configaprsgateway['APRS-IS']['Server'] = escapeshellcmd($_POST['selectedAPRSHost']);
 	  $configysf2dmr['aprs.fi']['Server'] = escapeshellcmd($_POST['selectedAPRSHost']);
 	  $configysf2nxdn['aprs.fi']['Server'] = escapeshellcmd($_POST['selectedAPRSHost']);
 	  $configysf2p25['aprs.fi']['Server'] = escapeshellcmd($_POST['selectedAPRSHost']);
@@ -980,8 +1049,9 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	  //else { $configysfgateway['General']['Callsign'] = $newCallsignUpper; }
 	  $configysfgateway['General']['Callsign'] = $newCallsignUpper;
 	  $configmmdvm['General']['Callsign'] = $newCallsignUpper;
-	  $configysfgateway['aprs.fi']['Password'] = aprspass($newCallsignUpper);
-	  $configysfgateway['aprs.fi']['Description'] = $newCallsignUpper."_Pi-Star";
+	  $configaprsgateway['General']['Callsign'] = $newCallsignUpper;
+	  $configaprsgateway['APRS-IS']['Password'] = aprspass($newCallsignUpper);
+	  $configysfgateway['APRS']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2dmr['aprs.fi']['Password'] = aprspass($newCallsignUpper);
 	  $configysf2dmr['aprs.fi']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2dmr['YSF Network']['Callsign'] = $newCallsignUpper;
@@ -993,19 +1063,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	  $configysf2p25['YSF Network']['Callsign'] = $newCallsignUpper;
 	  $configdmr2ysf['YSF Network']['Callsign'] = $newCallsignUpper;
 	  $configp25gateway['General']['Callsign'] = $newCallsignUpper;
-	  $confignxdngateway['aprs.fi']['Description'] = $newCallsignUpper."_Pi-Star";
-	  $confignxdngateway['aprs.fi']['Password'] = aprspass($newCallsignUpper);
+	  $confignxdngateway['APRS']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $confignxdngateway['General']['Callsign'] = $newCallsignUpper;
 	  $configysfgateway['Info']['Name'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2dmr['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2nxdn['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2p25['Info']['Description'] = $newCallsignUpper."_Pi-Star";
-
-	  // If ircDDBGateway config supports APRS Password
-	  if (isset($configs['aprsPassword'])) {
-		  $rollircDDBGatewayAprsPassword = 'sudo sed -i "/aprsPassword=/c\\aprsPassword='.aprspass($newCallsignUpper).'" /etc/ircddbgateway';
-		  system($rollircDDBGatewayAprsPassword);
-	  }
 
 	  system($rollGATECALL);
 	  system($rollIRCUSER);
@@ -2372,12 +2435,11 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 		// Add in all the APRS stuff
 		if(!isset($confignxdngateway['Info']['Power'])) { $confignxdngateway['Info']['Power'] = "1"; }
 		if(!isset($confignxdngateway['Info']['Height'])) { $confignxdngateway['Info']['Height'] = "0"; }
-		if(!isset($confignxdngateway['aprs.fi']['Enable'])) { $confignxdngateway['aprs.fi']['Enable'] = "0"; }
-		if(!isset($confignxdngateway['aprs.fi']['Server'])) { $confignxdngateway['aprs.fi']['Server'] = "euro.aprs2.net"; }
-		if(!isset($confignxdngateway['aprs.fi']['Port'])) { $confignxdngateway['aprs.fi']['Port'] = "14580"; }
-		if(!isset($confignxdngateway['aprs.fi']['Password'])) { $confignxdngateway['aprs.fi']['Password'] = "9999"; }
-		if(!isset($confignxdngateway['aprs.fi']['Description'])) { $confignxdngateway['aprs.fi']['Description'] = "APRS for NXDN Gateway"; }
-		if(!isset($confignxdngateway['aprs.fi']['Suffix'])) { $confignxdngateway['aprs.fi']['Suffix'] = "N"; }
+		if(!isset($confignxdngateway['APRS']['Enable'])) { $confignxdngateway['APRS']['Enable'] = "0"; }
+		if(!isset($confignxdngateway['APRS']['Address'])) { $confignxdngateway['APRS']['Server'] = "127.0.0.1"; }
+		if(!isset($confignxdngateway['APRS']['Port'])) { $confignxdngateway['APRS']['Port'] = "8673"; }
+		if(!isset($confignxdngateway['APRS']['Suffix'])) { $confignxdngateway['APRS']['Suffix'] = "N"; }
+		if(!isset($confignxdngateway['APRS']['Description'])) { $confignxdngateway['APRS']['Description'] = "APRS for NXDN Gateway"; }
 		// GPSd stuff
 		if(!isset($confignxdngateway['GPSD']['Enable'])) { $confignxdngateway['GPSD']['Enable'] = "0"; }
 		if(!isset($confignxdngateway['GPSD']['Address'])) { $confignxdngateway['GPSD']['Address'] = "127.0.0.1"; }
@@ -2409,7 +2471,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	$ysfGatewayVer = exec("YSFGateway -v | awk {'print $3'} | cut -c 1-8");
 	if ($ysfGatewayVer > 20180303) {
 		if (isset($configysfgateway['Network']['Startup'])) { $ysfTmpStartup = $configysfgateway['Network']['Startup']; }
-		if (!isset($configysfgateway['aprs.fi']['Enable'])) { $configysfgateway['aprs.fi']['Enable'] = "1"; }
+		if (!isset($configysfgateway['APRS']['Enable'])) { $configysfgateway['APRS']['Enable'] = "1"; }
 		//unset($configysfgateway['Network']);
 		if (isset($ysfTmpStartup)) { $configysfgateway['Network']['Startup'] = $ysfTmpStartup; }
 		if (!isset($configysfgateway['Network']['InactivityTimeout'])) { $configysfgateway['Network']['InactivityTimeout'] = "0"; }
@@ -2514,6 +2576,44 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 			exec('sudo mv /tmp/bW1kdm1ob3N0DQo.tmp /etc/mmdvmhost');		// Move the file back
 			exec('sudo chmod 644 /etc/mmdvmhost');					// Set the correct runtime permissions
 			exec('sudo chown root:root /etc/mmdvmhost');				// Set the owner
+		}
+	}
+
+	// aprsgateway config file wrangling
+	$aprsgwContent = "";
+        foreach($configaprsgateway as $aprsgwSection=>$aprsgwValues) {
+                // UnBreak special cases
+                $aprsgwSection = str_replace("_", " ", $aprsgwSection);
+                $aprsgwContent .= "[".$aprsgwSection."]\n";
+                // append the values
+                foreach($aprsgwValues as $aprsgwKey=>$aprsgwValue) {
+                        $aprsgwContent .= $aprsgwKey."=".$aprsgwValue."\n";
+                        }
+                        $aprsgwContent .= "\n";
+                }
+        if (!$handleaprsGWconfig = fopen('/tmp/oDFuttgksHSRb8.tmp', 'w')) {
+                return false;
+        }
+	if (!is_writable('/tmp/oDFuttgksHSRb8.tmp')) {
+          echo "<br />\n";
+          echo "<table>\n";
+          echo "<tr><th>ERROR</th></tr>\n";
+          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
+          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
+          echo "</table>\n";
+          unset($_POST);
+          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
+          die();
+	}
+	else {
+	        $success = fwrite($handleaprsGWconfig, $aprsgwContent);
+	        fclose($handleaprsGWconfig);
+		if (fopen($aprsGatewayConfigFile,'r')) {
+			if (intval(exec('cat /tmp/oDFuttgksHSRb8.tmp | wc -l')) > 17 ) {
+          			exec('sudo mv /tmp/oDFuttgksHSRb8.tmp /etc/aprsgateway');	// Move the file back
+          			exec('sudo chmod 644 /etc/aprsgateway');				// Set the correct runtime permissions
+	 			exec('sudo chown root:root /etc/aprsgateway');			// Set the owner
+			}
 		}
 	}
 
@@ -3422,7 +3522,7 @@ else:
     <td align="left"><a class="tooltip2" href="#"><?php echo $lang['aprs_host'];?>:<span><b>APRS Host</b>Set your prefered APRS host here</span></a></td>
     <td colspan="2" style="text-align: left;"><select name="selectedAPRSHost">
 <?php
-        $testAPSRHost = $configs['aprsHostname'];
+        $testAPSRHost = $configaprsgateway['APRS-IS']['Server'];
     	$aprsHostFile = fopen("/usr/local/etc/APRSHosts.txt", "r");
         while (!feof($aprsHostFile)) {
                 $aprsHostFileLine = fgets($aprsHostFile);
