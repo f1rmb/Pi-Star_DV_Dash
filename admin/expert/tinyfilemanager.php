@@ -405,7 +405,14 @@ if (isset($_POST['ajax']) && !FM_READONLY) {
         // get current path
         $path = FM_ROOT_PATH;
         if (FM_PATH != '') {
-            $path .= '/' . FM_PATH;
+	    if ($path != DIRECTORY_SEPARATOR)
+	    {
+		$path .= '/' . FM_PATH;
+	    }
+	    else
+	    {
+		$path = '/' . FM_PATH;
+	    }
         }
         // check path
         if (!is_dir($path)) {
@@ -422,10 +429,20 @@ if (isset($_POST['ajax']) && !FM_READONLY) {
         $file_path = $path . '/' . $file;
         
         $writedata = $_POST['content'];
-	mount_rw();
-        $fd = fopen($file_path, "w");
+	
+	$temp_fname = tempnam(sys_get_temp_dir(), 'TFM');
+	$file_owner = fileowner($file_path);
+	$file_group = filegroup($file_path);
+	$file_perms = fileperms($file_path);
+
+	// Save the content in a temp file
+        $fd = fopen($temp_fname, "w");
         @fwrite($fd, $writedata);
         fclose($fd);
+
+	// Move the temp file to the destination file, then restore file attributes
+	mount_rw();
+	exec('sudo mv '.$temp_fname.' '.$file_path.' && sudo chown '.$file_owner.':'.$file_group.' '.$file_path.' && sudo chmod '.substr(sprintf('%o', fileperms($file_path)), -4).' '.$file_path.'');
 	mount_ro();
         die(true);
     }
