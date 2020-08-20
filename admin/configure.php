@@ -1070,7 +1070,6 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	  $configysf2p25['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 
 	  system($rollGATECALL);
-	  system($rollIRCUSER);
 	  system($rollDPLUSLOGIN);
 	  system($rollDASHBOARDcall);
 	  system($rollTIMESERVERcall);
