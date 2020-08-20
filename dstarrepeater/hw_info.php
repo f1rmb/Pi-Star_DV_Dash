@@ -23,7 +23,7 @@ $cpuLoad = sys_getloadavg();
     <tr>
 	<td><?php echo php_uname('n');?></td>
 	<td><?php echo php_uname('r');?></td>
-	<td colspan="2"><?php echo exec('platformDetect.sh');?></td>
+	<td colspan="2"><?php echo exec('/usr/local/bin/platformDetect.sh');?></td>
 	<td colspan="2">1m:<?php echo $cpuLoad[0];?> / 5m:<?php echo $cpuLoad[1];?> / 15m:<?php echo $cpuLoad[2];?></td>
 	<?php echo $cpuTempHTML; ?>
     </tr>
