@@ -17,13 +17,13 @@ require_once('../config/version.php');
     <meta name="language" content="English" />
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="Author" content="Andrew Taylor (MW0MWZ)" />
-    <meta name="Description" content="Pi-Star Expert Editor" />
+    <meta name="Description" content="Pi-Star Expert" />
     <meta name="KeyWords" content="Pi-Star" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="pragma" content="no-cache" />
 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
     <meta http-equiv="Expires" content="0" />
-    <title>Pi-Star - Digital Voice Dashboard - Expert Editor</title>
+    <title>Pi-Star - Digital Voice Dashboard - Expert</title>
     <link rel="stylesheet" type="text/css" href="/css/font-awesome-4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/pistar-css.php" />
   </head>
@@ -33,7 +33,7 @@ require_once('../config/version.php');
   <div class="contentwide">
 
   <table width="100%">
-    <tr><th>Expert Editors</th></tr>
+    <tr><th>Expert Editors &amp; Tools</th></tr>
     <tr><td align="center">
       <h2>**WARNING**</h2>
       Pi-Star Expert editors have been created to make editing some of the extra settings in the<br />

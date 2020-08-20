@@ -1,6 +1,6 @@
 <div class="header">
     <div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
-    <h1>Pi-Star Digital Voice - Expert Editors</h1>
+    <h1>Pi-Star Digital Voice - Expert</h1>
     <p>
 	<div class="navbar">
 	    <a class="menuconfig" href="/admin/configure.php"><?php echo $lang['configuration'];?></a>
