@@ -1182,7 +1182,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	    $configysf2dmr['DMR Network']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
 	    $configModem['BrandMeister']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
 	  } else {
-	    unset ($configModem['BrandMeister']['Password']);
+	    unset($configModem['BrandMeister']['Password']);
 	  }
 	}
 
@@ -1299,10 +1299,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	  $configmmdvm['DMR Network']['Password'] = '"'.$dmrMasterHostArr[1].'"';
 	  $configmmdvm['DMR Network']['Port'] = $dmrMasterHostArr[2];
 	  if (empty($_POST['bmHSSecurity']) != TRUE ) {
-		  $configModem['BrandMeister']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
-		  if ($dmrMasterHostArr[0] != '127.0.0.1') { $configmmdvm['DMR Network']['Password'] = '"'.$_POST['bmHSSecurity'].'"'; }
+	      $configModem['BrandMeister']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
+	      if ($dmrMasterHostArr[0] != '127.0.0.1') {
+		  $configmmdvm['DMR Network']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
+	      }
 	  } else {
-		  unset ($configModem['BrandMeister']['Password']);
+	      unset($configModem['BrandMeister']['Password']);
 	  }
 
 		if (substr($dmrMasterHostArr[3], 0, 2) == "BM") {
@@ -1376,9 +1378,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	if (empty($_POST['dmrMasterHost1']) != TRUE ) {
 	  $dmrMasterHostArr1 = explode(',', escapeshellcmd($_POST['dmrMasterHost1']));
 	  $configdmrgateway['DMR Network 1']['Address'] = $dmrMasterHostArr1[0];
-	  $configdmrgateway['DMR Network 1']['Password'] = '"'.$dmrMasterHostArr1[1].'"';
 	  if (empty($_POST['bmHSSecurity']) != TRUE ) {
-	    $configdmrgateway['DMR Network 1']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
+	      $configdmrgateway['DMR Network 1']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
+	  }
+	  else {
+	      $configdmrgateway['DMR Network 1']['Password'] = '"'.$dmrMasterHostArr1[1].'"';
+	      unset($configModem['BrandMeister']['Password']);
 	  }
 	  $configdmrgateway['DMR Network 1']['Port'] = $dmrMasterHostArr1[2];
 	  $configdmrgateway['DMR Network 1']['Name'] = $dmrMasterHostArr1[3];
@@ -3023,6 +3028,13 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	}
 
 	// modem config file wrangling
+	//
+	// Removes empty section
+	if (!empty($configModem) && isset($configModem['BrandMeister']) && (count($configModem['BrandMeister']) == 0))
+	{
+	    unset($configModem['BrandMeister']);
+	}
+	//
         $configModemContent = "";
         foreach($configModem as $configModemSection=>$configModemValues) {
                 // UnBreak special cases
@@ -3055,17 +3067,22 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
                 fclose($handleModemConfig);
 		if (file_exists('/etc/dstar-radio.dstarrepeater')) {
                     if (fopen($modemConfigFileDStarRepeater,'r')) {
-                        exec('sudo mv /tmp/sja7hFRkw4euG7.tmp '.$modemConfigFileDStarRepeater);	// Move the file back
+                        exec('sudo cp /tmp/sja7hFRkw4euG7.tmp '.$modemConfigFileDStarRepeater);	// Move the file back
                         exec('sudo chmod 644 $modemConfigFileDStarRepeater');			// Set the correct runtime permissions
                         exec('sudo chown root:root $modemConfigFileDStarRepeater');			// Set the owner
                     }
 		}
+
 		if (file_exists('/etc/dstar-radio.mmdvmhost')) {
                     if (fopen($modemConfigFileMMDVMHost,'r')) {
                         exec('sudo mv /tmp/sja7hFRkw4euG7.tmp '.$modemConfigFileMMDVMHost);		// Move the file back
                         exec('sudo chmod 644 $modemConfigFileMMDVMHost');				// Set the correct runtime permissions
                         exec('sudo chown root:root $modemConfigFileMMDVMHost');			// Set the owner
                     }
+		}
+
+		if (file_exists('/tmp/sja7hFRkw4euG7.tmp')) {
+		    unlink('/tmp/sja7hFRkw4euG7.tmp');
 		}
     }
 
