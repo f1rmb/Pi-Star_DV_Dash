@@ -62,7 +62,7 @@ if ( $testMMDVModeYSF == 1 ) {
         </tr>
         <tr>
           <td>
-            <select name="ysfLinkHost">
+            <select name="ysfLinkHost" style="width:300px;">
             <?php
 	      if (isset($configysfgateway['Network']['Startup'])) {
                 $testYSFHost = $configysfgateway['Network']['Startup'];
