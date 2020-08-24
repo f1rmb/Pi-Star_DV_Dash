@@ -145,6 +145,10 @@ ensureFileExists('aprsgateway');
 if (file_exists('/etc/aprsgateway')) {
 	$aprsGatewayConfigFile = '/etc/aprsgateway';
 	if (fopen($aprsGatewayConfigFile,'r')) { $configaprsgateway = parse_ini_file($aprsGatewayConfigFile, true); }
+
+	// File format has changed since the beginning, force some values.
+	$configaprsgateway['Log']['DisplayLevel'] = 0;
+	$configaprsgateway['Log']['FileLevel'] = 1;
 }
 
 //
