@@ -140,9 +140,9 @@ if (file_exists('/etc/p25gateway')) {
 	if (!isset($configp25gateway['Network']['P252DMRAddress'])) { $configp25gateway['Network']['P252DMRAddress'] = "127.0.0.1"; }
 	if (!isset($configp25gateway['Network']['P252DMRPort'])) { $configp25gateway['Network']['P252DMRPort'] = "42012"; }
 	if (!isset($configp25gateway['Network']['InactivityTimeout'])) { $configp25gateway['Network']['InactivityTimeout'] = "10"; }
-	if (!isset($configp25gateway['Remote_Commands'])) {
-		$configp25gateway['Remote_Commands']['Enable'] = "1";
-		$configp25gateway['Remote_Commands']['Port'] = "6074";
+	if (!isset($configp25gateway['Remote Commands'])) {
+		$configp25gateway['Remote Commands']['Enable'] = "1";
+		$configp25gateway['Remote Commands']['Port'] = "6074";
 	}
 	$configp25gateway['Log']['DisplayLevel'] = 0;
 	$configp25gateway['Log']['FileLevel'] = 1;
@@ -173,9 +173,9 @@ if (file_exists('/etc/nxdngateway')) {
 	if (!isset($confignxdngateway['Network']['InactivityTimeout'])) {
 		$confignxdngateway['Network']['InactivityTimeout'] = "10";
 	}
-	if (!isset($confignxdngateway['Remote_Commands'])) {
-		$confignxdngateway['Remote_Commands']['Enable'] = "1";
-		$confignxdngateway['Remote_Commands']['Port'] = "6075";
+	if (!isset($confignxdngateway['Remote Commands'])) {
+		$confignxdngateway['Remote Commands']['Enable'] = "1";
+		$confignxdngateway['Remote Commands']['Port'] = "6075";
 	}
 	$confignxdngateway['Log']['DisplayLevel'] = 0;
 	$confignxdngateway['Log']['FileLevel'] = 1;
