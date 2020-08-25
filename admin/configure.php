@@ -410,6 +410,52 @@ function aprspass ($callsign) {
 	return $hash & 0x7fff;
 }
 
+
+function saveConfigFile(&$configData, $configTemp, $configDest, $minCount = 0) {
+    if (file_exists($configDest)) {
+	$configContent = "";
+	foreach($configData as $configSection => $configValues) {
+	    
+	    $configSection = str_replace("_", " ", $configSection);
+	    $configContent .= "[".$configSection."]\n";
+	    
+            // append the values
+            foreach($configValues as $configKey => $configValue) {
+		$configContent .= $configKey."=".$configValue."\n";
+	    }
+	    $configContent .= "\n";
+	}
+	
+	if (($configHandle = fopen($configTemp, 'w')) != FALSE) {
+	    if (!is_writable($configTemp)) {
+		echo "<br />\n";
+		echo "<table>\n";
+		echo "<tr><th>ERROR</th></tr>\n";
+		echo "<tr><td>Unable to write temporary configuration file \''.$configTemp.'\'...</td><tr>\n";
+		echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
+		echo "</table>\n";
+		unset($_POST);
+		echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
+		die();
+	    }
+	    else {
+		if (($success = fwrite($configHandle, $configContent)) != FALSE) {
+		    if ($minCount == 0 || intval(exec('cat '.$configTemp.' | wc -l')) > $minCount) {
+			exec('sudo mv '.$configTemp.' '.$configDest.'');
+			exec('sudo chmod 644 '.$configDest.'');
+			exec('sudo chown root:root '.$configDest.'');
+		    }
+		    fclose($configHandle);
+		}
+	    }
+	}
+	else {
+	    return false;
+	}
+    }	
+    return true;
+}
+
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
 $rev=$version;
 $MYCALL=strtoupper($callsign);
@@ -2645,526 +2691,8 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	echo "<tr><th>Done...</th></tr>\n";
 	echo "<tr><td>Changes applied, starting services...</td></tr>\n";
 	echo "</table>\n";
-
-	// MMDVMHost config file wrangling
-	$mmdvmContent = "";
-	foreach($configmmdvm as $mmdvmSection=>$mmdvmValues) {
-		// UnBreak special cases
-		$mmdvmSection = str_replace("_", " ", $mmdvmSection);
-		$mmdvmContent .= "[".$mmdvmSection."]\n";
-                // append the values
-                foreach($mmdvmValues as $mmdvmKey=>$mmdvmValue) {
-			$mmdvmContent .= $mmdvmKey."=".$mmdvmValue."\n";
-			}
-			$mmdvmContent .= "\n";
-		}
-
-	if (!$handleMMDVMHostConfig = fopen('/tmp/bW1kdm1ob3N0DQo.tmp', 'w')) {
-		return false;
-	}
-	if (!is_writable('/tmp/bW1kdm1ob3N0DQo.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-	}
-	else {
-		$success = fwrite($handleMMDVMHostConfig, $mmdvmContent);
-		fclose($handleMMDVMHostConfig);
-		if (intval(exec('cat /tmp/bW1kdm1ob3N0DQo.tmp | wc -l')) > 140 ) {
-			exec('sudo mv /tmp/bW1kdm1ob3N0DQo.tmp /etc/mmdvmhost');		// Move the file back
-			exec('sudo chmod 644 /etc/mmdvmhost');					// Set the correct runtime permissions
-			exec('sudo chown root:root /etc/mmdvmhost');				// Set the owner
-		}
-	}
-
-	// aprsgateway config file wrangling
-	$aprsgwContent = "";
-        foreach($configaprsgateway as $aprsgwSection=>$aprsgwValues) {
-                // UnBreak special cases
-                $aprsgwSection = str_replace("_", " ", $aprsgwSection);
-                $aprsgwContent .= "[".$aprsgwSection."]\n";
-                // append the values
-                foreach($aprsgwValues as $aprsgwKey=>$aprsgwValue) {
-                        $aprsgwContent .= $aprsgwKey."=".$aprsgwValue."\n";
-                        }
-                        $aprsgwContent .= "\n";
-                }
-        if (!$handleaprsGWconfig = fopen('/tmp/oDFuttgksHSRb8.tmp', 'w')) {
-                return false;
-        }
-	if (!is_writable('/tmp/oDFuttgksHSRb8.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-	}
-	else {
-	        $success = fwrite($handleaprsGWconfig, $aprsgwContent);
-	        fclose($handleaprsGWconfig);
-		if (fopen($aprsGatewayConfigFile,'r')) {
-			if (intval(exec('cat /tmp/oDFuttgksHSRb8.tmp | wc -l')) > 17 ) {
-          			exec('sudo mv /tmp/oDFuttgksHSRb8.tmp /etc/aprsgateway');	// Move the file back
-          			exec('sudo chmod 644 /etc/aprsgateway');				// Set the correct runtime permissions
-	 			exec('sudo chown root:root /etc/aprsgateway');			// Set the owner
-			}
-		}
-	}
-
-        // ysfgateway config file wrangling
-	$ysfgwContent = "";
-        foreach($configysfgateway as $ysfgwSection=>$ysfgwValues) {
-                // UnBreak special cases
-                $ysfgwSection = str_replace("_", " ", $ysfgwSection);
-                $ysfgwContent .= "[".$ysfgwSection."]\n";
-                // append the values
-                foreach($ysfgwValues as $ysfgwKey=>$ysfgwValue) {
-                        $ysfgwContent .= $ysfgwKey."=".$ysfgwValue."\n";
-                        }
-                        $ysfgwContent .= "\n";
-                }
-
-        if (!$handleYSFGWconfig = fopen('/tmp/eXNmZ2F0ZXdheQ.tmp', 'w')) {
-                return false;
-        }
-
-	if (!is_writable('/tmp/eXNmZ2F0ZXdheQ.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-	}
-	else {
-	        $success = fwrite($handleYSFGWconfig, $ysfgwContent);
-	        fclose($handleYSFGWconfig);
-		if (intval(exec('cat /tmp/eXNmZ2F0ZXdheQ.tmp | wc -l')) > 35 ) {
-			exec('sudo mv /tmp/eXNmZ2F0ZXdheQ.tmp /etc/ysfgateway');		// Move the file back
-			exec('sudo chmod 644 /etc/ysfgateway');					// Set the correct runtime permissions
-			exec('sudo chown root:root /etc/ysfgateway');				// Set the owner
-		}
-	}
-
-	// NXDNGateway config file wrangling
-	$nxdngwContent = "";
-        foreach($confignxdngateway as $nxdngwSection=>$nxdngwValues) {
-                // UnBreak special cases
-                $nxdngwSection = str_replace("_", " ", $nxdngwSection);
-                $nxdngwContent .= "[".$nxdngwSection."]\n";
-                // append the values
-                foreach($nxdngwValues as $nxdngwKey=>$nxdngwValue) {
-                        $nxdngwContent .= $nxdngwKey."=".$nxdngwValue."\n";
-                        }
-                        $nxdngwContent .= "\n";
-                }
-
-        if (!$handleNXDNGWconfig = fopen('/tmp/kXKwkDKy793HF5.tmp', 'w')) {
-                return false;
-        }
-
-	if (!is_writable('/tmp/kXKwkDKy793HF5.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-	}
-	else {
-	        $success = fwrite($handleNXDNGWconfig, $nxdngwContent);
-	        fclose($handleNXDNGWconfig);
-		if ( (intval(exec('cat /tmp/kXKwkDKy793HF5.tmp | wc -l')) > 30 ) && (file_exists('/etc/nxdngateway')) ) {
-			exec('sudo mv /tmp/kXKwkDKy793HF5.tmp /etc/nxdngateway');		// Move the file back
-			exec('sudo chmod 644 /etc/nxdngateway');				// Set the correct runtime permissions
-			exec('sudo chown root:root /etc/nxdngateway');				// Set the owner
-		}
-	}
-
-	// P25Gateway config file wrangling
-	$p25gwContent = "";
-        foreach($configp25gateway as $p25gwSection=>$p25gwValues) {
-                // UnBreak special cases
-                $p25gwSection = str_replace("_", " ", $p25gwSection);
-                $p25gwContent .= "[".$p25gwSection."]\n";
-                // append the values
-                foreach($p25gwValues as $p25gwKey=>$p25gwValue) {
-                        $p25gwContent .= $p25gwKey."=".$p25gwValue."\n";
-                        }
-                        $p25gwContent .= "\n";
-                }
-
-        if (!$handleP25GWconfig = fopen('/tmp/sJSySkheSgrelJX.tmp', 'w')) {
-                return false;
-        }
-
-	if (!is_writable('/tmp/sJSySkheSgrelJX.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-	}
-	else {
-	        $success = fwrite($handleP25GWconfig, $p25gwContent);
-	        fclose($handleP25GWconfig);
-		if ( (intval(exec('cat /tmp/sJSySkheSgrelJX.tmp | wc -l')) > 30 ) && (file_exists('/etc/p25gateway')) ) {
-			exec('sudo mv /tmp/sJSySkheSgrelJX.tmp /etc/p25gateway');		// Move the file back
-			exec('sudo chmod 644 /etc/p25gateway');					// Set the correct runtime permissions
-			exec('sudo chown root:root /etc/p25gateway');				// Set the owner
-		}
-	}
-
-        // ysf2dmr config file wrangling
-        $ysf2dmrContent = "";
-        foreach($configysf2dmr as $ysf2dmrSection=>$ysf2dmrValues) {
-                // UnBreak special cases
-                $ysf2dmrSection = str_replace("_", " ", $ysf2dmrSection);
-                $ysf2dmrContent .= "[".$ysf2dmrSection."]\n";
-                // append the values
-                foreach($ysf2dmrValues as $ysf2dmrKey=>$ysf2dmrValue) {
-                        $ysf2dmrContent .= $ysf2dmrKey."=".$ysf2dmrValue."\n";
-                        }
-                        $ysf2dmrContent .= "\n";
-                }
-
-        if (!$handleYSF2DMRconfig = fopen('/tmp/dsWGR34tHRrSFFGA.tmp', 'w')) {
-                return false;
-        }
-
-        if (!is_writable('/tmp/dsWGR34tHRrSFFGA.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-        else {
-                $success = fwrite($handleYSF2DMRconfig, $ysf2dmrContent);
-                fclose($handleYSF2DMRconfig);
-                if (intval(exec('cat /tmp/dsWGR34tHRrSFFGA.tmp | wc -l')) > 35 ) {
-                        exec('sudo mv /tmp/dsWGR34tHRrSFFGA.tmp /etc/ysf2dmr');                 // Move the file back
-                        exec('sudo chmod 644 /etc/ysf2dmr');                                    // Set the correct runtime permissions
-                        exec('sudo chown root:root /etc/ysf2dmr');                              // Set the owner
-                }
-        }
-
-	// ysf2nxdn config file wrangling
-        $ysf2nxdnContent = "";
-        foreach($configysf2nxdn as $ysf2nxdnSection=>$ysf2nxdnValues) {
-                // UnBreak special cases
-                $ysf2nxdnSection = str_replace("_", " ", $ysf2nxdnSection);
-                $ysf2nxdnContent .= "[".$ysf2nxdnSection."]\n";
-                // append the values
-                foreach($ysf2nxdnValues as $ysf2nxdnKey=>$ysf2nxdnValue) {
-                        $ysf2nxdnContent .= $ysf2nxdnKey."=".$ysf2nxdnValue."\n";
-                        }
-                        $ysf2nxdnContent .= "\n";
-                }
-        if (!$handleYSF2NXDNconfig = fopen('/tmp/dsWGR34tHRrSFFGb.tmp', 'w')) {
-                return false;
-        }
-        if (!is_writable('/tmp/dsWGR34tHRrSFFGb.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-        else {
-                $success = fwrite($handleYSF2NXDNconfig, $ysf2nxdnContent);
-                fclose($handleYSF2NXDNconfig);
-                if (intval(exec('cat /tmp/dsWGR34tHRrSFFGb.tmp | wc -l')) > 35 ) {
-                        exec('sudo mv /tmp/dsWGR34tHRrSFFGb.tmp /etc/ysf2nxdn');                 // Move the file back
-                        exec('sudo chmod 644 /etc/ysf2nxdn');                                    // Set the correct runtime permissions
-                        exec('sudo chown root:root /etc/ysf2nxdn');                              // Set the owner
-                }
-        }
-
-	// ysf2p25 config file wrangling
-        $ysf2p25Content = "";
-        foreach($configysf2p25 as $ysf2p25Section=>$ysf2p25Values) {
-                // UnBreak special cases
-                $ysf2p25Section = str_replace("_", " ", $ysf2p25Section);
-                $ysf2p25Content .= "[".$ysf2p25Section."]\n";
-                // append the values
-                foreach($ysf2p25Values as $ysf2p25Key=>$ysf2p25Value) {
-                        $ysf2p25Content .= $ysf2p25Key."=".$ysf2p25Value."\n";
-                        }
-                        $ysf2p25Content .= "\n";
-                }
-        if (!$handleYSF2P25config = fopen('/tmp/dsWGR34tHRrSFFGc.tmp', 'w')) {
-                return false;
-        }
-        if (!is_writable('/tmp/dsWGR34tHRrSFFGc.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-        else {
-                $success = fwrite($handleYSF2P25config, $ysf2p25Content);
-                fclose($handleYSF2P25config);
-                if (intval(exec('cat /tmp/dsWGR34tHRrSFFGc.tmp | wc -l')) > 25 ) {
-                        exec('sudo mv /tmp/dsWGR34tHRrSFFGc.tmp /etc/ysf2p25');                 // Move the file back
-                        exec('sudo chmod 644 /etc/ysf2p25');                                    // Set the correct runtime permissions
-                        exec('sudo chown root:root /etc/ysf2p25');                              // Set the owner
-                }
-        }
-
-	// dmr2ysf config file wrangling
-        $dmr2ysfContent = "";
-        foreach($configdmr2ysf as $dmr2ysfSection=>$dmr2ysfValues) {
-                // UnBreak special cases
-                $dmr2ysfSection = str_replace("_", " ", $dmr2ysfSection);
-                $dmr2ysfContent .= "[".$dmr2ysfSection."]\n";
-                // append the values
-                foreach($dmr2ysfValues as $dmr2ysfKey=>$dmr2ysfValue) {
-                        $dmr2ysfContent .= $dmr2ysfKey."=".$dmr2ysfValue."\n";
-                        }
-                        $dmr2ysfContent .= "\n";
-                }
-        if (!$handleDMR2YSFconfig = fopen('/tmp/dhJSgdy7755HGc.tmp', 'w')) {
-                return false;
-        }
-        if (!is_writable('/tmp/dhJSgdy7755HGc.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-        else {
-                $success = fwrite($handleDMR2YSFconfig, $dmr2ysfContent);
-                fclose($handleDMR2YSFconfig);
-                if (intval(exec('cat /tmp/dhJSgdy7755HGc.tmp | wc -l')) > 25 ) {
-                        exec('sudo mv /tmp/dhJSgdy7755HGc.tmp /etc/dmr2ysf');		// Move the file back
-                        exec('sudo chmod 644 /etc/dmr2ysf');				// Set the correct runtime permissions
-                        exec('sudo chown root:root /etc/dmr2ysf');			// Set the owner
-                }
-        }
-
-	// dmr2nxdn config file wrangling
-        $dmr2nxdnContent = "";
-        foreach($configdmr2nxdn as $dmr2nxdnSection=>$dmr2nxdnValues) {
-                // UnBreak special cases
-                $dmr2nxdnSection = str_replace("_", " ", $dmr2nxdnSection);
-                $dmr2nxdnContent .= "[".$dmr2nxdnSection."]\n";
-                // append the values
-                foreach($dmr2nxdnValues as $dmr2nxdnKey=>$dmr2nxdnValue) {
-                        $dmr2nxdnContent .= $dmr2nxdnKey."=".$dmr2nxdnValue."\n";
-                        }
-                        $dmr2nxdnContent .= "\n";
-                }
-        if (!$handleDMR2NXDNconfig = fopen('/tmp/nthfheS55HGc.tmp', 'w')) {
-                return false;
-        }
-        if (!is_writable('/tmp/nthfheS55HGc.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-        else {
-                $success = fwrite($handleDMR2NXDNconfig, $dmr2nxdnContent);
-                fclose($handleDMR2NXDNconfig);
-                if (intval(exec('cat /tmp/nthfheS55HGc.tmp | wc -l')) > 25 ) {
-                        exec('sudo mv /tmp/nthfheS55HGc.tmp /etc/dmr2nxdn');		// Move the file back
-                        exec('sudo chmod 644 /etc/dmr2nxdn');				// Set the correct runtime permissions
-                        exec('sudo chown root:root /etc/dmr2nxdn');			// Set the owner
-                }
-        }
-
-	// nxdn2dmr config file wrangling
-        $nxdn2dmrContent = "";
-        foreach($confignxdn2dmr as $nxdn2dmrSection=>$nxdn2dmrValues) {
-                // UnBreak special cases
-                $nxdn2dmrSection = str_replace("_", " ", $nxdn2dmrSection);
-                $nxdn2dmrContent .= "[".$nxdn2dmrSection."]\n";
-                // append the values
-                foreach($nxdn2dmrValues as $nxdn2dmrKey=>$nxdn2dmrValue) {
-                        $nxdn2dmrContent .= $nxdn2dmrKey."=".$nxdn2dmrValue."\n";
-                        }
-                        $nxdn2dmrContent .= "\n";
-                }
-        if (!$handleNXDN2DMRconfig = fopen('/tmp/agvq2rfVe7QI.tmp', 'w')) {
-                return false;
-        }
-        if (!is_writable('/tmp/agvq2rfVe7QI.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-        else {
-                $success = fwrite($handleNXDN2DMRconfig, $nxdn2dmrContent);
-                fclose($handleNXDN2DMRconfig);
-                if (intval(exec('cat /tmp/agvq2rfVe7QI.tmp | wc -l')) > 25 ) {
-                        exec('sudo mv /tmp/agvq2rfVe7QI.tmp /etc/nxdn2dmr');		// Move the file back
-                        exec('sudo chmod 644 /etc/nxdn2dmr');				// Set the correct runtime permissions
-                        exec('sudo chown root:root /etc/nxdn2dmr');			// Set the owner
-                }
-        }
 	
-        // DAPNet Gateway Config file wragling
-	$dapnetContent = "";
-        foreach($configdapnetgw as $dapnetSection=>$dapnetValues) {
-                // UnBreak special cases
-                $dapnetSection = str_replace("_", " ", $dapnetSection);
-                $dapnetContent .= "[".$dapnetSection."]\n";
-                // append the values
-                foreach($dapnetValues as $dapnetKey=>$dapnetValue) {
-                        $dapnetContent .= $dapnetKey."=".$dapnetValue."\n";
-                        }
-                        $dapnetContent .= "\n";
-                }
-        if (!$handledapnetconfig = fopen('/tmp/lsHWie734HS.tmp', 'w')) {
-                return false;
-        }
-        if (!is_writable('/tmp/lsHWie734HS.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-        else {
-                $success = fwrite($handledapnetconfig, $dapnetContent);
-                fclose($handledapnetconfig);
-                if (intval(exec('cat /tmp/lsHWie734HS.tmp | wc -l')) > 19 ) {
-                        exec('sudo mv /tmp/lsHWie734HS.tmp /etc/dapnetgateway');		// Move the file back
-                        exec('sudo chmod 644 /etc/dapnetgateway');				// Set the correct runtime permissions
-                        exec('sudo chown root:root /etc/dapnetgateway');			// Set the owner
-                }
-        }
-	// DAPNet API Key file wragling
-        if ( isset($configdapnetapi) ) {
-		$dapnetAPIContent = "";
-		foreach($configdapnetapi as $dapnetAPISection=>$dapnetAPIValues) {
-			// UnBreak special cases
-			$dapnetAPISection = str_replace("_", " ", $dapnetAPISection);
-			$dapnetAPIContent .= "[".$dapnetAPISection."]\n";
-			// append the values
-			foreach($dapnetAPIValues as $dapnetAPIKey=>$dapnetAPIValue) {
-				$dapnetAPIContent .= $dapnetAPIKey."=".$dapnetAPIValue."\n";
-			}
-			$dapnetAPIContent .= "\n";
-		}
-		if (!$handledapnetapi = fopen('/tmp/jsADGHwf9sj294.tmp', 'w')) {
-			return false;
-		}
-		if (!is_writable('/tmp/jsADGHwf9sj294.tmp')) {
-			echo "<br />\n";
-			echo "<table>\n";
-			echo "<tr><th>ERROR</th></tr>\n";
-			echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-			echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-			echo "</table>\n";
-			unset($_POST);
-			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-			die();
-		}
-		else {
-			$success = fwrite($handledapnetapi, $dapnetAPIContent);
-			fclose($handledapnetapi);
-			if (intval(exec('cat /tmp/jsADGHwf9sj294.tmp | wc -l')) > 3 ) {
-				exec('sudo mv /tmp/jsADGHwf9sj294.tmp /etc/dapnetapi.key');		// Move the file back
-				exec('sudo chmod 644 /etc/dapnetapi.key');				// Set the correct runtime permissions
-				exec('sudo chown root:root /etc/dapnetapi.key');			// Set the owner
-			}
-		}
-	}
-
-	// dmrgateway config file wrangling
-	$dmrgwContent = "";
-        foreach($configdmrgateway as $dmrgwSection=>$dmrgwValues) {
-                // UnBreak special cases
-                $dmrgwSection = str_replace("_", " ", $dmrgwSection);
-                $dmrgwContent .= "[".$dmrgwSection."]\n";
-                // append the values
-                foreach($dmrgwValues as $dmrgwKey=>$dmrgwValue) {
-                        $dmrgwContent .= $dmrgwKey."=".$dmrgwValue."\n";
-                        }
-                        $dmrgwContent .= "\n";
-                }
-        if (!$handledmrGWconfig = fopen('/tmp/k4jhdd34jeFr8f.tmp', 'w')) {
-                return false;
-        }
-	if (!is_writable('/tmp/k4jhdd34jeFr8f.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-	}
-	else {
-	        $success = fwrite($handledmrGWconfig, $dmrgwContent);
-	        fclose($handledmrGWconfig);
-		if (fopen($dmrGatewayConfigFile,'r')) {
-			if (intval(exec('cat /tmp/k4jhdd34jeFr8f.tmp | wc -l')) > 55 ) {
-          			exec('sudo mv /tmp/k4jhdd34jeFr8f.tmp /etc/dmrgateway');	// Move the file back
-          			exec('sudo chmod 644 /etc/dmrgateway');				// Set the correct runtime permissions
-	 			exec('sudo chown root:root /etc/dmrgateway');			// Set the owner
-			}
-		}
-	}
-
-	// modem config file wrangling
+	// Modem config file wrangling
 	//
 	// Removes empty section
 	if (!empty($configModem) && isset($configModem['BrandMeister']) && (count($configModem['BrandMeister']) == 0))
@@ -3172,56 +2700,85 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	    unset($configModem['BrandMeister']);
 	}
 	//
-        $configModemContent = "";
-        foreach($configModem as $configModemSection=>$configModemValues) {
-                // UnBreak special cases
-                $configModemSection = str_replace("_", " ", $configModemSection);
-                $configModemContent .= "[".$configModemSection."]\n";
-                // append the values
-                foreach($configModemValues as $modemKey=>$modemValue) {
-                        $configModemContent .= $modemKey."=".$modemValue."\n";
-                        }
-                        $configModemContent .= "\n";
-                }
 
-        if (!$handleModemConfig = fopen('/tmp/sja7hFRkw4euG7.tmp', 'w')) {
-                return false;
-        }
 
-        if (!is_writable('/tmp/sja7hFRkw4euG7.tmp')) {
-          echo "<br />\n";
-          echo "<table>\n";
-          echo "<tr><th>ERROR</th></tr>\n";
-          echo "<tr><td>Unable to write configuration file(s)...</td><tr>\n";
-          echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
-          echo "</table>\n";
-          unset($_POST);
-          echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
-          die();
-        }
-	else {
-                $success = fwrite($handleModemConfig, $configModemContent);
-                fclose($handleModemConfig);
-		if (file_exists('/etc/dstar-radio.dstarrepeater')) {
-                    if (fopen($modemConfigFileDStarRepeater,'r')) {
-                        exec('sudo cp /tmp/sja7hFRkw4euG7.tmp '.$modemConfigFileDStarRepeater);	// Move the file back
-                        exec('sudo chmod 644 $modemConfigFileDStarRepeater');			// Set the correct runtime permissions
-                        exec('sudo chown root:root $modemConfigFileDStarRepeater');			// Set the owner
-                    }
-		}
+	// Save MMDVMHost config file
+	if (saveConfigFile($configmmdvm, '/tmp/bW1kdm1ob3N0DQo.tmp', '/etc/mmdvmhost', 140) == false) {
+	    return false;
+	}
 
-		if (file_exists('/etc/dstar-radio.mmdvmhost')) {
-                    if (fopen($modemConfigFileMMDVMHost,'r')) {
-                        exec('sudo mv /tmp/sja7hFRkw4euG7.tmp '.$modemConfigFileMMDVMHost);		// Move the file back
-                        exec('sudo chmod 644 $modemConfigFileMMDVMHost');				// Set the correct runtime permissions
-                        exec('sudo chown root:root $modemConfigFileMMDVMHost');			// Set the owner
-                    }
-		}
+	// Save APRSGateway config file
+	if (saveConfigFile($configaprsgateway, '/tmp/oDFuttgksHSRb8.tmp', '/etc/aprsgateway', 17) == false) {
+	    return false;
+	}
 
-		if (file_exists('/tmp/sja7hFRkw4euG7.tmp')) {
-		    unlink('/tmp/sja7hFRkw4euG7.tmp');
-		}
-    }
+	// Save YSFGateway config file
+	if (saveConfigFile($configysfgateway, '/tmp/eXNmZ2F0ZXdheQ.tmp', '/etc/ysfgateway', 35) == false) {
+	    return false;
+	}
+
+	// Save NXDNGateway config file
+	if (saveConfigFile($confignxdngateway, '/tmp/kXKwkDKy793HF5.tmp', '/etc/nxdngateway', 30) == false) {
+	    return false;
+	}
+
+	// Save P25Gateway config file
+	if (saveConfigFile($configp25gateway, '/tmp/sJSySkheSgrelJX.tmp', '/etc/p25gateway', 30) == false) {
+	    return false;
+	}
+
+	// Save YSF2DMR config file
+	if (saveConfigFile($configysf2dmr, '/tmp/dsWGR34tHRrSFFGA.tmp', '/etc/ysf2dmr', 35) == false) {
+	    return false;
+	}
+
+	// Save YSF2NXDN config file
+	if (saveConfigFile($configysf2nxdn, '/tmp/dsWGR34tHRrSFFGb.tmp', '/etc/ysf2nxdn', 35) == false) {
+	    return false;
+	}
+	
+	// Save YSF2P25 config file
+	if (saveConfigFile($configysf2p25, '/tmp/dsWGR34tHRrSFFGc.tmp', '/etc/ysf2p25', 25) == false) {
+	    return false;
+	}
+
+	// Save DMR2YSF config file
+	if (saveConfigFile($configdmr2ysf, '/tmp/dhJSgdy7755HGc.tmp', '/etc/dmr2ysf', 25) == false) {
+	    return false;
+	}
+
+	// Save DMR2NXDN config file
+	if (saveConfigFile($configdmr2nxdn, '/tmp/nthfheS55HGc.tmp', '/etc/dmr2nxdn', 25) == false) {
+	    return false;
+	}
+
+	// Save NXDN2DMR config file
+	if (saveConfigFile($confignxdn2dmr, '/tmp/agvq2rfVe7QI.tmp', '/etc/nxdn2dmr', 25) == false) {
+	    return false;
+	}
+	
+	// Save DAPNETGatewat config file
+	if (saveConfigFile($configdapnetgw, '/tmp/lsHWie734HS.tmp', '/etc/dapnetgateway', 19) == false) {
+	    return false;
+	}
+	
+	// Save DAPNET APi Key config file
+	if (saveConfigFile($configdapnetapi, '/tmp/jsADGHwf9sj294.tmp', '/etc/dapnetapi.key', 3) == false) {
+	    return false;
+	}
+
+	// Save DMRGateway config file
+	if (saveConfigFile($configdapnetapi, '/tmp/k4jhdd34jeFr8f.tmp', '/etc/dmrgateway', 55) == false) {
+	    return false;
+	}
+
+	// Save Modem config files
+	if (saveConfigFile($configModem, '/tmp/sja7hFRkw4euG7.tmp', '/etc/dstar-radio.dstarrepeater') == false) {
+	    return false;
+	}
+	if (saveConfigFile($configModem, '/tmp/sja7hFRkw4euG7.tmp', '/etc/dstar-radio.mmdvmhost') == false) {
+	    return false;
+	}
 
 	// Start the DV Services
 	system('sudo systemctl daemon-reload > /dev/null 2>/dev/null &');			// Restart Systemd to account for any service changes
