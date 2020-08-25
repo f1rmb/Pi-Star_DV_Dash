@@ -160,7 +160,7 @@ if (file_exists('/etc/nxdngateway')) {
 	if (!isset($confignxdngateway['General']['Suffixl']))	{
 		$confignxdngateway['General']['Suffix'] = "NXDN";
 	}
-	if (!isset($confignxdngateway['Network']['HostsFile']))	{
+	if (isset($confignxdngateway['Network']['HostsFile']))	{
 		$confignxdngateway['Network']['HostsFile1'] = $confignxdngateway['Network']['HostsFile'];
 		$confignxdngateway['Network']['HostsFile2'] = "/usr/local/etc/NXDNHostsLocal.txt";
 		unset($confignxdngateway['Network']['HostsFile']);
@@ -2506,8 +2506,8 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	}
 
 	// Clean up legacy options
-	if (isset($configdmrgateway['XLX Network 1']) { unset($configdmrgateway['XLX Network 1']); }
-	if (isset($configdmrgateway['XLX Network 2']) { unset($configdmrgateway['XLX Network 2']); }
+	if (isset($configdmrgateway['XLX Network 1'])) { unset($configdmrgateway['XLX Network 1']); }
+	if (isset($configdmrgateway['XLX Network 2'])) { unset($configdmrgateway['XLX Network 2']); }
 
 	// Add missing P25Gateway Options
 	if (!isset($configp25gateway['Remote Commands']['Enable'])) { $configp25gateway['Remote Commands']['Enable'] = "1"; }
