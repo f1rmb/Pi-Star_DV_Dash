@@ -42,7 +42,7 @@ require_once('../config/version.php');
 	  
 	  foreach($data as $key => $value) {
 	      if ($value == '') {
-		  $content .= $key."=\n";
+		  $content .= $key."= \n";
 	      }
 	      else {
 		  $content .= $key."=".$value."\n";
