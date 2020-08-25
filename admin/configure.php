@@ -412,7 +412,7 @@ function aprspass ($callsign) {
 
 
 function saveConfigFile(&$configData, $configTemp, $configDest, $minCount = 0) {
-    if (file_exists($configDest)) {
+    if (!empty($configData) && file_exists($configDest)) {
 	$configContent = "";
 	foreach($configData as $configSection => $configValues) {
 	    
