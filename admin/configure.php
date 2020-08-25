@@ -53,6 +53,10 @@ $configmmdvm = parse_ini_file($mmdvmConfigFile, true);
 $ysfgatewayConfigFile = '/etc/ysfgateway';
 $configysfgateway = parse_ini_file($ysfgatewayConfigFile, true);
 
+// File format has changed since the beginning, force some values.
+if (isset($configysfgateway['Network']['Port'])) { unset($configysfgateway['Network']['Port']); }
+
+
 function ensureFileExists($fname) {
     if (!file_exists('/etc/'.$fname) || trim(@file_get_contents('/etc/'.$fname)) == false) {
 	exec('sudo mount -o remount,rw /');
@@ -125,12 +129,56 @@ if (file_exists('/etc/dmr2nxdn')) {
 if (file_exists('/etc/p25gateway')) {
 	$p25gatewayConfigFile = '/etc/p25gateway';
 	if (fopen($p25gatewayConfigFile,'r')) { $configp25gateway = parse_ini_file($p25gatewayConfigFile, true); }
+    
+	// File format has changed since the beginning, force some values.
+	if (isset($configp25gateway['General']['Announcements'])) {
+		unset($configp25gateway['General']['Announcements']);
+	}
+	if (!isset($configp25gateway['Voice']['Enabled'])) { $configp25gateway['Voice']['Enabled'] = "1"; }
+	if (!isset($configp25gateway['Voice']['Language'])) { $configp25gateway['Voice']['Language'] = "en_GB"; }
+	if (!isset($configp25gateway['Voice']['Directory'])) { $configp25gateway['Voice']['Directory'] = "/usr/local/etc/P25_Audio"; }
+	if (!isset($configp25gateway['Network']['P252DMRAddress'])) { $configp25gateway['Network']['P252DMRAddress'] = "127.0.0.1"; }
+	if (!isset($configp25gateway['Network']['P252DMRPort'])) { $configp25gateway['Network']['P252DMRPort'] = "42012"; }
+	if (!isset($configp25gateway['Network']['InactivityTimeout'])) { $configp25gateway['Network']['InactivityTimeout'] = "10"; }
+	if (!isset($configp25gateway['Remote_Commands'])) {
+		$configp25gateway['Remote_Commands']['Enable'] = "1";
+		$configp25gateway['Remote_Commands']['Port'] = "6074";
+	}
+	$configp25gateway['Log']['DisplayLevel'] = 0;
+	$configp25gateway['Log']['FileLevel'] = 1;
 }
 
 // Load the nxdngateway config file
 if (file_exists('/etc/nxdngateway')) {
 	$nxdngatewayConfigFile = '/etc/nxdngateway';
 	if (fopen($nxdngatewayConfigFile,'r')) { $confignxdngateway = parse_ini_file($nxdngatewayConfigFile, true); }
+	
+	// File format has changed since the beginning, force some values.
+	if (!isset($confignxdngateway['General']['RptProtocol']))	{
+		$confignxdngateway['General']['RptProtocol'] = "Icom";
+	}
+	if (!isset($confignxdngateway['General']['Suffixl']))	{
+		$confignxdngateway['General']['Suffix'] = "NXDN";
+	}
+	if (!isset($confignxdngateway['Network']['HostsFile']))	{
+		$confignxdngateway['Network']['HostsFile1'] = $confignxdngateway['Network']['HostsFile'];
+		$confignxdngateway['Network']['HostsFile2'] = "/usr/local/etc/NXDNHostsLocal.txt";
+		unset($confignxdngateway['Network']['HostsFile']);
+		if (!file_exists('/usr/local/etc/NXDNHostsLocal.txt')) {
+			exec('sudo mount -o remount,rw /');
+			exec('sudo touch /usr/local/etc/NXDNHostsLocal.txt');
+			exec('sudo mount -o remount,ro /');
+		}
+	}
+	if (!isset($confignxdngateway['Network']['InactivityTimeout'])) {
+		$confignxdngateway['Network']['InactivityTimeout'] = "10";
+	}
+	if (!isset($confignxdngateway['Remote_Commands'])) {
+		$confignxdngateway['Remote_Commands']['Enable'] = "1";
+		$confignxdngateway['Remote_Commands']['Port'] = "6075";
+	}
+	$confignxdngateway['Log']['DisplayLevel'] = 0;
+	$confignxdngateway['Log']['FileLevel'] = 1;
 }
 
 // Load the nxdn2dmr config file
@@ -1070,7 +1118,8 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	  $configp25gateway['General']['Callsign'] = $newCallsignUpper;
 	  $confignxdngateway['APRS']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $confignxdngateway['General']['Callsign'] = $newCallsignUpper;
-	  $configysfgateway['Info']['Name'] = $newCallsignUpper."_Pi-Star";
+	  $configysfgateway['Info']['Name'] = $newCallsignUpper;
+	  $configysfgateway['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2dmr['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2nxdn['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 	  $configysf2p25['Info']['Description'] = $newCallsignUpper."_Pi-Star";
@@ -2343,7 +2392,6 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	// Add missing options to YSFGateway
 	if (!isset($configysfgateway['General']['WiresXMakeUpper'])) { $configysfgateway['General']['WiresXMakeUpper'] = "1"; }
 	if (!isset($configysfgateway['Network']['Revert'])) { $configysfgateway['Network']['Revert'] = "0"; }
-	if (!isset($configysfgateway['Network']['Port'])) { $configysfgateway['Network']['Port'] = "42000"; }
 	if (isset($configysfgateway['Network']['YSF2DMRAddress'])) { unset($configysfgateway['Network']['YSF2DMRAddress']); }
 	if (isset($configysfgateway['Network']['YSF2DMRPort'])) { unset($configysfgateway['Network']['YSF2DMRPort']); }
 	unset($configysfgateway['Network']['DataPort']);
@@ -2458,25 +2506,16 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 	}
 
 	// Clean up legacy options
-	$dmrGatewayVer = exec("DMRGateway -v | awk {'print $3'} | cut -c 1-8");
-	if ($dmrGatewayVer > 20170924) {
-		unset($configdmrgateway['XLX Network 1']);
-		unset($configdmrgateway['XLX Network 2']);
-	}
+	if (isset($configdmrgateway['XLX Network 1']) { unset($configdmrgateway['XLX Network 1']); }
+	if (isset($configdmrgateway['XLX Network 2']) { unset($configdmrgateway['XLX Network 2']); }
 
-	// Add P25Gateway Options
-	$p25GatewayVer = exec("P25Gateway -v | awk {'print $3'} | cut -c 1-8");
-	if ($p25GatewayVer >= 20200403) {
-		if (!isset($configp25gateway['Remote Commands']['Enable'])) { $configp25gateway['Remote Commands']['Enable'] = "1"; }
-		if (!isset($configp25gateway['Remote Commands']['Port'])) { $configp25gateway['Remote Commands']['Port'] = "6074"; }
-	}
+	// Add missing P25Gateway Options
+	if (!isset($configp25gateway['Remote Commands']['Enable'])) { $configp25gateway['Remote Commands']['Enable'] = "1"; }
+	if (!isset($configp25gateway['Remote Commands']['Port'])) { $configp25gateway['Remote Commands']['Port'] = "6074"; }
 
 	// Add NXDNGateway Options
-	$nxdnGatewayVer = exec("NXDNGateway -v | awk {'print $3'} | cut -c 1-8");
-	if ($nxdnGatewayVer >= 20200403) {
-		if (!isset($confignxdngateway['Remote Commands']['Enable'])) { $confignxdngateway['Remote Commands']['Enable'] = "1"; }
-		if (!isset($confignxdngateway['Remote Commands']['Port'])) { $confignxdngateway['Remote Commands']['Port'] = "6075"; }
-	}
+	if (!isset($confignxdngateway['Remote Commands']['Enable'])) { $confignxdngateway['Remote Commands']['Enable'] = "1"; }
+	if (!isset($confignxdngateway['Remote Commands']['Port'])) { $confignxdngateway['Remote Commands']['Port'] = "6075"; }
 
 	// Migrate YSFGateway Config
 	$ysfGatewayVer = exec("YSFGateway -v | awk {'print $3'} | cut -c 1-8");
@@ -2504,10 +2543,9 @@ if ($_SERVER["PHP_SELF"] == "/admin/configure.php") {
 		$configysfgateway['FCS Network']['Port'] = "42001";
 		$configysfgateway['FCS Network']['Rooms'] = "/usr/local/etc/FCSHosts.txt";
 	}
-	if ($ysfGatewayVer >= 20180303) {
-		if (!isset($configysfgateway['Remote Commands']['Enable'])) { $configysfgateway['Remote Commands']['Enable'] = "1"; }
-		if (!isset($configysfgateway['Remote Commands']['Port'])) { $configysfgateway['Remote Commands']['Port'] = "6073"; }
-	}
+
+	if (!isset($configysfgateway['Remote Commands']['Enable'])) { $configysfgateway['Remote Commands']['Enable'] = "1"; }
+	if (!isset($configysfgateway['Remote Commands']['Port'])) { $configysfgateway['Remote Commands']['Port'] = "6073"; }
 
 	// Add the DAPNet Config
 	if (!isset($configdapnetgw['General']['Callsign'])) { $configdapnetgw['General']['Callsign'] = "M1ABC"; }
