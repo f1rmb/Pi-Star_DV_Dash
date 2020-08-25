@@ -149,6 +149,8 @@ if (file_exists('/etc/aprsgateway')) {
 	// File format has changed since the beginning, force some values.
 	$configaprsgateway['Log']['DisplayLevel'] = 0;
 	$configaprsgateway['Log']['FileLevel'] = 1;
+	// Turn off debug mode
+	$configaprsgateway['General']['Debug'] = 0;
 }
 
 //
