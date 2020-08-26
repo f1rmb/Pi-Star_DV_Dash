@@ -1,5 +1,10 @@
 <?php
 
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 function GetDistString($input,$string,$offset,$separator) {
 	$string = substr($input,strpos($input,$string)+$offset,strpos(substr($input,strpos($input,$string)+$offset),$separator));
 	return $string;

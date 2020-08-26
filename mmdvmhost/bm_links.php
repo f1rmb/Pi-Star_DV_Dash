@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+    
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
@@ -9,7 +15,7 @@ $configPistarRelease = array();
 $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 
 // Check if DMR is Enabled
-$testMMDVModeDMR = getConfigItem("DMR", "Enable", $mmdvmconfigs);
+$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['mmdvmconfigs']);
 
 if ( $testMMDVModeDMR == 1 ) {
   //setup BM API Key
@@ -23,15 +29,15 @@ if ( $testMMDVModeDMR == 1 ) {
   if (fopen($dmrGatewayConfigFile,'r')) { $configdmrgateway = parse_ini_file($dmrGatewayConfigFile, true); }
 
   // Get the current DMR Master from the config
-  $dmrMasterHost = getConfigItem("DMR Network", "Address", $mmdvmconfigs);
+  $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['mmdvmconfigs']);
   if ( $dmrMasterHost == '127.0.0.1' ) {
     $dmrMasterHost = $configdmrgateway['DMR Network 1']['Address'];
     $bmEnabled = ($configdmrgateway['DMR Network 1']['Enabled'] != "0" ? true : false);
     if (isset($configdmrgateway['DMR Network 1']['Id'])) { $dmrID = $configdmrgateway['DMR Network 1']['Id']; }
-  } elseif (getConfigItem("DMR", "Id", $mmdvmconfigs)) {
-    $dmrID = getConfigItem("DMR", "Id", $mmdvmconfigs);
+  } else if (getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs'])) {
+    $dmrID = getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs']);
   } else {
-    $dmrID = getConfigItem("General", "Id", $mmdvmconfigs);
+    $dmrID = getConfigItem("General", "Id", $_SESSION['mmdvmconfigs']);
   }
 
   // Store the DMR Master IP, we will need this for the JSON lookup
@@ -63,13 +69,13 @@ if ( $testMMDVModeDMR == 1 ) {
   if ((isset($json->reflector->active)) && ($json->reflector->active != "4000")) { $bmReflectorActive = "REF".$json->reflector->active; } else { $bmReflectorActive = "None"; }
   if (isset($json->staticSubscriptions)) { $bmStaticTGListJson = $json->staticSubscriptions;
                                           foreach($bmStaticTGListJson as $staticTG) {
-                                            if (getConfigItem("DMR Network", "Slot1", $mmdvmconfigs) && $staticTG->slot == "1") {
+                                            if (getConfigItem("DMR Network", "Slot1", $_SESSION['mmdvmconfigs']) && $staticTG->slot == "1") {
                                               $bmStaticTGList .= "TG".$staticTG->talkgroup."(".$staticTG->slot.") ";
                                             }
-                                            else if (getConfigItem("DMR Network", "Slot2", $mmdvmconfigs) && $staticTG->slot == "2") {
+                                            else if (getConfigItem("DMR Network", "Slot2", $_SESSION['mmdvmconfigs']) && $staticTG->slot == "2") {
                                               $bmStaticTGList .= "TG".$staticTG->talkgroup."(".$staticTG->slot.") ";
                                             }
-                                            else if (getConfigItem("DMR Network", "Slot1", $mmdvmconfigs) == "0" && getConfigItem("DMR Network", "Slot2", $mmdvmconfigs) && $staticTG->slot == "0") {
+                                            else if (getConfigItem("DMR Network", "Slot1", $_SESSION['mmdvmconfigs']) == "0" && getConfigItem("DMR Network", "Slot2", $_SESSION['mmdvmconfigs']) && $staticTG->slot == "0") {
                                               $bmStaticTGList .= "TG".$staticTG->talkgroup." ";
                                             }
                                           }
@@ -78,13 +84,13 @@ if ( $testMMDVModeDMR == 1 ) {
                                          } else { $bmStaticTGList = "None"; }
   if (isset($json->dynamicSubscriptions)) { $bmDynamicTGListJson = $json->dynamicSubscriptions;
                                            foreach($bmDynamicTGListJson as $dynamicTG) {
-                                             if (getConfigItem("DMR Network", "Slot1", $mmdvmconfigs) && $dynamicTG->slot == "1") {
+                                             if (getConfigItem("DMR Network", "Slot1", $_SESSION['mmdvmconfigs']) && $dynamicTG->slot == "1") {
                                                $bmDynamicTGList .= "TG".$dynamicTG->talkgroup."(".$dynamicTG->slot.") ";
                                              }
-                                             else if (getConfigItem("DMR Network", "Slot2", $mmdvmconfigs) && $dynamicTG->slot == "2") {
+                                             else if (getConfigItem("DMR Network", "Slot2", $_SESSION['mmdvmconfigs']) && $dynamicTG->slot == "2") {
                                                $bmDynamicTGList .= "TG".$dynamicTG->talkgroup."(".$dynamicTG->slot.") ";
                                              }
-                                             else if (getConfigItem("DMR Network", "Slot1", $mmdvmconfigs) == "0" && getConfigItem("DMR Network", "Slot2", $mmdvmconfigs) && $dynamicTG->slot == "0") {
+                                             else if (getConfigItem("DMR Network", "Slot1", $_SESSION['mmdvmconfigs']) == "0" && getConfigItem("DMR Network", "Slot2", $_SESSION['mmdvmconfigs']) && $dynamicTG->slot == "0") {
                                                $bmDynamicTGList .= "TG".$dynamicTG->talkgroup." ";
                                              }
                                            }

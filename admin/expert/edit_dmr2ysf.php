@@ -1,5 +1,10 @@
 <?php
 
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 $configfile = '/etc/dmr2ysf';
 $tempfile = '/tmp/SpjKbHh9v39we5.tmp';
 

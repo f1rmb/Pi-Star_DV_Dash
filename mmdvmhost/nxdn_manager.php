@@ -1,11 +1,17 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
 
 // Check if NXDN is Enabled
-$testMMDVModeNXDN = getConfigItem("NXDN Network", "Enable", $mmdvmconfigs);
+$testMMDVModeNXDN = getConfigItem("NXDN Network", "Enable", $_SESSION['mmdvmconfigs']);
 if ( $testMMDVModeNXDN == 1 ) {
 
   //Load the nxdngateway config file

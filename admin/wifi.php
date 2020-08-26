@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 include('wifi/phpincs.php');
 $output = $return = 0;
 $page = $_GET['page'];

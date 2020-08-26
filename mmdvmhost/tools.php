@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 function format_time($seconds) {
 	$secs = intval($seconds % 60);
 	$mins = intval($seconds / 60 % 60);

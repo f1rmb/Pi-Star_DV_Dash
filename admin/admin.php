@@ -1,3 +1,11 @@
+<?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
+?>
 <b>Service Status</b>
 <table>
   <tr>

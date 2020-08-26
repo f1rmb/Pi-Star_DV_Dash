@@ -1,5 +1,10 @@
 <?php
 
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 // Make the bare config if we dont have one
 if (! file_exists('/etc/dapnetapi.key')) {
     exec('sudo touch /tmp/jsADGHwf9sj294.tmp');

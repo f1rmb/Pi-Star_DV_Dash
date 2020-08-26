@@ -1,18 +1,28 @@
 <?php
+session_set_cookie_params(0, "/");
+session_name("PiStar Dashboard Session");
+session_id('pistardashsess');
+session_start();
+
 require_once('config/version.php');
 require_once('config/ircddblocal.php');
 require_once('config/language.php');
+//require_once('mmdvmhost/vitals.php');
 
-$configs = array();
-if ($configfile = fopen($gatewayConfigPath,'r')) {
-        while ($line = fgets($configfile)) {
-                list($key,$value) = preg_split('/=/',$line);
-                $value = trim(str_replace('"','',$value));
-                if ($key != 'ircddbPassword' && strlen($value) > 0)
-                $configs[$key] = $value;
-        }
-
+// Load the ircDDBGateway config file
+$configircddb = array();
+if ($configfile = fopen($gatewayConfigPath, 'r')) {
+    while ($line = fgets($configfile)) {
+	if (strpos($line, '=') !== FALSE) {
+            list($key, $value) = explode('=', $line, 2);
+            $value = trim(str_replace('"','',$value));
+	    
+	    $configircddb[$key] = $value;
+	}
+    }
+    fclose($configfile);
 }
+
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
 $rev=$version;
 $MYCALL=strtoupper($callsign);
@@ -74,6 +84,22 @@ $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 	</div>
 	
 <?php
+
+function getMMDVMConfigContent() {
+	// loads /etc/mmdvmhost into array for further use
+	$conf = array();
+	if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
+	    while ($config = fgets($configs)) {
+			array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
+		}
+		fclose($configs);
+	}
+	return $conf;
+}
+
+$_SESSION['mmdvmconfigs'] = getMMDVMConfigContent();
+//exec('echo "g='.$_SESSION['mmdvmconfigs'][0].'" >> /tmp/trace.txt');
+
 // Output some default features
 if ($_SERVER["PHP_SELF"] == "/index.php")
 {
@@ -112,23 +138,24 @@ else if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
     echo '</div>'."\n";
     echo '</div>'."\n";
 }
+
 // First lets figure out if we are in MMDVMHost mode, or dstarrepeater mode;
 if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 	include 'config/config.php';					// MMDVMDash Config
 	include_once 'mmdvmhost/tools.php';				// MMDVMDash Tools
 
-	function getMMDVMConfigFileContent() {
-		// loads /etc/mmdvmhost into array for further use
-		$conf = array();
-		if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
-			while ($config = fgets($configs)) {
-				array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
-			}
-			fclose($configs);
-		}
-		return $conf;
-	}
-	$mmdvmconfigfile = getMMDVMConfigFileContent();
+//	function getMMDVMConfigFileContent() {
+//		// loads /etc/mmdvmhost into array for further use
+//		$conf = array();
+//		if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
+//			while ($config = fgets($configs)) {
+//				array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
+//			}
+//			fclose($configs);
+//		}
+//		return $conf;
+//	}
+//	$mmdvmconfigs = getMMDVMConfig();//getMMDVMConfigFileContent();
 
 	echo '<div class="nav">'."\n";					// Start the Side Menu
 	echo '<script type="text/javascript">'."\n";
@@ -145,7 +172,7 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 
 	echo '<div class="content">'."\n";
 
-	$testMMDVModeDSTARnet = getConfigItem("D-Star Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeDSTARnet = getConfigItem("D-Star Network", "Enable", $_SESSION['mmdvmconfigs']);
         if ( $testMMDVModeDSTARnet == 1 ) {				// If D-Star network is enabled, add these extra features.
 
 	if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 		// Admin Only Option
@@ -209,19 +236,19 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
                 include 'mmdvmhost/tgif_manager.php';			// TGIF DMR Link Manager
         }
 
-	$testMMDVModeYSFnet = getConfigItem("System Fusion Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeYSFnet = getConfigItem("System Fusion Network", "Enable", $_SESSION['mmdvmconfigs']);
         if ( $testMMDVModeYSFnet == 1 ) {				// If YSF network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/ysf_manager.php';		// YSF Links
 		}
 	}
-	$testMMDVModeP25net = getConfigItem("P25 Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeP25net = getConfigItem("P25 Network", "Enable", $_SESSION['mmdvmconfigs']);
         if ( $testMMDVModeP25net == 1 ) {				// If P25 network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/p25_manager.php';		// P25 Links
 		}
 	}
-	$testMMDVModeNXDNnet = getConfigItem("NXDN Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeNXDNnet = getConfigItem("NXDN Network", "Enable", $_SESSION['mmdvmconfigs']);
         if ( $testMMDVModeNXDNnet == 1 ) {				// If NXDN network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/nxdn_manager.php';		// NXDN Links
@@ -272,7 +299,7 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 	echo '</div>'."\n";
 	
 	// If POCSAG is enabled, show the information pannel
-	$testMMDVModePOCSAG = getConfigItem("POCSAG Network", "Enable", $mmdvmconfigfile);
+	$testMMDVModePOCSAG = getConfigItem("POCSAG Network", "Enable", $_SESSION['mmdvmconfigs']);
 	if ( $testMMDVModePOCSAG == 1 ) {
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") {  // Admin Only Options
 			echo "<br />\n";

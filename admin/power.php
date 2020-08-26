@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 // Load the language support
 require_once('config/language.php');
 // Load the Pi-Star Release file
@@ -12,7 +18,6 @@ require_once('config/version.php');
 if ($_SERVER["PHP_SELF"] == "/admin/power.php") {
   // Sanity Check Passed.
   header('Cache-Control: no-cache');
-  session_start();
 ?>
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

@@ -1,5 +1,10 @@
 <?php
 
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 $fm_config_file = '/etc/tinyfilemanager-config.php';
 $fm_auth_file = '/etc/tinyfilemanager-auth.php';
 

@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
@@ -11,7 +17,7 @@ $slot2tg = "";
 $dmrID = "";
 
 // Check if DMR is Enabled
-$testMMDVModeDMR = getConfigItem("DMR", "Enable", $mmdvmconfigs);
+$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['mmdvmconfigs']);
 
 if ( $testMMDVModeDMR == 1 ) {
   //Load the dmrgateway config file
@@ -19,7 +25,7 @@ if ( $testMMDVModeDMR == 1 ) {
   if (fopen($dmrGatewayConfigFile,'r')) { $configdmrgateway = parse_ini_file($dmrGatewayConfigFile, true); }
 
   // Get the current DMR Master from the config
-  $dmrMasterHost = getConfigItem("DMR Network", "Address", $mmdvmconfigs);
+  $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['mmdvmconfigs']);
   if ( $dmrMasterHost == '127.0.0.1' ) {
     // DMRGateway, need to check each config
     if (isset($configdmrgateway['DMR Network 1']['Address'])) {
@@ -49,10 +55,10 @@ if ( $testMMDVModeDMR == 1 ) {
     }
   } else if ( $dmrMasterHost == 'tgif.network' ) {
     // MMDVMHost Connected directly to TGIF, get the ID form here
-    if (getConfigItem("DMR", "Id", $mmdvmconfigs)) {
-      $dmrID = getConfigItem("DMR", "Id", $mmdvmconfigs);
+    if (getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs'])) {
+      $dmrID = getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs']);
     } else {
-      $dmrID = getConfigItem("General", "Id", $mmdvmconfigs);
+      $dmrID = getConfigItem("General", "Id", $_SESSION['mmdvmconfigs']);
     }
   }
 

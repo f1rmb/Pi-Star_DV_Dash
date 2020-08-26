@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 // Most of the work here contributed by geeks4hire (Ben Horan)
 // Skyper decode by Andy Taylor (MW0MWZ)
 

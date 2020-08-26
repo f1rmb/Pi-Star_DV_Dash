@@ -1,11 +1,17 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
 
 // Check if YSF is Enabled
-$testMMDVModeYSF = getConfigItem("System Fusion Network", "Enable", $mmdvmconfigs);
+$testMMDVModeYSF = getConfigItem("System Fusion Network", "Enable", $_SESSION['mmdvmconfigs']);
 if ( $testMMDVModeYSF == 1 ) {
 
   //Load the ysfgateway config file

@@ -1,4 +1,11 @@
-<?php include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+<?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
+include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
 $configs = array();
 

@@ -1,3 +1,11 @@
+<?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
+?>
 <table>
 <tr><th>ircDDB Network</th><th>APRS Host</th><th>CCS</th><th>DCS</th><th>DExtra</th><th>DPlus</th><th>D-Rats</th><th>Info</th><th>ircDDB</th><th>Echo</th><th>Log</th></tr>
 <tr style="background: #ffffff;">

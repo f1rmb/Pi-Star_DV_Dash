@@ -1,5 +1,11 @@
 <?php
 
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
+
 $file = '/var/pistar-keeper/pistar-keeper.log';
 
 if (file_exists($file)) {
