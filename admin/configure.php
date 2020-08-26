@@ -966,7 +966,7 @@ $MYCALL=strtoupper($callsign);
 		    if (empty($_POST['dapnetAPIUser']) != TRUE ) {
 			$configdapnetapi['DAPNETAPI']['USER'] = escapeshellcmd(trim($_POST['dapnetAPIUser']));
 		    }
-		    
+
 		    // Set the Frequency for Duplex
 		    if (empty($_POST['confFREQtx']) != TRUE && empty($_POST['confFREQrx']) != TRUE ) {
 			if (empty($_POST['confHardware']) != TRUE ) { $confHardware = escapeshellcmd($_POST['confHardware']); }
@@ -986,7 +986,7 @@ $MYCALL=strtoupper($callsign);
 			$rollFREQdvmegaTx = 'sudo sed -i "/dvmegaTXFrequency=/c\\dvmegaTXFrequency='.$newFREQtx.'" /etc/dstarrepeater';
 			$rollModeDuplex = 'sudo sed -i "/mode=/c\\mode=0" /etc/dstarrepeater';
 			$configircddb['gatewayType'] = "0";
-			$configircddb['offset1'] = "1";
+			$configircddb['offset1'] = $newFREQOffset;
 			$configmmdvm['Info']['RXFrequency'] = $newFREQrx;
 			$configmmdvm['Info']['TXFrequency'] = $newFREQtx;
 			$configdmrgateway['Info']['RXFrequency'] = $newFREQrx;
@@ -1068,10 +1068,8 @@ $MYCALL=strtoupper($callsign);
 			exec($rollRPT1);
 			exec($rollRPT2);
 			exec($rollBEACONTEXT);
-		    }
-		    
-		    // Set the Frequency for Simplex
-		    if (empty($_POST['confFREQ']) != TRUE ) {
+		    } // Set the Frequency for Simplex
+		    else if (empty($_POST['confFREQ']) != TRUE ) {
 			if (empty($_POST['confHardware']) != TRUE ) { $confHardware = escapeshellcmd($_POST['confHardware']); }
 			$newConfFREQ = preg_replace('/[^0-9\.]/', '', $_POST['confFREQ']);
 			$newFREQ = str_pad(str_replace(".", "", $newConfFREQ), 9, "0");
