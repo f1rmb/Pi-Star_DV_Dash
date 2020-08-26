@@ -61,7 +61,6 @@ require_once('../config/version.php');
 		  exec('sudo mount -o remount,ro /');
 		  
 		  // Reload the affected daemon
-		  // Reload the affected daemon
 		  if (isset($servicenames) && (count($servicenames) > 0)) {
 		      foreach($servicenames as $servicename) {
 			  exec('sudo systemctl restart '.$servicename); // Reload the daemon
