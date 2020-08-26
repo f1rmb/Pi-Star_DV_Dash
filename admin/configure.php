@@ -25,31 +25,27 @@ if ($configdstarfile = fopen('/etc/dstarrepeater', 'r')) {
             list($key1, $value1) = explode('=', $line1, 2);
             $value1 = trim(str_replace('"', '', $value1));
 	    
-            if (strlen($value1) > 0) {
-                $configdstar[$key1] = $value1;
-	    }
+            $configdstar[$key1] = $value1;
 	}
     }
     fclose($configdstarfile);
 }
 
 // Load the ircDDBGateway config file
-$configs = array();
+$configircddb = array();
 if ($configfile = fopen($gatewayConfigPath, 'r')) {
     while ($line = fgets($configfile)) {
 	if (strpos($line, '=') !== FALSE) {
             list($key, $value) = explode('=', $line, 2);
             $value = trim(str_replace('"','',$value));
 	    
-            if ($key != 'ircddbPassword' && strlen($value) > 0) {
-		$configs[$key] = $value;
-	    }
+	    $configircddb[$key] = $value;
 	}
     }
     fclose($configfile);
 }
-if (!isset($configs['url'])) {
-    $configs['url'] = "http://www.qrz.com/db/";
+if (!isset($configircddb['url'])) {
+    $configircddb['url'] = "http://www.qrz.com/db/";
 }
 
 
@@ -64,7 +60,9 @@ $configysfgateway = parse_ini_file($ysfgatewayConfigFile, true);
 // File format has changed since the beginning, force some values.
 if (isset($configysfgateway['Network']['Port'])) { unset($configysfgateway['Network']['Port']); }
 
-
+//
+// Ensure given file is present on the filesystem, otherwise extract it from the the config_clean archive
+//
 function ensureFileExists($fname) {
     if (!file_exists('/etc/'.$fname) || trim(@file_get_contents('/etc/'.$fname)) == false) {
 	exec('sudo mount -o remount,rw /');
@@ -73,6 +71,9 @@ function ensureFileExists($fname) {
     }
 }
 
+//
+// Convert [aprs.fi] sections to new [APRS] format
+//
 function clearAprsDotFi(&$cfgFile, $suffix) {
     $cfgAprsEnabled = 0;
     $cfgAprsSuffix = $suffix;
@@ -292,26 +293,28 @@ if ($configmmdvm['GPSD']['Enable'] == 1) {
 }
 
 // Ensure ircDDBGateway file contains the new APRS configuration
-if (isset($configs['aprsHostname'])) {
+if (isset($configircddb['aprsHostname'])) {
     exec('sudo mount -o remount,rw /');
     exec('sudo sed -i "/mobileGPS.*/d;/aprsPassword.*/d;s/aprsHostname=.*/aprsAddress=127.0.0.1/g;s/aprsPort=.*/aprsPort=8673/g" /etc/ircddbgateway');
     exec('sudo mount -o remount,ro /');
     
     // Re-read new ircDDBGateway config file
-    unset($configs);
-    $configs = array();
+    unset($configircddb);
+    $configircddb = array();
     if ($configfile = fopen($gatewayConfigPath, 'r')) {
 	while ($line = fgets($configfile)) {
-	    if (strpos($line, '=') !== false) {
+	    if (strpos($line, '=') !== FALSE) {
 		list($key, $value) = explode('=', $line, 2);
-		$value = trim(str_replace('"', '', $value));
-
-		if ($key != 'ircddbPassword' && strlen($value) > 0)
-                    $configs[$key] = $value;
+		$value = trim(str_replace('"','',$value));
+		
+		$configircddb[$key] = $value;
 	    }
 	}
 	fclose($configfile);
-    }    
+    }
+    if (!isset($configircddb['url'])) {
+	$configircddb['url'] = "http://www.qrz.com/db/";
+    }
 }
 
 //
@@ -374,6 +377,9 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
     if (fopen($modemConfigFileMMDVMHost,'r')) { $configModem = parse_ini_file($modemConfigFileMMDVMHost, true); }
 }
 
+//
+// Build APRS password from callsign
+//
 function aprspass ($callsign) {
     $stophere = strpos($callsign, '-');
     if ($stophere) $callsign = substr($callsign, 0, $stophere);
@@ -392,7 +398,9 @@ function aprspass ($callsign) {
     return $hash & 0x7fff;
 }
 
-
+//
+// Save content to configuration file (format with sections)
+//
 function saveConfigFile(&$configData, $configTemp, $configDest, $minCount = 0) {
     if (!empty($configData) && file_exists($configDest)) {
 	$configContent = "";
@@ -428,6 +436,57 @@ function saveConfigFile(&$configData, $configTemp, $configDest, $minCount = 0) {
 			exec('sudo chown root:root '.$configDest.'');
 		    }
 		    fclose($configHandle);
+		}
+		else {
+		    return false;
+		}
+	    }
+	}
+	else {
+	    return false;
+	}
+    }	
+    return true;
+}
+
+//
+// Save content to configuration file (format without sections, like ircDDBGateway and friends)
+//
+function saveConfigFileNoSection(&$configData, $configTemp, $configDest, $minCount = 0) {
+    if (!empty($configData) && file_exists($configDest)) {
+	$configContent = "";
+        foreach($configData as $key => $value) {
+	    if ($value == '') {
+		$configContent .= $key."= \n";
+	    }
+	    else {
+		$configContent .= $key."=".$value."\n";
+	    }
+	}
+	
+	if (($configHandle = fopen($configTemp, 'w')) != FALSE) {
+	    if (!is_writable($configTemp)) {
+		echo "<br />\n";
+		echo "<table>\n";
+		echo "<tr><th>ERROR</th></tr>\n";
+		echo "<tr><td>Unable to write temporary configuration file \''.$configTemp.'\'...</td><tr>\n";
+		echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
+		echo "</table>\n";
+		unset($_POST);
+		echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
+		die();
+	    }
+	    else {
+		if (($success = fwrite($configHandle, $configContent)) != FALSE) {
+		    if ($minCount == 0 || intval(exec('cat '.$configTemp.' | wc -l')) > $minCount) {
+			exec('sudo mv '.$configTemp.' '.$configDest.'');
+			exec('sudo chmod 644 '.$configDest.'');
+			exec('sudo chown root:root '.$configDest.'');
+		    }
+		    fclose($configHandle);
+		}
+		else {
+		    return false;
 		}
 	    }
 	}
@@ -544,7 +603,7 @@ $MYCALL=strtoupper($callsign);
 		    
 		if (!empty($_POST)):
 			 // Make the root filesystem writable
-			 system('sudo mount -o remount,rw /');
+			 exec('sudo mount -o remount,rw /');
 		    
 		    if (isset($_POST['adminPasswordUpdate'])) {
 			echo "<table>\n";
@@ -555,9 +614,9 @@ $MYCALL=strtoupper($callsign);
 			// Admin Password Change
 			if (empty($_POST['adminPassword']) != TRUE ) {
 			    $rollAdminPass0 = 'htpasswd -b /var/www/.htpasswd pi-star '.escapeshellcmd($_POST['adminPassword']);
-			    system($rollAdminPass0);
+			    exec($rollAdminPass0);
 			    $rollAdminPass2 = 'sudo echo -e "'.escapeshellcmd($_POST['adminPassword']).'\n'.escapeshellcmd($_POST['adminPassword']).'" | sudo passwd pi-star';
-			    system($rollAdminPass2);
+			    exec($rollAdminPass2);
 			    
 			    // File Manager password
 			    $fmAuth = '<?php'."\n".'$auth_users = array('."\n".'\'root\' => \''.password_hash(escapeshellcmd($_POST['adminPassword']), PASSWORD_DEFAULT).'\','."\n".'\'pi-star\' => \''.password_hash(escapeshellcmd($_POST['adminPassword']), PASSWORD_DEFAULT).'\''."\n".');'."\n".'?>'."\n";
@@ -578,38 +637,38 @@ $MYCALL=strtoupper($callsign);
 			}
 			
 			// Make the root filesystem writable
-			system('sudo mount -o remount,ro /');
+			exec('sudo mount -o remount,ro /');
 			
 			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},3000);</script>';
 			die();
 		    }
 		    
 		    // Stop Cron (occasionally remounts root as RO - would be bad if it did this at the wrong time....)
-		    system('sudo systemctl stop cron.service > /dev/null 2>/dev/null &');			//Cron
+		    exec('sudo systemctl stop cron.service > /dev/null 2>/dev/null &');			//Cron
 		    
 		    // Stop the DV Services
-		    system('sudo systemctl stop gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
-		    system('sudo systemctl stop aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
-		    system('sudo systemctl stop dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
-		    system('sudo systemctl stop mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
-		    system('sudo systemctl stop ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service
-		    system('sudo systemctl stop timeserver.service > /dev/null 2>/dev/null &');		// Time Server Service
-		    system('sudo systemctl stop pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
-		    system('sudo systemctl stop pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
-		    system('sudo systemctl stop ysfgateway.service > /dev/null 2>/dev/null &');		// YSFGateway
-		    system('sudo systemctl stop ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
-		    system('sudo systemctl stop ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
-		    system('sudo systemctl stop ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
-		    system('sudo systemctl stop nxdn2dmr.service > /dev/null 2>/dev/null &');		// NXDN2DMR
-		    system('sudo systemctl stop ysfparrot.service > /dev/null 2>/dev/null &');		// YSFParrot
-		    system('sudo systemctl stop p25gateway.service > /dev/null 2>/dev/null &');		// P25Gateway
-		    system('sudo systemctl stop p25parrot.service > /dev/null 2>/dev/null &');		// P25Parrot
-		    system('sudo systemctl stop nxdngateway.service > /dev/null 2>/dev/null &');		// NXDNGateway
-		    system('sudo systemctl stop nxdnparrot.service > /dev/null 2>/dev/null &');		// NXDNParrot
-		    system('sudo systemctl stop dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
-		    system('sudo systemctl stop dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2YSF
-		    system('sudo systemctl stop dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
-		    system('sudo systemctl stop dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
+		    exec('sudo systemctl stop gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
+		    exec('sudo systemctl stop aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
+		    exec('sudo systemctl stop dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
+		    exec('sudo systemctl stop mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
+		    exec('sudo systemctl stop ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service
+		    exec('sudo systemctl stop timeserver.service > /dev/null 2>/dev/null &');		// Time Server Service
+		    exec('sudo systemctl stop pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
+		    exec('sudo systemctl stop pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
+		    exec('sudo systemctl stop ysfgateway.service > /dev/null 2>/dev/null &');		// YSFGateway
+		    exec('sudo systemctl stop ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
+		    exec('sudo systemctl stop ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
+		    exec('sudo systemctl stop ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
+		    exec('sudo systemctl stop nxdn2dmr.service > /dev/null 2>/dev/null &');		// NXDN2DMR
+		    exec('sudo systemctl stop ysfparrot.service > /dev/null 2>/dev/null &');		// YSFParrot
+		    exec('sudo systemctl stop p25gateway.service > /dev/null 2>/dev/null &');		// P25Gateway
+		    exec('sudo systemctl stop p25parrot.service > /dev/null 2>/dev/null &');		// P25Parrot
+		    exec('sudo systemctl stop nxdngateway.service > /dev/null 2>/dev/null &');		// NXDNGateway
+		    exec('sudo systemctl stop nxdnparrot.service > /dev/null 2>/dev/null &');		// NXDNParrot
+		    exec('sudo systemctl stop dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
+		    exec('sudo systemctl stop dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2YSF
+		    exec('sudo systemctl stop dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
+		    exec('sudo systemctl stop dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
 		    
 		    echo "<table>\n";
 		    echo "<tr><th>Working...</th></tr>\n";
@@ -639,7 +698,7 @@ $MYCALL=strtoupper($callsign);
 			exec('sudo git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git reset --hard origin/master');
 			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
 			// Make the root filesystem read-only
-			system('sudo mount -o remount,ro /');
+			exec('sudo mount -o remount,ro /');
 			echo "<br />\n</div>\n";
 			echo "<div class=\"footer\">\nPi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-".date("Y").".<br />\n";
 			echo "Need help? Click <a style=\"color: #ffffff;\" href=\"https://www.facebook.com/groups/pistarusergroup/\" target=\"_new\">here for the Support Group</a><br />\n";
@@ -663,31 +722,30 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Change Radio Control Software
 		    if (empty($_POST['controllerSoft']) != TRUE ) {
-			system('sudo rm -rf /etc/dstar-radio.*');
-			if (escapeshellcmd($_POST['controllerSoft']) == 'DSTAR') { system('sudo touch /etc/dstar-radio.dstarrepeater'); }
-			if (escapeshellcmd($_POST['controllerSoft']) == 'MMDVM') { system('sudo touch /etc/dstar-radio.mmdvmhost'); }
+			exec('sudo rm -rf /etc/dstar-radio.*');
+			if (escapeshellcmd($_POST['controllerSoft']) == 'DSTAR') { exec('sudo touch /etc/dstar-radio.dstarrepeater'); }
+			if (escapeshellcmd($_POST['controllerSoft']) == 'MMDVM') { exec('sudo touch /etc/dstar-radio.mmdvmhost'); }
 		    }
 		    
 		    // HostAP
 		    if (empty($_POST['autoAP']) != TRUE ) {
-			if (escapeshellcmd($_POST['autoAP']) == 'OFF') { system('sudo touch /etc/hostap.off'); }
-			if (escapeshellcmd($_POST['autoAP']) == 'ON') { system('sudo rm -rf /etc/hostap.off'); }
+			if (escapeshellcmd($_POST['autoAP']) == 'OFF') { exec('sudo touch /etc/hostap.off'); }
+			if (escapeshellcmd($_POST['autoAP']) == 'ON') { exec('sudo rm -rf /etc/hostap.off'); }
 		    }
 		    
 		    // Change Dashboard Language
 		    if (empty($_POST['dashboardLanguage']) != TRUE ) {
 			$rollDashLang = 'sudo sed -i "/pistarLanguage=/c\\$pistarLanguage=\''.escapeshellcmd($_POST['dashboardLanguage']).'\';" /var/www/dashboard/config/language.php';
-			system($rollDashLang);
+			exec($rollDashLang);
 		    }
 		    
 		    // Set the ircDDBGAteway Remote Password and Port
 		    if (empty($_POST['confPassword']) != TRUE ) {
-			$rollConfPassword0 = 'sudo sed -i "/remotePassword=/c\\remotePassword='.escapeshellcmd($_POST['confPassword']).'" /etc/ircddbgateway';
+			$configircddb['remotePassword'] = $_POST['confPassword'];
 			$rollConfPassword1 = 'sudo sed -i "/password=/c\\password='.escapeshellcmd($_POST['confPassword']).'" /root/.Remote\ Control';
-			$rollConfRemotePort = 'sudo sed -i "/port=/c\\port='.$configs['remotePort'].'" /root/.Remote\ Control';
-			system($rollConfPassword0);
-			system($rollConfPassword1);
-			system($rollConfRemotePort);
+			$rollConfRemotePort = 'sudo sed -i "/port=/c\\port='.$configircddb['remotePort'].'" /root/.Remote\ Control';
+			exec($rollConfPassword1);
+			exec($rollConfRemotePort);
 		    }
 		    
 		    // Set the ircDDBGateway Defaut Reflector
@@ -699,27 +757,25 @@ $MYCALL=strtoupper($callsign);
 			    else {
 				$targetRef = strtoupper(escapeshellcmd($_POST['confDefRef']));
 			    }
-			    $rollconfDefRef = 'sudo sed -i "/reflector1=/c\\reflector1='.$targetRef.escapeshellcmd($_POST['confDefRefLtr']).'" /etc/ircddbgateway';
-			    system($rollconfDefRef);
+			    $configircddb['reflector1'] = $targetRef.$_POST['confDefRefLtr'];
 			}
 		    }
 		    
 		    // Set the ircDDBGAteway Defaut Reflector Autostart
 		    if (empty($_POST['confDefRefAuto']) != TRUE ) {
 			if (escapeshellcmd($_POST['confDefRefAuto']) == 'ON') {
-			    $rollconfDefRefAuto = 'sudo sed -i "/atStartup1=/c\\atStartup1=1" /etc/ircddbgateway';
+			    $configircddb['atStartup1'] = "1";
 			}
-			if (escapeshellcmd($_POST['confDefRefAuto']) == 'OFF') {
-			    $rollconfDefRefAuto = 'sudo sed -i "/atStartup1=/c\\atStartup1=0" /etc/ircddbgateway';
+			else if (escapeshellcmd($_POST['confDefRefAuto']) == 'OFF') {
+			    $configircddb['atStartup1'] = "0";
 			}
-			system($rollconfDefRefAuto);
 		    }
 		    
 		    // Set the Latitude
 		    if (empty($_POST['confLatitude']) != TRUE ) {
 			$newConfLatitude = preg_replace('/[^0-9\.\-]/', '', $_POST['confLatitude']);
-			$rollConfLat0 = 'sudo sed -i "/latitude=/c\\latitude='.$newConfLatitude.'" /etc/ircddbgateway';
-			$rollConfLat1 = 'sudo sed -i "/latitude1=/c\\latitude1='.$newConfLatitude.'" /etc/ircddbgateway';
+			$configircddb['latitude'] = $newConfLatitude;
+			$configircddb['latitude1'] = $newConfLatitude;
 			$configmmdvm['Info']['Latitude'] = $newConfLatitude;
 			$configysfgateway['Info']['Latitude'] = $newConfLatitude;
 			$configysf2dmr['Info']['Latitude'] = $newConfLatitude;
@@ -728,15 +784,13 @@ $MYCALL=strtoupper($callsign);
 			$confignxdn2dmr['Info']['Latitude'] = $newConfLatitude;
 			$configdmrgateway['Info']['Latitude'] = $newConfLatitude;
 			$confignxdngateway['Info']['Latitude'] = $newConfLatitude;
-			system($rollConfLat0);
-			system($rollConfLat1);
 		    }
 		    
 		    // Set the Longitude
 		    if (empty($_POST['confLongitude']) != TRUE ) {
 			$newConfLongitude = preg_replace('/[^0-9\.\-]/', '', $_POST['confLongitude']);
-			$rollConfLon0 = 'sudo sed -i "/longitude=/c\\longitude='.$newConfLongitude.'" /etc/ircddbgateway';
-			$rollConfLon1 = 'sudo sed -i "/longitude1=/c\\longitude1='.$newConfLongitude.'" /etc/ircddbgateway';
+			$configircddb['longitude'] = $newConfLongitude;
+			$configircddb['longitude1'] = $newConfLongitude;
 			$configmmdvm['Info']['Longitude'] = $newConfLongitude;
 			$configysfgateway['Info']['Longitude'] = $newConfLongitude;
 			$configysf2dmr['Info']['Longitude'] = $newConfLongitude;
@@ -745,8 +799,6 @@ $MYCALL=strtoupper($callsign);
 			$confignxdn2dmr['Info']['Longitude'] = $newConfLongitude;
 			$configdmrgateway['Info']['Longitude'] = $newConfLongitude;
 			$confignxdngateway['Info']['Longitude'] = $newConfLongitude;
-			system($rollConfLon0);
-			system($rollConfLon1);
 		    }
 		    
 		    // Set GPSd
@@ -775,8 +827,8 @@ $MYCALL=strtoupper($callsign);
 		    // Set the Town
 		    if (empty($_POST['confDesc1']) != TRUE ) {
 			$newConfDesc1 = preg_replace('/[^A-Za-z0-9\.\s\,\-]/', '', $_POST['confDesc1']);
-			$rollDesc1 = 'sudo sed -i "/description1=/c\\description1='.$newConfDesc1.'" /etc/ircddbgateway';
-			$rollDesc11 = 'sudo sed -i "/description1_1=/c\\description1_1='.$newConfDesc1.'" /etc/ircddbgateway';
+			$configircddb['description1'] = $newConfDesc1;
+			$configircddb['description1_1'] = $newConfDesc1;
 			$configmmdvm['Info']['Location'] = '"'.$newConfDesc1.'"';
 			$configdmrgateway['Info']['Location'] = '"'.$newConfDesc1.'"';
 			$configysf2dmr['Info']['Location'] = '"'.$newConfDesc1.'"';
@@ -784,21 +836,17 @@ $MYCALL=strtoupper($callsign);
 			$configysf2p25['Info']['Location'] = '"'.$newConfDesc1.'"';
 			$confignxdn2dmr['Info']['Location'] = '"'.$newConfDesc1.'"';
 			$confignxdngateway['Info']['Name'] = '"'.$newConfDesc1.'"';
-			system($rollDesc1);
-			system($rollDesc11);
 		    }
 		    
 		    // Set the Country
 		    if (empty($_POST['confDesc2']) != TRUE ) {
 			$newConfDesc2 = preg_replace('/[^A-Za-z0-9\.\s\,\-]/', '', $_POST['confDesc2']);
-			$rollDesc2 = 'sudo sed -i "/description2=/c\\description2='.$newConfDesc2.'" /etc/ircddbgateway';
-			$rollDesc22 = 'sudo sed -i "/description1_2=/c\\description1_2='.$newConfDesc2.'" /etc/ircddbgateway';
+			$configircddb['description2'] = $newConfDesc2;
+			$configircddb['description1_2'] = $newConfDesc2;
 			$configmmdvm['Info']['Description'] = '"'.$newConfDesc2.'"';
 			$configdmrgateway['Info']['Description'] = '"'.$newConfDesc2.'"';
 			$configysfgateway['Info']['Description'] = '"'.$newConfDesc2.'"';
 			$confignxdngateway['Info']['Description'] = '"'.$newConfDesc2.'"';
-			system($rollDesc2);
-			system($rollDesc22);
 		    }
 		    
 		    // Set the URL
@@ -807,12 +855,12 @@ $MYCALL=strtoupper($callsign);
 			
 			if (escapeshellcmd($_POST['urlAuto']) == 'auto') {
 			    $txtURL = "http://www.qrz.com/db/".strtoupper(escapeshellcmd($_POST['confCallsign']));
-			    $rollURL0 = 'sudo sed -i "/url=/c\\url='.$txtURL.'" /etc/ircddbgateway';
+			    $configircddb['url'] = $txtURL;
 			}
 			
 			if (escapeshellcmd($_POST['urlAuto']) == 'man')  { 
 			    $txtURL = $newConfURL;
-			    $rollURL0 = 'sudo sed -i "/url=/c\\url='.$newConfURL.'" /etc/ircddbgateway';
+			    $configircddb['url'] = $newConfURL;
 			}
 			
 			$configmmdvm['Info']['URL'] = '"'.$txtURL.'"';
@@ -821,7 +869,6 @@ $MYCALL=strtoupper($callsign);
 			$configysf2p25['Info']['URL'] = '"'.$txtURL.'"';
 			$confignxdn2dmr['Info']['URL'] = '"'.$txtURL.'"';
 			$configdmrgateway['Info']['URL'] = '"'.$txtURL.'"';
-			system($rollURL0);
 		    }
 		    
 		    // Set the APRS Server for APRSGateway
@@ -838,10 +885,9 @@ $MYCALL=strtoupper($callsign);
 		    // Set ircDDBGateway and TimeServer language
 		    if (empty($_POST['ircDDBGatewayAnnounceLanguage']) != TRUE) {
 			$ircDDBGatewayAnnounceLanguageArr = explode(',', escapeshellcmd($_POST['ircDDBGatewayAnnounceLanguage']));
-			$rollIrcDDBGatewayLang = 'sudo sed -i "/language=/c\\language='.escapeshellcmd($ircDDBGatewayAnnounceLanguageArr[0]).'" /etc/ircddbgateway';
+			$configircddb['language'] = $ircDDBGatewayAnnounceLanguageArr[0];
 			$rollTimeserverLang = 'sudo sed -i "/language=/c\\language='.escapeshellcmd($ircDDBGatewayAnnounceLanguageArr[1]).'" /etc/timeserver';
-			system($rollIrcDDBGatewayLang);
-			system($rollTimeserverLang);
+			exec($rollTimeserverLang);
 		    }
 		    
 		    // Clear timeserver modules
@@ -850,11 +896,11 @@ $MYCALL=strtoupper($callsign);
 		    $rollTimeserverBandC = 'sudo sed -i "/sendC=/c\\sendC=0" /etc/timeserver';
 		    $rollTimeserverBandD = 'sudo sed -i "/sendD=/c\\sendD=0" /etc/timeserver';
 		    $rollTimeserverBandE = 'sudo sed -i "/sendE=/c\\sendE=0" /etc/timeserver';
-		    system($rollTimeserverBandA);
-		    system($rollTimeserverBandB);
-		    system($rollTimeserverBandC);
-		    system($rollTimeserverBandD);
-		    system($rollTimeserverBandE);
+		    exec($rollTimeserverBandA);
+		    exec($rollTimeserverBandB);
+		    exec($rollTimeserverBandC);
+		    exec($rollTimeserverBandD);
+		    exec($rollTimeserverBandE);
 		    
 		    // Set the POCSAG Frequency
 		    if (empty($_POST['pocsagFrequency']) != TRUE ) {
@@ -934,13 +980,13 @@ $MYCALL=strtoupper($callsign);
 			$newFREQirc = mb_strimwidth($newFREQirc, 0, 9);
 			$newFREQOffset = ($newFREQrx - $newFREQtx)/1000000;
 			$newFREQOffset = number_format($newFREQOffset, 4, '.', '');
-			$rollFREQirc = 'sudo sed -i "/frequency1=/c\\frequency1='.$newFREQirc.'" /etc/ircddbgateway';
+			$configircddb['frequency1'] = $newFREQirc;
 			$rollFREQdvap = 'sudo sed -i "/dvapFrequency=/c\\dvapFrequency='.$newFREQrx.'" /etc/dstarrepeater';
 			$rollFREQdvmegaRx = 'sudo sed -i "/dvmegaRXFrequency=/c\\dvmegaRXFrequency='.$newFREQrx.'" /etc/dstarrepeater';
 			$rollFREQdvmegaTx = 'sudo sed -i "/dvmegaTXFrequency=/c\\dvmegaTXFrequency='.$newFREQtx.'" /etc/dstarrepeater';
 			$rollModeDuplex = 'sudo sed -i "/mode=/c\\mode=0" /etc/dstarrepeater';
-			$rollGatewayType = 'sudo sed -i "/gatewayType=/c\\gatewayType=0" /etc/ircddbgateway';
-			$rollFREQOffset = 'sudo sed -i "/offset1=/c\\offset1='.$newFREQOffset.'" /etc/ircddbgateway';
+			$configircddb['gatewayType'] = "0";
+			$configircddb['offset1'] = "1";
 			$configmmdvm['Info']['RXFrequency'] = $newFREQrx;
 			$configmmdvm['Info']['TXFrequency'] = $newFREQtx;
 			$configdmrgateway['Info']['RXFrequency'] = $newFREQrx;
@@ -963,13 +1009,10 @@ $MYCALL=strtoupper($callsign);
 			$confignxdngateway['Info']['TXFrequency'] = $newFREQtx;
 			$confignxdngateway['General']['Suffix'] = "RPT";
 			
-			system($rollFREQirc);
-			system($rollFREQdvap);
-			system($rollFREQdvmegaRx);
-			system($rollFREQdvmegaTx);
-			system($rollModeDuplex);
-			system($rollGatewayType);
-			system($rollFREQOffset);
+			exec($rollFREQdvap);
+			exec($rollFREQdvmegaRx);
+			exec($rollFREQdvmegaTx);
+			exec($rollModeDuplex);
 			
 			// Set RPT1 and RPT2
 			if (empty($_POST['confDStarModuleSuffix'])) {
@@ -978,28 +1021,28 @@ $MYCALL=strtoupper($callsign);
 				$confIRCrepeaterBand1 = "A";
 				$configmmdvm['D-Star']['Module'] = "A";
 				$rollTimeserverBand = 'sudo sed -i "/sendA=/c\\sendA=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			    else if ($newFREQtx >= 420000000 && $newFREQtx <= 450000000) {
 				$confRPT1 = str_pad(escapeshellcmd($_POST['confCallsign']), 7, " ")."B";
 				$confIRCrepeaterBand1 = "B";
 				$configmmdvm['D-Star']['Module'] = "B";
 				$rollTimeserverBand = 'sudo sed -i "/sendB=/c\\sendB=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			    else if ($newFREQtx >= 218000000 && $newFREQtx <= 226000000) {
 				$confRPT1 = str_pad(escapeshellcmd($_POST['confCallsign']), 7, " ")."A";
 				$confIRCrepeaterBand1 = "A";
 				$configmmdvm['D-Star']['Module'] = "A";
 				$rollTimeserverBand = 'sudo sed -i "/sendA=/c\\sendA=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			    else if ($newFREQtx >= 144000000 && $newFREQtx <= 148000000) {
 				$confRPT1 = str_pad(escapeshellcmd($_POST['confCallsign']), 7, " ")."C";
 				$confIRCrepeaterBand1 = "C";
 				$configmmdvm['D-Star']['Module'] = "C";
 				$rollTimeserverBand = 'sudo sed -i "/sendC=/c\\sendC=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			}
 			else {
@@ -1007,7 +1050,7 @@ $MYCALL=strtoupper($callsign);
 			    $confIRCrepeaterBand1 = strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix']));
 			    $configmmdvm['D-Star']['Module'] = strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix']));
 			    $rollTimeserverBand = 'sudo sed -i "/send'.strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix'])).'=/c\\send'.strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix'])).'=1" /etc/timeserver';
-			    system($rollTimeserverBand);
+			    exec($rollTimeserverBand);
 			}
 			
 			$newCallsignUpper = strtoupper(escapeshellcmd($_POST['confCallsign']));
@@ -1019,14 +1062,12 @@ $MYCALL=strtoupper($callsign);
 			$rollRPT1 = 'sudo sed -i "/callsign=/c\\callsign='.$confRPT1.'" /etc/dstarrepeater';
 			$rollRPT2 = 'sudo sed -i "/gateway=/c\\gateway='.$confRPT2.'" /etc/dstarrepeater';
 			$rollBEACONTEXT = 'sudo sed -i "/beaconText=/c\\beaconText='.$confRPT1.'" /etc/dstarrepeater';
-			$rollIRCrepeaterBand1 = 'sudo sed -i "/repeaterBand1=/c\\repeaterBand1='.$confIRCrepeaterBand1.'" /etc/ircddbgateway';
-			$rollIRCrepeaterCall1 = 'sudo sed -i "/repeaterCall1=/c\\repeaterCall1='.$newCallsignUpper.'" /etc/ircddbgateway';
+			$configircddb['repeaterBand1'] = $confIRCrepeaterBand1;
+			$configircddb['repeaterCall1'] = $newCallsignUpper;
 
-			system($rollRPT1);
-			system($rollRPT2);
-			system($rollBEACONTEXT);
-			system($rollIRCrepeaterBand1);
-			system($rollIRCrepeaterCall1);
+			exec($rollRPT1);
+			exec($rollRPT2);
+			exec($rollBEACONTEXT);
 		    }
 		    
 		    // Set the Frequency for Simplex
@@ -1038,13 +1079,13 @@ $MYCALL=strtoupper($callsign);
 			$newFREQirc = substr_replace($newFREQ, '.', '3', 0);
 			$newFREQirc = mb_strimwidth($newFREQirc, 0, 9);
 			$newFREQOffset = "0.0000";
-			$rollFREQirc = 'sudo sed -i "/frequency1=/c\\frequency1='.$newFREQirc.'" /etc/ircddbgateway';
+			$configircddb['frequency1'] = $newFREQirc;
 			$rollFREQdvap = 'sudo sed -i "/dvapFrequency=/c\\dvapFrequency='.$newFREQ.'" /etc/dstarrepeater';
 			$rollFREQdvmegaRx = 'sudo sed -i "/dvmegaRXFrequency=/c\\dvmegaRXFrequency='.$newFREQ.'" /etc/dstarrepeater';
 			$rollFREQdvmegaTx = 'sudo sed -i "/dvmegaTXFrequency=/c\\dvmegaTXFrequency='.$newFREQ.'" /etc/dstarrepeater';
 			$rollModeSimplex = 'sudo sed -i "/mode=/c\\mode=1" /etc/dstarrepeater';
-			$rollGatewayType = 'sudo sed -i "/gatewayType=/c\\gatewayType=1" /etc/ircddbgateway';
-			$rollFREQOffset = 'sudo sed -i "/offset1=/c\\offset1='.$newFREQOffset.'" /etc/ircddbgateway';
+			$configircddb['gatewayType'] = "1";
+			$configircddb['offset1'] = $newFREQOffset;
 			$configmmdvm['Info']['RXFrequency'] = $newFREQ;
 			$configmmdvm['Info']['TXFrequency'] = $newFREQ;
 			$configdmrgateway['Info']['RXFrequency'] = $newFREQ;
@@ -1067,13 +1108,10 @@ $MYCALL=strtoupper($callsign);
 			$confignxdngateway['Info']['TXFrequency'] = $newFREQ;
 			$confignxdngateway['General']['Suffix'] = "ND";
 			
-			system($rollFREQirc);
-			system($rollFREQdvap);
-			system($rollFREQdvmegaRx);
-			system($rollFREQdvmegaTx);
-			system($rollModeSimplex);
-			system($rollGatewayType);
-			system($rollFREQOffset);
+			exec($rollFREQdvap);
+			exec($rollFREQdvmegaRx);
+			exec($rollFREQdvmegaTx);
+			exec($rollModeSimplex);
 			
 			// Set RPT1 and RPT2
 			if (empty($_POST['confDStarModuleSuffix'])) {
@@ -1082,28 +1120,28 @@ $MYCALL=strtoupper($callsign);
 				$confIRCrepeaterBand1 = "A";
 				$configmmdvm['D-Star']['Module'] = "A";
 				$rollTimeserverBand = 'sudo sed -i "/sendA=/c\\sendA=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			    else if ($newFREQ >= 420000000 && $newFREQ <= 450000000) {
 				$confRPT1 = str_pad(escapeshellcmd($_POST['confCallsign']), 7, " ")."B";
 				$confIRCrepeaterBand1 = "B";
 				$configmmdvm['D-Star']['Module'] = "B";
 				$rollTimeserverBand = 'sudo sed -i "/sendB=/c\\sendB=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			    else if ($newFREQ >= 218000000 && $newFREQ <= 226000000) {
 				$confRPT1 = str_pad(escapeshellcmd($_POST['confCallsign']), 7, " ")."A";
 				$confIRCrepeaterBand1 = "A";
 				$configmmdvm['D-Star']['Module'] = "A";
 				$rollTimeserverBand = 'sudo sed -i "/sendA=/c\\sendA=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			    else if ($newFREQ >= 144000000 && $newFREQ <= 148000000) {
 				$confRPT1 = str_pad(escapeshellcmd($_POST['confCallsign']), 7, " ")."C";
 				$confIRCrepeaterBand1 = "C";
 				$configmmdvm['D-Star']['Module'] = "C";
 				$rollTimeserverBand = 'sudo sed -i "/sendA=/c\\sendA=1" /etc/timeserver';
-				system($rollTimeserverBand);
+				exec($rollTimeserverBand);
 			    }
 			}
 			else {
@@ -1111,7 +1149,7 @@ $MYCALL=strtoupper($callsign);
 			    $confIRCrepeaterBand1 = strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix']));
 			    $configmmdvm['D-Star']['Module'] = strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix']));
 			    $rollTimeserverBand = 'sudo sed -i "/send'.strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix'])).'=/c\\send'.strtoupper(escapeshellcmd($_POST['confDStarModuleSuffix'])).'=1" /etc/timeserver';
-			    system($rollTimeserverBand);
+			    exec($rollTimeserverBand);
 			}
 			
 			$newCallsignUpper = strtoupper(escapeshellcmd($_POST['confCallsign']));
@@ -1123,14 +1161,13 @@ $MYCALL=strtoupper($callsign);
 			$rollRPT1 = 'sudo sed -i "/callsign=/c\\callsign='.$confRPT1.'" /etc/dstarrepeater';
 			$rollRPT2 = 'sudo sed -i "/gateway=/c\\gateway='.$confRPT2.'" /etc/dstarrepeater';
 			$rollBEACONTEXT = 'sudo sed -i "/beaconText=/c\\beaconText='.$confRPT1.'" /etc/dstarrepeater';
-			$rollIRCrepeaterBand1 = 'sudo sed -i "/repeaterBand1=/c\\repeaterBand1='.$confIRCrepeaterBand1.'" /etc/ircddbgateway';
-			$rollIRCrepeaterCall1 = 'sudo sed -i "/repeaterCall1=/c\\repeaterCall1='.$newCallsignUpper.'" /etc/ircddbgateway';
+
+			$configircddb['repeaterBand1'] = $confIRCrepeaterBand1;
+			$configircddb['repeaterCall1'] = $newCallsignUpper;
 			
-			system($rollRPT1);
-			system($rollRPT2);
-			system($rollBEACONTEXT);
-			system($rollIRCrepeaterBand1);
-			system($rollIRCrepeaterCall1);
+			exec($rollRPT1);
+			exec($rollRPT2);
+			exec($rollBEACONTEXT);
 		    }
 		    
 		    // Set Callsign
@@ -1139,18 +1176,16 @@ $MYCALL=strtoupper($callsign);
 			// Removed the need for the r prefix - OpenQuad have fixed up the servers not to require it.
 			// if (preg_match("/^[0-9]/", $newCallsignUpper)) { $newCallsignUpperIRC = 'r'.$newCallsignUpper; } else { $newCallsignUpperIRC = $newCallsignUpper; }
 			$newCallsignUpperIRC = $newCallsignUpper;
-			
-			$rollGATECALL = 'sudo sed -i "/gatewayCallsign=/c\\gatewayCallsign='.$newCallsignUpper.'" /etc/ircddbgateway';
-			$rollDPLUSLOGIN = 'sudo sed -i "/dplusLogin=/c\\dplusLogin='.str_pad($newCallsignUpper, 8, " ").'" /etc/ircddbgateway';
+			$configircddb['gatewayCallsign'] = $newCallsignUpper;
+			$configircddb['dplusLogin'] = str_pad($newCallsignUpper, 8, " ");
 			$rollDASHBOARDcall = 'sudo sed -i "/callsign=/c\\$callsign=\''.$newCallsignUpper.'\';" /var/www/dashboard/config/ircddblocal.php';
 			$rollTIMESERVERcall = 'sudo sed -i "/callsign=/c\\callsign='.$newCallsignUpper.'" /etc/timeserver';
 			$rollSTARNETSERVERcall = 'sudo sed -i "/callsign=/c\\callsign='.$newCallsignUpper.'" /etc/starnetserver';
 			$rollSTARNETSERVERirc = 'sudo sed -i "/ircddbUsername=/c\\ircddbUsername='.$newCallsignUpperIRC.'" /etc/starnetserver';
 			
 			// Only roll ircDDBGateway Username if using OpenQuad
-			if ($configs['ircddbHostname'] == "rr.openquad.net") {
-			    $rollIRCUSER = 'sudo sed -i "/ircddbUsername=/c\\ircddbUsername='.$newCallsignUpperIRC.'" /etc/ircddbgateway';
-			    system($rollIRCUSER);
+			if ($configircddb['ircddbHostname'] == "rr.openquad.net") {
+			    $configircddb['ircddbUsername'] = $newCallsignUpperIRC;
 			}
 			
 			//if ( strlen($newCallsignUpper) < 6 ) { $configysfgateway['General']['Callsign'] = $newCallsignUpper."-1"; }
@@ -1182,12 +1217,10 @@ $MYCALL=strtoupper($callsign);
 			$configysf2p25['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 			$confignxdn2dmr['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 			
-			system($rollGATECALL);
-			system($rollDPLUSLOGIN);
-			system($rollDASHBOARDcall);
-			system($rollTIMESERVERcall);
-			system($rollSTARNETSERVERcall);
-			system($rollSTARNETSERVERirc);
+			exec($rollDASHBOARDcall);
+			exec($rollTIMESERVERcall);
+			exec($rollSTARNETSERVERcall);
+			exec($rollSTARNETSERVERirc);
 		    }
 		    
 		    // Set the P25 Startup Host
@@ -1285,7 +1318,7 @@ $MYCALL=strtoupper($callsign);
 			    $configysf2nxdn['YSF Network']['WiresXMakeUpper'] = "0";
 			    $configysf2p25['YSF Network']['WiresXMakeUpper'] = "0";
 			}
-			if (file_exists('/etc/hostfiles.ysfupper')) { system('sudo rm -rf /etc/hostfiles.ysfupper'); }
+			if (file_exists('/etc/hostfiles.ysfupper')) { exec('sudo rm -rf /etc/hostfiles.ysfupper'); }
 		    }
 		    
 		    // Set the YSF2DMR Master
@@ -1656,36 +1689,34 @@ $MYCALL=strtoupper($callsign);
 			// Turn on RPT1 Validation in DStarRepeater
 			$rollRpt1Validation = 'sudo sed -i "/rpt1Validation=/c\\rpt1Validation=1" /etc/dstarrepeater';
 			// Set Standard IP/Port for DStarRepeater/MMDVMHost
-			$rollRepeaterAddress1 = 'sudo sed -i "/repeaterAddress1=/c\\repeaterAddress1=127.0.0.1" /etc/ircddbgateway';
-			$rollRepeaterPort1 = 'sudo sed -i "/repeaterPort1=/c\\repeaterPort1=20011" /etc/ircddbgateway';
+			$configircddb['repeaterAddress1'] = "127.0.0.1";
+			$configircddb['repeaterPort1'] = "20011";
 			
 			if ( $confHardware == 'idrp2c' ) {
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=1" /etc/ircddbgateway';
-			    $rollRepeaterAddress1 = 'sudo sed -i "/repeaterAddress1=/c\\repeaterAddress1=172.16.0.1" /etc/ircddbgateway';
-			    $rollRepeaterPort1 = 'sudo sed -i "/repeaterPort1=/c\\repeaterPort1=20000" /etc/ircddbgateway';
-			    system($rollRepeaterType1);
-			    $testNeworkConfig = exec('grep "eth0:1" /etc/network/interfaces | wc -l');
+			    $configircddb['repeaterType1'] = "1";
+			    $configircddb['repeaterAddress1'] = "172.16.0.1";
+			    $configircddb['repeaterPort1'] = "20000";
+			    $testNeworkConfig = system('grep "eth0:1" /etc/network/interfaces | wc -l');
 			    if (substr($testNeworkConfig, 0, 1) === '0') {
-				system('sudo sed -i "$ a\ \\nauto eth0:1\\nallow-hotplug eth0:1\\niface eth0:1 inet static\\n    address 172.16.0.20\\n    netmask 255.255.255.0" /etc/network/interfaces');
+				exec('sudo sed -i "$ a\ \\nauto eth0:1\\nallow-hotplug eth0:1\\niface eth0:1 inet static\\n    address 172.16.0.20\\n    netmask 255.255.255.0" /etc/network/interfaces');
 			    }
 			}
 			else if ( $confHardware == 'icomTerminalAuto' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=Icom Access Point\/Terminal Mode" /etc/dstarrepeater';
 			    $rollIcomPort = 'sudo sed -i "/icomPort=/c\\icomPort=/dev/icom_ta" /etc/dstarrepeater';
 			    $rollRpt1Validation = 'sudo sed -i "/rpt1Validation=/c\\rpt1Validation=0" /etc/dstarrepeater';
-			    system($rollModemType);
-			    system($rollIcomPort);
+			    exec($rollModemType);
+			    exec($rollIcomPort);
 			}
 			else if ( $confHardware == 'dvmpis' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DVMEGA" /etc/dstarrepeater';
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyAMA0" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=2" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -1694,11 +1725,10 @@ $MYCALL=strtoupper($callsign);
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyAMA0" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=3" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -1707,11 +1737,10 @@ $MYCALL=strtoupper($callsign);
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyUSB0" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=3" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -1720,11 +1749,10 @@ $MYCALL=strtoupper($callsign);
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyACM0" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=3" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -1735,11 +1763,10 @@ $MYCALL=strtoupper($callsign);
 			    $rollDstarRepeaterStartDelay = 'sudo sed -i "/OnStartupSec=/c\\OnStartupSec=60" /lib/systemd/system/dstarrepeater.timer';
 			    $rollMMDVMHostStartDelay = 'sudo sed -i "/OnStartupSec=/c\\OnStartupSec=60" /lib/systemd/system/mmdvmhost.timer';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -1750,11 +1777,10 @@ $MYCALL=strtoupper($callsign);
 			    $rollDstarRepeaterStartDelay = 'sudo sed -i "/OnStartupSec=/c\\OnStartupSec=60" /lib/systemd/system/dstarrepeater.timer';
 			    $rollMMDVMHostStartDelay = 'sudo sed -i "/OnStartupSec=/c\\OnStartupSec=60" /lib/systemd/system/mmdvmhost.timer';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -1763,111 +1789,98 @@ $MYCALL=strtoupper($callsign);
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyUSB0" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=0" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			}
 			else if ( $confHardware == 'dvmuagmska' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DVMEGA" /etc/dstarrepeater';
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyACM0" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=0" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			}
 			else if ( $confHardware == 'dvrptr1' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DV-RPTR V1" /etc/dstarrepeater';
 			    $rollDVRPTRPort = 'sudo sed -i "/dvrptr1Port=/c\\dvrptr1Port=/dev/ttyACM0" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVRPTRPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVRPTRPort);
 			}
 			else if ( $confHardware == 'dvrptr2' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DV-RPTR V2" /etc/dstarrepeater';
 			    $rollDVRPTRPort = 'sudo sed -i "/dvrptr1Port=/c\\dvrptr1Port=/dev/ttyACM0" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVRPTRPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVRPTRPort);
 			}
 			else if ( $confHardware == 'dvrptr3' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DV-RPTR V3" /etc/dstarrepeater';
 			    $rollDVRPTRPort = 'sudo sed -i "/dvrptr1Port=/c\\dvrptr1Port=/dev/ttyACM0" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollDVRPTRPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollDVRPTRPort);
 			}
 			else if ( $confHardware == 'gmsk_modem' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=GMSK Modem" /etc/dstarrepeater';
-			    system($rollModemType);
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollRepeaterType1);
+			    exec($rollModemType);
+			    $configircddb['repeaterType1'] = "0";
 			}
 			else if ( $confHardware == 'dvap' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DVAP" /etc/dstarrepeater';
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			}
 			else if ( $confHardware == 'zumspotlibre' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'zumspotusb' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'zumspotgpio' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'zumspotdualgpio' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'zumspotduplexgpio' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
 			}
 			else if ( $confHardware == 'zumradiopiusb' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
@@ -1875,138 +1888,122 @@ $MYCALL=strtoupper($callsign);
 			else if ( $confHardware == 'zumradiopigpio' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
 			    $rollMMDVMPort = 'sudo sed -i "/mmdvmPort=/c\\mmdvmPort=/dev/ttyAMA0" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollMMDVMPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollMMDVMPort);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			}
 			else if ( $confHardware == 'zum' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
 			    $rollMMDVMPort = 'sudo sed -i "/mmdvmPort=/c\\mmdvmPort=/dev/ttyACM0" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollMMDVMPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollMMDVMPort);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			}
 			else if ( $confHardware == 'stm32dvm' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
 			    $rollMMDVMPort = 'sudo sed -i "/mmdvmPort=/c\\mmdvmPort=/dev/ttyAMA0" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollMMDVMPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollMMDVMPort);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			}
 			else if ( $confHardware == 'stm32usb' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
 			    $rollMMDVMPort = 'sudo sed -i "/mmdvmPort=/c\\mmdvmPort=/dev/ttyUSB0" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollMMDVMPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollMMDVMPort);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			}
 			else if ( $confHardware == 'f4mgpio' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
 			    $rollMMDVMPort = 'sudo sed -i "/mmdvmPort=/c\\mmdvmPort=/dev/ttyAMA0" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollMMDVMPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollMMDVMPort);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			}
 			else if ( $confHardware == 'f4mf7m' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configmmdvm['General']['Duplex'] = 1;
 			}
 			else if ( $confHardware == 'mmdvmhshat' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'mmdvmhshatambe' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttySC0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'mmdvmhsdualbandgpio' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'mmdvmhsdualhatgpio' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
 			}
 			else if ( $confHardware == 'mmdvmhsdualhatusb' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 1;
 			}
 			else if ( $confHardware == 'mmdvmrpthat' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
 			}
 			else if ( $confHardware == 'mmdvmmdohat' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'mmdvmvyehat' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'mmdvmvyehatdual' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
 			}
 			else if ( $confHardware == 'mnnano-spot' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
@@ -2014,28 +2011,25 @@ $MYCALL=strtoupper($callsign);
 			else if ( $confHardware == 'mnnano-teensy' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
 			    $rollMMDVMPort = 'sudo sed -i "/mmdvmPort=/c\\mmdvmPort=/dev/ttyUSB0" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollMMDVMPort);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
+			    exec($rollMMDVMPort);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'nanodv' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'nanodvusb' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
@@ -2044,12 +2038,11 @@ $MYCALL=strtoupper($callsign);
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DVMEGA" /etc/dstarrepeater';
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyAMA0" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=2" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
+			    $configircddb['repeaterType1'] = "0";
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -2057,12 +2050,11 @@ $MYCALL=strtoupper($callsign);
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DVMEGA" /etc/dstarrepeater';
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyS2" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=3" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
+			    $configircddb['repeaterType1'] = "0";
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyS2";
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -2070,20 +2062,18 @@ $MYCALL=strtoupper($callsign);
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=DVMEGA" /etc/dstarrepeater';
 			    $rollDVMegaPort = 'sudo sed -i "/dvmegaPort=/c\\dvmegaPort=/dev/ttyS2" /etc/dstarrepeater';
 			    $rollDVMegaVariant = 'sudo sed -i "/dvmegaVariant=/c\\dvmegaVariant=3" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
+			    $configircddb['repeaterType1'] = "0";
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyS2";
-			    system($rollModemType);
-			    system($rollDVMegaPort);
-			    system($rollDVMegaVariant);
-			    system($rollRepeaterType1);
+			    exec($rollModemType);
+			    exec($rollDVMegaPort);
+			    exec($rollDVMegaVariant);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
 			else if ( $confHardware == 'opengd77' ) {
 			    $rollModemType = 'sudo sed -i "/modemType=/c\\modemType=MMDVM" /etc/dstarrepeater';
-			    $rollRepeaterType1 = 'sudo sed -i "/repeaterType1=/c\\repeaterType1=0" /etc/ircddbgateway';
-			    system($rollModemType);
-			    system($rollRepeaterType1);
+			    $configircddb['repeaterType1'] = "0";
+			    exec($rollModemType);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
@@ -2096,13 +2086,10 @@ $MYCALL=strtoupper($callsign);
 			}
 			
 			// Set the Service start delay
-			system($rollDstarRepeaterStartDelay);
-			system($rollMMDVMHostStartDelay);
+			exec($rollDstarRepeaterStartDelay);
+			exec($rollMMDVMHostStartDelay);
 			// Turn on RPT1 validation on DStarRepeater
-			system($rollRpt1Validation);
-			// Set Standard IP/Port for ircDDBGateway
-			system($rollRepeaterAddress1);
-			system($rollRepeaterPort1);
+			exec($rollRpt1Validation);
 		    }
 		    
 		    // Set the Dashboard Public
@@ -2110,8 +2097,8 @@ $MYCALL=strtoupper($callsign);
 			$publicDashboard = 'sudo sed -i \'/$DAEMON -a $ipVar 80/c\\\t\t$DAEMON -a $ipVar 80 80 TCP > /dev/null 2>&1 &\' /usr/local/sbin/pistar-upnp.service';
 			$privateDashboard = 'sudo sed -i \'/$DAEMON -a $ipVar 80/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
-			if (escapeshellcmd($_POST['dashAccess']) == 'PUB' ) { system($publicDashboard); }
-			if (escapeshellcmd($_POST['dashAccess']) == 'PRV' ) { system($privateDashboard); }
+			if (escapeshellcmd($_POST['dashAccess']) == 'PUB' ) { exec($publicDashboard); }
+			if (escapeshellcmd($_POST['dashAccess']) == 'PRV' ) { exec($privateDashboard); }
 		    }
 		    
 		    // Set the ircDDBGateway Remote Public
@@ -2119,8 +2106,8 @@ $MYCALL=strtoupper($callsign);
 			$publicRCirc = 'sudo sed -i \'/$DAEMON -a $ipVar 10022/c\\\t\t$DAEMON -a $ipVar 10022 10022 UDP > /dev/null 2>&1 &\' /usr/local/sbin/pistar-upnp.service';
 			$privateRCirc = 'sudo sed -i \'/$DAEMON -a $ipVar 10022/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
-			if (escapeshellcmd($_POST['ircRCAccess']) == 'PUB' ) { system($publicRCirc); }
-			if (escapeshellcmd($_POST['ircRCAccess']) == 'PRV' ) { system($privateRCirc); }
+			if (escapeshellcmd($_POST['ircRCAccess']) == 'PUB' ) { exec($publicRCirc); }
+			if (escapeshellcmd($_POST['ircRCAccess']) == 'PRV' ) { exec($privateRCirc); }
 		    }
 		    
 		    // Set SSH Access Public
@@ -2128,25 +2115,25 @@ $MYCALL=strtoupper($callsign);
 			$publicSSH = 'sudo sed -i \'/$DAEMON -a $ipVar 22/c\\\t\t$DAEMON -a $ipVar 22 22 TCP > /dev/null 2>&1 &\' /usr/local/sbin/pistar-upnp.service';
 			$privateSSH = 'sudo sed -i \'/$DAEMON -a $ipVar 22/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
-			if (escapeshellcmd($_POST['sshAccess']) == 'PUB' ) { system($publicSSH); }
-			if (escapeshellcmd($_POST['sshAccess']) == 'PRV' ) { system($privateSSH); }
+			if (escapeshellcmd($_POST['sshAccess']) == 'PUB' ) { exec($publicSSH); }
+			if (escapeshellcmd($_POST['sshAccess']) == 'PRV' ) { exec($privateSSH); }
 		    }
 		    
 		    // Set uPNP On or Off
 		    if (empty($_POST['uPNP']) != TRUE ) {
 			$uPNPon = 'sudo sed -i \'/pistar-upnp.service/c\\*/5 *\t* * *\troot\t/usr/local/sbin/pistar-upnp.service start > /dev/null 2>&1 &\' /etc/crontab';
 			$uPNPoff = 'sudo sed -i \'/pistar-upnp.service/ s/^#*/#/\' /etc/crontab';
-			$uPNPsvcOn = 'sudo systemctl enable pistar-upnp.timer';
-			$uPNPsvcOff = 'sudo systemctl disable pistar-upnp.timer';
+			$uPNPsvcOn = 'sudo systemctl enable pistar-upnp.timer&';
+			$uPNPsvcOff = 'sudo systemctl disable pistar-upnp.timer&';
 			
-			if (escapeshellcmd($_POST['uPNP']) == 'ON' ) { system($uPNPon); system($uPNPsvcOn); }
-			if (escapeshellcmd($_POST['uPNP']) == 'OFF' ) { system($uPNPoff); system($uPNPsvcOff); }
+			if (escapeshellcmd($_POST['uPNP']) == 'ON' ) { exec($uPNPon); exec($uPNPsvcOn); }
+			if (escapeshellcmd($_POST['uPNP']) == 'OFF' ) { exec($uPNPoff); exec($uPNPsvcOff); }
 		    }
 		    
 		    // D-Star Time Announce
 		    if (empty($_POST['confTimeAnnounce']) != TRUE ) {
-			if (escapeshellcmd($_POST['confTimeAnnounce']) == 'ON' )  { system('sudo rm -rf /etc/timeserver.dissable'); }
-			if (escapeshellcmd($_POST['confTimeAnnounce']) == 'OFF' )  { system('sudo touch /etc/timeserver.dissable'); }
+			if (escapeshellcmd($_POST['confTimeAnnounce']) == 'ON' )  { exec('sudo rm -rf /etc/timeserver.dissable'); }
+			if (escapeshellcmd($_POST['confTimeAnnounce']) == 'OFF' )  { exec('sudo touch /etc/timeserver.dissable'); }
 		    }
 		    
 		    // Set MMDVMHost DMR Mode
@@ -2320,7 +2307,7 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['System Fusion']['SelfOnly'] = 1;
 			    $configmmdvm['P25']['SelfOnly'] = 1;
 			    $configmmdvm['NXDN']['SelfOnly'] = 1;
-			    system('sudo sed -i "/restriction=/c\\restriction=1" /etc/dstarrepeater');
+			    exec('sudo sed -i "/restriction=/c\\restriction=1" /etc/dstarrepeater');
 			}
 			else if (escapeshellcmd($_POST['nodeMode']) == 'pub' ) {
 			    $configmmdvm['DMR']['SelfOnly'] = 0;
@@ -2328,7 +2315,7 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['System Fusion']['SelfOnly'] = 0;
 			    $configmmdvm['P25']['SelfOnly'] = 0;
 			    $configmmdvm['NXDN']['SelfOnly'] = 0;
-			    system('sudo sed -i "/restriction=/c\\restriction=0" /etc/dstarrepeater');
+			    exec('sudo sed -i "/restriction=/c\\restriction=0" /etc/dstarrepeater');
 			}
 		    }
 		    
@@ -2339,13 +2326,13 @@ $MYCALL=strtoupper($callsign);
 			$rollHostname = 'sudo sed -i "s/'.$currHostname.'/'.$newHostnameLower.'/" /etc/hostname';
 			$rollHosts = 'sudo sed -i "s/'.$currHostname.'/'.$newHostnameLower.'/" /etc/hosts';
 			$rollMotd = 'sudo sed -i "s/'.$currHostname.'/'.$newHostnameLower.'/" /etc/motd';
-			system($rollHostname);
-			system($rollHosts);
-			system($rollMotd);
+			exec($rollHostname);
+			exec($rollHosts);
+			exec($rollMotd);
 			if (file_exists('/etc/hostapd/hostapd.conf')) {
 			    // Update the Hotspot name to the Hostname
 			    $rollApSsid = 'sudo sed -i "/^ssid=/c\\ssid='.$newHostnameLower.'" /etc/hostapd/hostapd.conf';
-			    system($rollApSsid);
+			    exec($rollApSsid);
 			}
 		    }
 		    
@@ -2627,10 +2614,10 @@ $MYCALL=strtoupper($callsign);
 		    // Create the hostfiles.nodextra file if required
 		    if (empty($_POST['confHostFilesNoDExtra']) != TRUE ) {
 			if (escapeshellcmd($_POST['confHostFilesNoDExtra']) == 'ON' )  {
-			    if (!file_exists('/etc/hostfiles.nodextra')) { system('sudo touch /etc/hostfiles.nodextra'); }
+			    if (!file_exists('/etc/hostfiles.nodextra')) { exec('sudo touch /etc/hostfiles.nodextra'); }
 			}
 			if (escapeshellcmd($_POST['confHostFilesNoDExtra']) == 'OFF' )  {
-			    if (file_exists('/etc/hostfiles.nodextra')) { system('sudo rm -rf /etc/hostfiles.nodextra'); }
+			    if (file_exists('/etc/hostfiles.nodextra')) { exec('sudo rm -rf /etc/hostfiles.nodextra'); }
 			}
 		    }
 		    
@@ -2650,6 +2637,11 @@ $MYCALL=strtoupper($callsign);
 		    }
 		    //
 		    
+
+		    // Save ircDDBGateway config file
+		    if (saveConfigFileNoSection($configircddb, '/tmp/OoWLvXg3z4VE7FO.tmp', '/etc/ircddbgateway') == false) {
+			return false;
+		    }
 
 		    // Save MMDVMHost config file
 		    if (saveConfigFile($configmmdvm, '/tmp/bW1kdm1ob3N0DQo.tmp', '/etc/mmdvmhost', 140) == false) {
@@ -2730,49 +2722,49 @@ $MYCALL=strtoupper($callsign);
 		    }
 		    
 		    // Start the DV Services
-		    system('sudo systemctl daemon-reload > /dev/null 2>/dev/null &');			// Restart Systemd to account for any service changes
-		    system('sudo systemctl start gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
-		    system('sudo systemctl start aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
-		    system('sudo systemctl start dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
-		    system('sudo systemctl start mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
-		    system('sudo systemctl start ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service
-		    system('sudo systemctl start timeserver.service > /dev/null 2>/dev/null &');		// Time Server Service
-		    system('sudo systemctl start pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
-		    system('sudo systemctl start pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
+		    exec('sudo systemctl daemon-reload > /dev/null 2>/dev/null &');			// Restart Systemd to account for any service changes
+		    exec('sudo systemctl start gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
+		    exec('sudo systemctl start aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
+		    exec('sudo systemctl start dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
+		    exec('sudo systemctl start mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
+		    exec('sudo systemctl start ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service
+		    exec('sudo systemctl start timeserver.service > /dev/null 2>/dev/null &');		// Time Server Service
+		    exec('sudo systemctl start pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
+		    exec('sudo systemctl start pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
 		    if (empty($_POST['uPNP']) != TRUE ) {
-			if (escapeshellcmd($_POST['uPNP']) == 'ON' ) { system('sudo systemctl start pistar-upnp.service > /dev/null 2>/dev/null &'); }
+			if (escapeshellcmd($_POST['uPNP']) == 'ON' ) { exec('sudo systemctl start pistar-upnp.service > /dev/null 2>/dev/null &'); }
 		    }
-		    system('sudo systemctl start ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
-		    system('sudo systemctl start ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
-		    system('sudo systemctl start ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
-		    system('sudo systemctl start nxdn2dmr.service > /dev/null 2>/dev/null &');		// NXDN2DMR
-		    system('sudo systemctl start ysfgateway.service > /dev/null 2>/dev/null &');		// YSFGateway
-		    system('sudo systemctl start ysfparrot.service > /dev/null 2>/dev/null &');		// YSFParrot
-		    system('sudo systemctl start p25gateway.service > /dev/null 2>/dev/null &');		// P25Gateway
-		    system('sudo systemctl start p25parrot.service > /dev/null 2>/dev/null &');		// P25Parrot
-		    system('sudo systemctl start nxdngateway.service > /dev/null 2>/dev/null &');		// NXDNGateway
-		    system('sudo systemctl start nxdnparrot.service > /dev/null 2>/dev/null &');		// NXDNParrot
-		    system('sudo systemctl start dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
-		    system('sudo systemctl start dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2NXDN
-		    system('sudo systemctl start dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
-		    system('sudo systemctl start dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
+		    exec('sudo systemctl start ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
+		    exec('sudo systemctl start ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
+		    exec('sudo systemctl start ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
+		    exec('sudo systemctl start nxdn2dmr.service > /dev/null 2>/dev/null &');		// NXDN2DMR
+		    exec('sudo systemctl start ysfgateway.service > /dev/null 2>/dev/null &');		// YSFGateway
+		    exec('sudo systemctl start ysfparrot.service > /dev/null 2>/dev/null &');		// YSFParrot
+		    exec('sudo systemctl start p25gateway.service > /dev/null 2>/dev/null &');		// P25Gateway
+		    exec('sudo systemctl start p25parrot.service > /dev/null 2>/dev/null &');		// P25Parrot
+		    exec('sudo systemctl start nxdngateway.service > /dev/null 2>/dev/null &');		// NXDNGateway
+		    exec('sudo systemctl start nxdnparrot.service > /dev/null 2>/dev/null &');		// NXDNParrot
+		    exec('sudo systemctl start dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
+		    exec('sudo systemctl start dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2NXDN
+		    exec('sudo systemctl start dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
+		    exec('sudo systemctl start dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
 		    
 		    // Set the system timezone
 		    if (empty($_POST['systemTimezone']) != TRUE) {
 			$rollTimeZone = 'sudo timedatectl set-timezone '.escapeshellcmd($_POST['systemTimezone']);
-			system($rollTimeZone);
+			exec($rollTimeZone);
 			$rollTimeZoneConfig = 'sudo sed -i "/date_default_timezone_set/c\\date_default_timezone_set(\''.escapeshellcmd($_POST['systemTimezone']).'\')\;" /var/www/dashboard/config/config.php';
-			system($rollTimeZoneConfig);
+			exec($rollTimeZoneConfig);
 		    }
 		    
 		    // Start Cron (occasionally remounts root as RO - would be bad if it did this at the wrong time....)
-		    system('sudo systemctl start cron.service > /dev/null 2>/dev/null &');			//Cron
+		    exec('sudo systemctl start cron.service > /dev/null 2>/dev/null &');			//Cron
 		    
 		    unset($_POST);
 		    echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},7500);</script>';
 		    
 		    // Make the root filesystem read-only
-		    system('sudo mount -o remount,ro /');
+		    exec('sudo mount -o remount,ro /');
 		    
 		else:
 		    // Output the HTML Form here
@@ -3056,7 +3048,7 @@ $MYCALL=strtoupper($callsign);
 			    </tr>
 			    <tr>
 				<td align="left"><a class="tooltip2" href="#"><?php echo $lang['node_call'];?>:<span><b>Gateway Callsign</b>This is your licenced callsign for use on this gateway, do not append the "G"</span></a></td>
-				<td align="left" colspan="2"><input type="text" name="confCallsign" size="13" maxlength="7" value="<?php echo $configs['gatewayCallsign'] ?>" /></td>
+				<td align="left" colspan="2"><input type="text" name="confCallsign" size="13" maxlength="7" value="<?php echo $configircddb['gatewayCallsign'] ?>" /></td>
 			    </tr>
 			    <?php if (file_exists('/etc/dstar-radio.mmdvmhost') && (($configmmdvm['DMR']['Enable'] == 1) || ($configmmdvm['P25']['Enable'] == 1 ) || ($configmmdvm['System Fusion']['Enable'] == 1 ))) { ?>
 				<tr>
@@ -3087,11 +3079,11 @@ $MYCALL=strtoupper($callsign);
 				    ?>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['lattitude'];  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') { echo '<button type="button" onclick="getLocation()">Get</button>'; } ?>:<span><b>Gateway Latitude</b>This is the latitude where the gateway is located (positive number for North, negative number for South)</span></a></td>
-					<td align="left" colspan="2"><input type="text" id="confLatitude" name="confLatitude" size="13" maxlength="9" value="<?php echo $configs['latitude'] ?>" />degrees (positive value for North, negative for South)</td>
+					<td align="left" colspan="2"><input type="text" id="confLatitude" name="confLatitude" size="13" maxlength="9" value="<?php echo $configircddb['latitude'] ?>" />degrees (positive value for North, negative for South)</td>
 				    </tr>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['longitude']; if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') { echo '<button type="button" onclick="getLocation()">Get</button>'; } ?>:<span><b>Gateway Longitude</b>This is the longitude where the gateway is located (positive number for East, negative number for West)</span></a></td>
-					<td align="left" colspan="2"><input type="text" id="confLongitude" name="confLongitude" size="13" maxlength="9" value="<?php echo $configs['longitude'] ?>" />degrees (positive value for East, negative for West)</td>
+					<td align="left" colspan="2"><input type="text" id="confLongitude" name="confLongitude" size="13" maxlength="9" value="<?php echo $configircddb['longitude'] ?>" />degrees (positive value for East, negative for West)</td>
 				    </tr>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#">GPSd:<span><b>GPS daemon support</b>Read NMEA data from a serially connected GPS unit and then to make that data available for other programs.</span></a></td>
@@ -3104,18 +3096,18 @@ $MYCALL=strtoupper($callsign);
 				    </tr>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['town'];?>:<span><b>Gateway Town</b>The town where the gateway is located</span></a></td>
-					<td align="left" colspan="2"><input type="text" name="confDesc1" size="30" maxlength="30" value="<?php echo $configs['description1'] ?>" /></td>
+					<td align="left" colspan="2"><input type="text" name="confDesc1" size="30" maxlength="30" value="<?php echo $configircddb['description1'] ?>" /></td>
 				    </tr>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['country'];?>:<span><b>Gateway Country</b>The country where the gateway is located</span></a></td>
-					<td align="left" colspan="2"><input type="text" name="confDesc2" size="30" maxlength="30" value="<?php echo $configs['description2'] ?>" /></td>
+					<td align="left" colspan="2"><input type="text" name="confDesc2" size="30" maxlength="30" value="<?php echo $configircddb['description2'] ?>" /></td>
 				    </tr>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['url'];?>:<span><b>Gateway URL</b>The URL used to access this dashboard</span></a></td>
-					<td align="left"><input type="text" name="confURL" size="30" maxlength="64" value="<?php echo $configs['url'] ?>" /></td>
+					<td align="left"><input type="text" name="confURL" size="30" maxlength="64" value="<?php echo $configircddb['url'] ?>" /></td>
 					<td width="300">
-					    <input type="radio" name="urlAuto" value="auto"<?php if (strpos($configs['url'], 'www.qrz.com/db/'.$configmmdvm['General']['Callsign']) !== FALSE) {echo ' checked="checked"';} ?> />Auto
-					    <input type="radio" name="urlAuto" value="man"<?php if (strpos($configs['url'], 'www.qrz.com/db/'.$configmmdvm['General']['Callsign']) == FALSE) {echo ' checked="checked"';} ?> />Manual</td>
+					    <input type="radio" name="urlAuto" value="auto"<?php if (strpos($configircddb['url'], 'www.qrz.com/db/'.$configmmdvm['General']['Callsign']) !== FALSE) {echo ' checked="checked"';} ?> />Auto
+					    <input type="radio" name="urlAuto" value="man"<?php if (strpos($configircddb['url'], 'www.qrz.com/db/'.$configmmdvm['General']['Callsign']) == FALSE) {echo ' checked="checked"';} ?> />Manual</td>
 				    </tr>
 				    <?php if ( (file_exists('/etc/dstar-radio.dstarrepeater')) || (file_exists('/etc/dstar-radio.mmdvmhost')) ) { ?>
 					<tr>
@@ -3683,7 +3675,7 @@ $MYCALL=strtoupper($callsign);
 				</tr>
 				<tr>
 				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['dstar_irc_password'];?>:<span><b>Remote Password</b>Used for ircDDBGateway remote control access</span></a></td>
-				    <td align="left" colspan="2"><input type="password" name="confPassword" size="30" maxlength="30" value="<?php echo $configs['remotePassword'] ?>" /></td>
+				    <td align="left" colspan="2"><input type="password" name="confPassword" size="30" maxlength="30" value="<?php echo $configircddb['remotePassword'] ?>" /></td>
 				</tr>
 				<tr>
 				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['dstar_default_ref'];?>:<span><b>Default Reflector</b>Used for setting the default reflector.</span></a></td>
@@ -3697,7 +3689,7 @@ $MYCALL=strtoupper($callsign);
 					$dplusFile = fopen("/usr/local/etc/DPlus_Hosts.txt", "r");
 					$dextraFile = fopen("/usr/local/etc/DExtra_Hosts.txt", "r");
 					
-					echo "    <option value=\"".substr($configs['reflector1'], 0, 6)."\" selected=\"selected\">".substr($configs['reflector1'], 0, 6)."</option>\n";
+					echo "    <option value=\"".substr($configircddb['reflector1'], 0, 6)."\" selected=\"selected\">".substr($configircddb['reflector1'], 0, 6)."</option>\n";
 					echo "    <option value=\"customOption\">Text Entry</option>\n";
 					
 					while (!feof($dcsFile)) {
@@ -3727,7 +3719,7 @@ $MYCALL=strtoupper($callsign);
 				    </select><input name="confDefRef" style="display:none;" disabled="disabled" type="text" size="7" maxlength="7"
 						    onblur="if(this.value==''){toggleField(this,this.previousSibling);}" />
 				    <select name="confDefRefLtr">
-					<?php echo "  <option value=\"".substr($configs['reflector1'], 7)."\" selected=\"selected\">".substr($configs['reflector1'], 7)."</option>\n"; ?>
+					<?php echo "  <option value=\"".substr($configircddb['reflector1'], 7)."\" selected=\"selected\">".substr($configircddb['reflector1'], 7)."</option>\n"; ?>
 					<option>A</option>
 					<option>B</option>
 					<option>C</option>
@@ -3757,14 +3749,14 @@ $MYCALL=strtoupper($callsign);
 				    </select>
 				    </td>
 				    <td width="300">
-					<input type="radio" name="confDefRefAuto" value="ON"<?php if ($configs['atStartup1'] == '1') {echo ' checked="checked"';} ?> />Startup
-					<input type="radio" name="confDefRefAuto" value="OFF"<?php if ($configs['atStartup1'] == '0') {echo ' checked="checked"';} ?> />Manual</td>
+					<input type="radio" name="confDefRefAuto" value="ON"<?php if ($configircddb['atStartup1'] == '1') {echo ' checked="checked"';} ?> />Startup
+					<input type="radio" name="confDefRefAuto" value="OFF"<?php if ($configircddb['atStartup1'] == '0') {echo ' checked="checked"';} ?> />Manual</td>
 				</tr>
 				<tr>
 				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['dstar_irc_lang'];?>:<span><b>ircDDBGateway Language</b>Set your prefered language here</span></a></td>
 				    <td colspan="2" style="text-align: left;"><select name="ircDDBGatewayAnnounceLanguage">
 					<?php
-					$testIrcLanguage = $configs['language'];
+					$testIrcLanguage = $configircddb['language'];
 					if (is_readable("/var/www/dashboard/config/ircddbgateway_languages.inc")) {
 					    $ircLanguageFile = fopen("/var/www/dashboard/config/ircddbgateway_languages.inc", "r");
 					    while (!feof($ircLanguageFile)) {
@@ -4437,7 +4429,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><b>pi-star</b></td>
 				<td align="left"><label for="pass1">Password:</label><input type="password" name="adminPassword" id="pass1" onkeyup="checkPass(); return false;" size="15" />
-				    <label for="pass2">Confirm Password:</label><input type="password" name="adminPassword" id="pass2" onkeyup="checkPass(); return false;" />
+				    <label for="pass2">Confirm:</label><input type="password" name="adminPassword" id="pass2" onkeyup="checkPass(); return false;" />
 				    <br /><span id="confirmMessage" class="confirmMessage"></span></td>
 				<td align="right"><input type="hidden" name="adminPasswordUpdate" value="1" /><input type="button" id="submitpwd" value="<?php echo $lang['set_password'];?>" onclick="submitPassform()" disabled="disabled" /></td>
 			    </tr>
