@@ -11,7 +11,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDa
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
 
 // Check if NXDN is Enabled
-$testMMDVModeNXDN = getConfigItem("NXDN Network", "Enable", $_SESSION['mmdvmconfigs']);
+$testMMDVModeNXDN = getConfigItem("NXDN Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 if ( $testMMDVModeNXDN == 1 ) {
 
   //Load the nxdngateway config file

@@ -141,7 +141,7 @@ switch($page) {
 				echo 'Interface already down';
 			}
 		} 
-		elseif(isset($_POST['ifup_wlan0'])) {
+		else if(isset($_POST['ifup_wlan0'])) {
 			exec('ifconfig wlan0 | grep -i running | wc -l',$test);
 			if($test[0] == 0) {
 				exec('sudo ifup wlan0',$return);
@@ -150,7 +150,7 @@ switch($page) {
 				echo 'Interface already up';
 			}
 		}
-		elseif(isset($_POST['reset_wlan0'])) {
+		else if(isset($_POST['reset_wlan0'])) {
 			exec('sudo wpa_cli reconfigure wlan0 && sudo ifdown wlan0 && sleep 3 && sudo ifup wlan0 && sudo wpa_cli scan',$test);
 			echo '<script>window.location.href=\'wifi.php?page=wlan0_info\';</script>';
 		}
@@ -236,7 +236,7 @@ echo '<br />
                                 //$ssid[] = str_replace('"','',$arrssid[1]);
                                 $curssidplain = str_replace('"','',$arrssid[1]);
                         }
-                        elseif(preg_match('/SSID="/i',$a) && !preg_match('/scan_ssid/i',$a)) {
+                        else if(preg_match('/SSID="/i',$a) && !preg_match('/scan_ssid/i',$a)) {
                                 $arrssid = explode("=",$a);
                                 //$ssid[] = str_replace('"','',$arrssid[1]);
                                 if (!isset($curssidplain)) { $curssidalt = str_replace('"','',$arrssid[1]); }
@@ -247,7 +247,7 @@ echo '<br />
                                         //$psk[] = str_replace('"','',$arrpsk[1]);
                                         $curpskplain = str_replace('"','',$arrpsk[1]);
                                 }
-                                elseif(preg_match('/psk=/i',$a)) {
+                                else if(preg_match('/psk=/i',$a)) {
                                         $arrpsk = explode("=",$a);
                                         //$psk[] = str_replace('"','',$arrpsk[1]);
                                         if (!isset($curpskplain)) { $curpskalt = str_replace('"','',$arrpsk[1]); }
@@ -299,13 +299,17 @@ echo '<br />
 			$ssid = $_POST['ssid'.$x];
 			$psk = $_POST['psk'.$x];
 			$priority = 100 - $x;
-			if ($ssid == "*" && !$psk) { $config .= "network={\n\t#ssid=\"$ssid\"\n\t#psk=\"\"\n\tkey_mgmt=NONE\n\tid_str=\"$x\"\n\tpriority=$priority\n}\n\n"; }
-			elseif ($ssid && !$psk) { $config .= "network={\n\tssid=\"$ssid\"\n\t#psk=\"\"\n\tkey_mgmt=NONE\n\tid_str=\"$x\"\n\tpriority=$priority\n}\n\n"; }
-			elseif ($ssid && $psk) {
-				$pskSalted = hash_pbkdf2("sha1",$psk, $ssid, 4096, 64);
-				$ssidHex = bin2hex("$ssid");
-				$config .= "network={\n\t#ssid=\"$ssid\"\n\tssid=$ssidHex\n\t#psk=\"$psk\"\n\tpsk=$pskSalted\n\tid_str=\"$x\"\n\tpriority=$priority\n}\n\n";
-		}
+			if ($ssid == "*" && !$psk) { 
+			    $config .= "network={\n\t#ssid=\"$ssid\"\n\t#psk=\"\"\n\tkey_mgmt=NONE\n\tid_str=\"$x\"\n\tpriority=$priority\n}\n\n";
+			}
+			else if ($ssid && !$psk) {
+			    $config .= "network={\n\tssid=\"$ssid\"\n\t#psk=\"\"\n\tkey_mgmt=NONE\n\tid_str=\"$x\"\n\tpriority=$priority\n}\n\n";
+			}
+			else if ($ssid && $psk) {
+			    $pskSalted = hash_pbkdf2("sha1",$psk, $ssid, 4096, 64);
+			    $ssidHex = bin2hex("$ssid");
+			    $config .= "network={\n\t#ssid=\"$ssid\"\n\tssid=$ssidHex\n\t#psk=\"$psk\"\n\tpsk=$pskSalted\n\tid_str=\"$x\"\n\tpriority=$priority\n}\n\n";
+			}
 		}
 		file_put_contents('/tmp/wifidata', $config);
 		system('sudo mount -o remount,rw / && sudo cp -f /tmp/wifidata /etc/wpa_supplicant/wpa_supplicant.conf && sudo mount -o remount,ro /');
@@ -316,7 +320,7 @@ echo '<br />
 		}
 		echo "<script>document.location='?page=\wlan0_info'</script>";
 
-	} elseif(isset($_POST['Scan'])) {
+	} else if(isset($_POST['Scan'])) {
 		$return = '';
 		exec('ifconfig wlan0 | grep -i running | wc -l',$test);
 		exec('sudo wpa_cli scan -i wlan0',$return);

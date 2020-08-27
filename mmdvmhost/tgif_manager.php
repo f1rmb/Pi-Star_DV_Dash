@@ -69,7 +69,7 @@ function httpStatusText($code = 0) {
 $dmrID = "";
 
 // Check if DMR is Enabled
-$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['mmdvmconfigs']);
+$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['MMDVMHostConfigs']);
 
 if ( $testMMDVModeDMR == 1 ) {
   //Load the dmrgateway config file
@@ -77,7 +77,7 @@ if ( $testMMDVModeDMR == 1 ) {
   if (fopen($dmrGatewayConfigFile,'r')) { $configdmrgateway = parse_ini_file($dmrGatewayConfigFile, true); }
 
   // Get the current DMR Master from the config
-  $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['mmdvmconfigs']);
+  $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
   if ( $dmrMasterHost == '127.0.0.1' ) {
     // DMRGateway, need to check each config
     if (isset($configdmrgateway['DMR Network 1']['Address'])) {
@@ -107,10 +107,10 @@ if ( $testMMDVModeDMR == 1 ) {
     }
   } else if ( $dmrMasterHost == 'tgif.network' ) {
     // MMDVMHost Connected directly to TGIF, get the ID form here
-    if (getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs'])) {
-      $dmrID = getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs']);
+    if (getConfigItem("DMR", "Id", $_SESSION['MMDVMHostConfigs'])) {
+      $dmrID = getConfigItem("DMR", "Id", $_SESSION['MMDVMHostConfigs']);
     } else {
-      $dmrID = getConfigItem("General", "Id", $_SESSION['mmdvmconfigs']);
+      $dmrID = getConfigItem("General", "Id", $_SESSION['MMDVMHostConfigs']);
     }
   }
 }
@@ -119,7 +119,7 @@ if ( $dmrID ) {
   // Work out if the data has been posted or not
   if ( !empty($_POST) && isset($_POST["tgifSubmit"]) ): // Data has been posted for this page
     // Are we a repeater
-    if ( getConfigItem("DMR Network", "Slot1", $_SESSION['mmdvmconfigs']) == "0" ) {
+    if ( getConfigItem("DMR Network", "Slot1", $_SESSION['MMDVMHostConfigs']) == "0" ) {
         $targetSlot = "1";
     } else {
         $targetSlot = preg_replace("/[^0-9]/", "", $_POST["tgifSlot"]);

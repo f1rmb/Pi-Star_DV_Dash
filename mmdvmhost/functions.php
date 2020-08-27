@@ -5,6 +5,8 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+require_once($_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php');
+
 function get_string_between($string, $start, $end){
 	$string = " ".$string;
 	$ini = strpos($string,$start);
@@ -25,6 +27,35 @@ function get_string_between($string, $start, $end){
 //	}
 //	return $conf;
 //}
+
+function getMMDVMConfigContent() {
+    // loads /etc/mmdvmhost into array for further use
+    $confs = array();
+    if ($handle = @fopen('/etc/mmdvmhost', 'r')) {
+	while ($configs = fgets($handle)) {
+	    array_push($confs, trim($configs, " \t\n\r\0\x0B"));
+	}
+	fclose($handle);
+    }
+    return $confs;
+}
+
+// Load any non sectionned config file
+function getNoSectionsConfigContent($configPath) {
+    $confs = array();
+    if ($handle = @fopen($configPath, 'r')) {
+	while ($line = fgets($handle)) {
+	    if (strpos($line, '=') !== FALSE) {
+		list($key, $value) = explode('=', $line, 2);
+		$value = trim(str_replace('"', '', $value));
+		
+		$confs[$key] = $value;
+	    }
+	}
+	fclose($handle);
+    }
+    return $confs;
+}
 
 function getYSFGatewayConfig() {
 	// loads /etc/ysfgateway into array for further use

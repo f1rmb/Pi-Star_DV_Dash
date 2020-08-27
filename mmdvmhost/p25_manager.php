@@ -11,7 +11,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDa
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
 
 // Check if P25 is Enabled
-$testMMDVModeP25 = getConfigItem("P25 Network", "Enable", $_SESSION['mmdvmconfigs']);
+$testMMDVModeP25 = getConfigItem("P25 Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 if ( $testMMDVModeP25 == 1 ) {
 
   //Load the p25gateway config file

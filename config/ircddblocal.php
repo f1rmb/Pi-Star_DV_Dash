@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 $logPath='/var/log/pi-star';
 $callsign='F1RMB';
 $registerURL = '';

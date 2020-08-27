@@ -4,38 +4,41 @@ session_name("PiStar Dashboard Session");
 session_id('pistardashsess');
 session_start();
 
+require_once('config/config.php');
 require_once('config/version.php');
+//require_once('mmdvmhost/tools.php');
+require_once('mmdvmhost/functions.php');
 require_once('config/ircddblocal.php');
 require_once('config/language.php');
 
-function getMMDVMConfigContent() {
-    // loads /etc/mmdvmhost into array for further use
-    $conf = array();
-    if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
-	while ($config = fgets($configs)) {
-	    array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
-	}
-	fclose($configs);
-    }
-    return $conf;
-}
+//function getMMDVMConfigContentXX() {
+//    // loads /etc/mmdvmhost into array for further use
+//    $confs = array();
+//    if ($handle = @fopen('/etc/mmdvmhost', 'r')) {
+//	while ($configs = fgets($handle)) {
+//	    array_push($confs, trim($configs, " \t\n\r\0\x0B"));
+//	}
+//	fclose($handle);
+  //  }
+//    return $confs;
+//}
 
-// Load the ircDDBGateway config file
-function getIRCDDBConfigContent() {
-    $configircddb = array();
-    if ($configfile = fopen($gatewayConfigPath, 'r')) {
-	while ($line = fgets($configfile)) {
-	    if (strpos($line, '=') !== FALSE) {
-		list($key, $value) = explode('=', $line, 2);
-		$value = trim(str_replace('"','',$value));
-		
-		$configircddb[$key] = $value;
-	    }
-	}
-	fclose($configfile);
-    }
-    return $configircddb;
-}
+// Load any non sectionned config file
+//function getNoSectionsConfigContentXX($configPath) {
+//    $confs = array();
+  //  if ($handle = @fopen($configPath, 'r')) {
+//	while ($line = fgets($handle)) {
+//	    if (strpos($line, '=') !== FALSE) {
+//		list($key, $value) = explode('=', $line, 2);
+//		$value = trim(str_replace('"', '', $value));
+//		
+//		$confs[$key] = $value;
+//	    }
+//	}
+//	fclose($handle);
+  //  }
+//    return $confs;
+//}
 
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
 $rev = $version;
@@ -46,9 +49,9 @@ $pistarReleaseConfig = '/etc/pistar-release';
 $configPistarRelease = array();
 $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 
-$_SESSION['mmdvmconfigs'] = getMMDVMConfigContent();
-$_SESSION['configircddb'] = getIRCDDBConfigContent();
-//exec('echo "g='.$_SESSION['mmdvmconfigs'][0].'" >> /tmp/trace.txt');
+$_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
+$_SESSION['configircddb'] = getNoSectionsConfigContent($gatewayConfigPath);
+//exec('echo "g='.$_SESSION['MMDVMHostConfigs'][0].'" >> /tmp/trace.txt');
 
 
 ?>
@@ -146,21 +149,8 @@ else if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
 
 // First lets figure out if we are in MMDVMHost mode, or dstarrepeater mode;
 if (file_exists('/etc/dstar-radio.mmdvmhost')) {
-	include 'config/config.php';					// MMDVMDash Config
-	include_once 'mmdvmhost/tools.php';				// MMDVMDash Tools
-
-//	function getMMDVMConfigFileContent() {
-//		// loads /etc/mmdvmhost into array for further use
-//		$conf = array();
-//		if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
-//			while ($config = fgets($configs)) {
-//				array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
-//			}
-//			fclose($configs);
-//		}
-//		return $conf;
-//	}
-//	$mmdvmconfigs = getMMDVMConfig();//getMMDVMConfigFileContent();
+//include 'config/config.php';					// MMDVMDash Config
+//	include_once 'mmdvmhost/tools.php';				// MMDVMDash Tools
 
 	echo '<div class="nav">'."\n";					// Start the Side Menu
 	echo '<script type="text/javascript">'."\n";
@@ -177,7 +167,7 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 
 	echo '<div class="content">'."\n";
 
-	$testMMDVModeDSTARnet = getConfigItem("D-Star Network", "Enable", $_SESSION['mmdvmconfigs']);
+	$testMMDVModeDSTARnet = getConfigItem("D-Star Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeDSTARnet == 1 ) {				// If D-Star network is enabled, add these extra features.
 
 	if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 		// Admin Only Option
@@ -241,19 +231,19 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
                 include 'mmdvmhost/tgif_manager.php';			// TGIF DMR Link Manager
         }
 
-	$testMMDVModeYSFnet = getConfigItem("System Fusion Network", "Enable", $_SESSION['mmdvmconfigs']);
+	$testMMDVModeYSFnet = getConfigItem("System Fusion Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeYSFnet == 1 ) {				// If YSF network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/ysf_manager.php';		// YSF Links
 		}
 	}
-	$testMMDVModeP25net = getConfigItem("P25 Network", "Enable", $_SESSION['mmdvmconfigs']);
+	$testMMDVModeP25net = getConfigItem("P25 Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeP25net == 1 ) {				// If P25 network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/p25_manager.php';		// P25 Links
 		}
 	}
-	$testMMDVModeNXDNnet = getConfigItem("NXDN Network", "Enable", $_SESSION['mmdvmconfigs']);
+	$testMMDVModeNXDNnet = getConfigItem("NXDN Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeNXDNnet == 1 ) {				// If NXDN network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/nxdn_manager.php';		// NXDN Links
@@ -304,7 +294,7 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 	echo '</div>'."\n";
 	
 	// If POCSAG is enabled, show the information pannel
-	$testMMDVModePOCSAG = getConfigItem("POCSAG Network", "Enable", $_SESSION['mmdvmconfigs']);
+	$testMMDVModePOCSAG = getConfigItem("POCSAG Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( $testMMDVModePOCSAG == 1 ) {
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") {  // Admin Only Options
 			echo "<br />\n";
@@ -336,7 +326,8 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 		echo '</div>'."\n";
 	}
 
-} elseif (file_exists('/etc/dstar-radio.dstarrepeater')) {
+}
+else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
         if (file_exists('/etc/aprsgateway')) {
 	    $aprsGatewayConfigFile = '/etc/aprsgateway';
 	    if (fopen($aprsGatewayConfigFile,'r')) { $configaprsgateway = parse_ini_file($aprsGatewayConfigFile, true); }

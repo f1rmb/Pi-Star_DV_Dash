@@ -28,7 +28,6 @@ if ($_SERVER["PHP_SELF"] == "/admin/update.php") {
 
   // Sanity Check Passed.
   header('Cache-Control: no-cache');
-  session_start();
 
   if (!isset($_GET['ajax'])) {
     //unset($_SESSION['update_offset']);

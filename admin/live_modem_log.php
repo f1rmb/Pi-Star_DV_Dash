@@ -16,46 +16,44 @@ require_once('config/version.php');
 
 // Sanity Check that this file has been opened correctly
 if ($_SERVER["PHP_SELF"] == "/admin/live_modem_log.php") {
-
-  // Sanity Check Passed.
-  header('Cache-Control: no-cache');
-  session_start();
-
-  if (!isset($_GET['ajax'])) {
-    unset($_SESSION['offset']);
-    //$_SESSION['offset'] = 0;
-  }
-
-  if (isset($_GET['ajax'])) {
-    //session_start();
-    if (file_exists('/etc/dstar-radio.mmdvmhost')) {
-      $logfile = "/var/log/pi-star/MMDVM-".gmdate('Y-m-d').".log";
-    }
-    elseif (file_exists('/etc/dstar-radio.dstarrepeater')) {
-      if (file_exists("/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log";}
-      if (file_exists("/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log";}
+    
+    // Sanity Check Passed.
+    header('Cache-Control: no-cache');
+    
+    if (!isset($_GET['ajax'])) {
+	unset($_SESSION['offset']);
+	//$_SESSION['offset'] = 0;
     }
     
-    if (empty($logfile) || !file_exists($logfile)) {
-      exit();
+    if (isset($_GET['ajax'])) {
+	if (file_exists('/etc/dstar-radio.mmdvmhost')) {
+	    $logfile = "/var/log/pi-star/MMDVM-".gmdate('Y-m-d').".log";
+	}
+	else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
+	    if (file_exists("/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log";}
+	    if (file_exists("/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log";}
+	}
+	
+	if (empty($logfile) || !file_exists($logfile)) {
+	    exit();
+	}
+	
+	$handle = fopen($logfile, 'rb');
+	if (isset($_SESSION['offset'])) {
+	    fseek($handle, 0, SEEK_END);
+	    if ($_SESSION['offset'] > ftell($handle)) { //log rotated/truncated
+		$_SESSION['offset'] = 0; //continue at beginning of the new log
+	    }
+	    $data = stream_get_contents($handle, -1, $_SESSION['offset']);
+	    $_SESSION['offset'] += strlen($data);
+	    echo nl2br($data);
+	}
+	else {
+	    fseek($handle, 0, SEEK_END);
+	    $_SESSION['offset'] = ftell($handle);
+	} 
+	exit();
     }
-    
-    $handle = fopen($logfile, 'rb');
-    if (isset($_SESSION['offset'])) {
-      fseek($handle, 0, SEEK_END);
-      if ($_SESSION['offset'] > ftell($handle)) //log rotated/truncated
-        $_SESSION['offset'] = 0; //continue at beginning of the new log
-      $data = stream_get_contents($handle, -1, $_SESSION['offset']);
-      $_SESSION['offset'] += strlen($data);
-      echo nl2br($data);
-      }
-    else {
-      fseek($handle, 0, SEEK_END);
-      $_SESSION['offset'] = ftell($handle);
-      } 
-  exit();
-  }
-  
 ?>
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

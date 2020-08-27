@@ -11,7 +11,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDa
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
 
 // Check if DMR is Enabled
-$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['mmdvmconfigs']);
+$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['MMDVMHostConfigs']);
 
 if ( $testMMDVModeDMR == 1 ) {
   //setup BM API Key
@@ -29,15 +29,15 @@ if ( $testMMDVModeDMR == 1 ) {
   if (fopen($dmrGatewayConfigFile,'r')) { $configdmrgateway = parse_ini_file($dmrGatewayConfigFile, true); }
 
   // Get the current DMR Master from the config
-  $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['mmdvmconfigs']);
+  $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
   if ( $dmrMasterHost == '127.0.0.1' ) {
     $dmrMasterHost = $configdmrgateway['DMR Network 1']['Address'];
     $bmEnabled = ($configdmrgateway['DMR Network 1']['Enabled'] != "0" ? true : false);
     if (isset($configdmrgateway['DMR Network 1']['Id'])) { $dmrID = $configdmrgateway['DMR Network 1']['Id']; }
-  } elseif (getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs'])) {
-    $dmrID = getConfigItem("DMR", "Id", $_SESSION['mmdvmconfigs']);
+  } elseif (getConfigItem("DMR", "Id", $_SESSION['MMDVMHostConfigs'])) {
+    $dmrID = getConfigItem("DMR", "Id", $_SESSION['MMDVMHostConfigs']);
   } else {
-    $dmrID = getConfigItem("General", "Id", $_SESSION['mmdvmconfigs']);
+    $dmrID = getConfigItem("General", "Id", $_SESSION['MMDVMHostConfigs']);
   }
 
   // Store the DMR Master IP, we will need this for the JSON lookup
@@ -60,7 +60,7 @@ if ( $testMMDVModeDMR == 1 ) {
   $bmAPIurl = 'https://api.brandmeister.network/v1.0/repeater/';
   if ( !empty($_POST) && ( isset($_POST["dropDyn"]) || isset($_POST["dropQso"]) || isset($_POST["refSubmit"]) || isset($_POST["tgSubmit"]) ) ): // Data has been posted for this page
     // Are we a repeater
-    if ( getConfigItem("DMR Network", "Slot1", $_SESSION['mmdvmconfigs']) == "0" ) {
+    if ( getConfigItem("DMR Network", "Slot1", $_SESSION['MMDVMHostConfigs']) == "0" ) {
         unset($_POST["TS"]);
         $targetSlot = "0";
       } else {
