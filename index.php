@@ -6,53 +6,45 @@ session_start();
 
 require_once('config/config.php');
 require_once('config/version.php');
-//require_once('mmdvmhost/tools.php');
 require_once('mmdvmhost/functions.php');
 require_once('config/ircddblocal.php');
 require_once('config/language.php');
 
-//function getMMDVMConfigContentXX() {
-//    // loads /etc/mmdvmhost into array for further use
-//    $confs = array();
-//    if ($handle = @fopen('/etc/mmdvmhost', 'r')) {
-//	while ($configs = fgets($handle)) {
-//	    array_push($confs, trim($configs, " \t\n\r\0\x0B"));
-//	}
-//	fclose($handle);
-  //  }
-//    return $confs;
-//}
-
-// Load any non sectionned config file
-//function getNoSectionsConfigContentXX($configPath) {
-//    $confs = array();
-  //  if ($handle = @fopen($configPath, 'r')) {
-//	while ($line = fgets($handle)) {
-//	    if (strpos($line, '=') !== FALSE) {
-//		list($key, $value) = explode('=', $line, 2);
-//		$value = trim(str_replace('"', '', $value));
-//		
-//		$confs[$key] = $value;
-//	    }
-//	}
-//	fclose($handle);
-  //  }
-//    return $confs;
-//}
 
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
 $rev = $version;
 $MYCALL = strtoupper($callsign);
+$_SESSION['MYCALL'] = $MYCALL;
 
 //Load the Pi-Star Release file
 $pistarReleaseConfig = '/etc/pistar-release';
 $configPistarRelease = array();
 $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 
+// Load a bunch of config files.
 $_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
-$_SESSION['configircddb'] = getNoSectionsConfigContent($gatewayConfigPath);
-//exec('echo "g='.$_SESSION['MMDVMHostConfigs'][0].'" >> /tmp/trace.txt');
-
+$_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
+$_SESSION['DStarRepeaterConfigs'] = getNoSectionsConfigContent('/etc/dstarrepeater');
+$_SESSION['DMRGatewayConfigs'] = parse_ini_file('/etc/dmrgateway', true);
+$_SESSION['DAPNETGatewayConfigs'] = parse_ini_file('/etc/dapnetgateway', true);
+if (file_exists('/etc/ysf2dmr')) {
+    $_SESSION['YSF2DMRConfigs'] = parse_ini_file('/etc/ysf2dmr', true);
+}
+if (file_exists('/etc/ysf2nxdn')) {
+    $_SESSION['YSF2NXDNConfigs'] = parse_ini_file('/etc/ysf2nxdn', true);
+}
+if (file_exists('/etc/ysf2p25')) {
+    $_SESSION['YSF2P25Configs'] = parse_ini_file('/etc/ysf2p25', true);
+}
+if (file_exists('/etc/dmr2ysf')) {
+    $_SESSION['DMR2YSFConfigs'] = parse_ini_file('/etc/dmr2ysf', true);
+}
+if (file_exists('/etc/dmr2nxdn')) {
+    $_SESSION['DMR2NXDNConfigs'] = parse_ini_file('/etc/dmr2nxdn', true);
+}
+if (file_exists('/etc/aprsgateway')) {
+    $_SESSION['APRSGatewayConfigs'] = parse_ini_file('/etc/aprsgateway', true);
+}
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -89,7 +81,7 @@ $_SESSION['configircddb'] = getNoSectionsConfigContent($gatewayConfigPath);
     <div class="container">
 	<div class="header">
 	    <div style="font-size: 8px; text-align: left; padding-left: 8px; float: left;">Hostname: <?php echo exec('cat /etc/hostname'); ?></div><div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
-	    <h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard_for']." ".$MYCALL; ?></h1>
+	    <h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard_for']." ".$_SESSION['MYCALL']; ?></h1>
 	    
 	    <p>
  		<div class="navbar">

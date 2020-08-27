@@ -16,20 +16,7 @@ function get_string_between($string, $start, $end){
 	return substr($string,$ini,$len);
 }
 
-//function getMMDVMConfig() {
-//	// loads /etc/mmdvmhost into array for further use
-//	$conf = array();
-//	if ($configs = @fopen(MMDVMINIPATH."/".MMDVMINIFILENAME, 'r')) {
-//	    while ($config = fgets($configs)) {
-//			array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
-//		}
-//		fclose($configs);
-//	}
-//	return $conf;
-//}
-
 function getMMDVMConfigContent() {
-    // loads /etc/mmdvmhost into array for further use
     $confs = array();
     if ($handle = @fopen('/etc/mmdvmhost', 'r')) {
 	while ($configs = fgets($handle)) {

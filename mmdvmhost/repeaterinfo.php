@@ -11,73 +11,6 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDa
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
 require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 
-// Load the ircDDBGateway config file
-$configircddb = array();
-if ($configfile = fopen($gatewayConfigPath, 'r')) {
-    while ($line = fgets($configfile)) {
-	if (strpos($line, '=') !== FALSE) {
-            list($key, $value) = explode('=', $line, 2);
-            $value = trim(str_replace('"','',$value));
-	    
-	    $configircddb[$key] = $value;
-	}
-    }
-    fclose($configfile);
-}
-
-// Load the dstarrepeater config file
-$configdstar = array();
-if ($configdstarfile = fopen('/etc/dstarrepeater', 'r')) {
-    while ($line1 = fgets($configdstarfile)) {
-	if (strpos($line1, '=') !== FALSE) {
-            list($key1, $value1) = explode('=', $line1, 2);
-            $value1 = trim(str_replace('"', '', $value1));
-	    
-            $configdstar[$key1] = $value1;
-	}
-    }
-    fclose($configdstarfile);
-}
-
-//Load the dmrgateway config file
-$dmrGatewayConfigFile = '/etc/dmrgateway';
-if (fopen($dmrGatewayConfigFile,'r')) { $configdmrgateway = parse_ini_file($dmrGatewayConfigFile, true); }
-
-//Load the dapnetgateway config file
-$dapnetGatewayConfigFile = '/etc/dapnetgateway';
-if (fopen($dapnetGatewayConfigFile,'r')) { $configdapnetgateway = parse_ini_file($dapnetGatewayConfigFile, true); }
-
-// Load the ysf2dmr config file
-if (file_exists('/etc/ysf2dmr')) {
-	$ysf2dmrConfigFile = '/etc/ysf2dmr';
-	if (fopen($ysf2dmrConfigFile,'r')) { $configysf2dmr = parse_ini_file($ysf2dmrConfigFile, true); }
-}
-// Load the ysf2nxdn config file
-if (file_exists('/etc/ysf2nxdn')) {
-	$ysf2nxdnConfigFile = '/etc/ysf2nxdn';
-	if (fopen($ysf2nxdnConfigFile,'r')) { $configysf2nxdn = parse_ini_file($ysf2nxdnConfigFile, true); }
-}
-// Load the ysf2p25 config file
-if (file_exists('/etc/ysf2p25')) {
-	$ysf2p25ConfigFile = '/etc/ysf2p25';
-	if (fopen($ysf2p25ConfigFile,'r')) { $configysf2p25 = parse_ini_file($ysf2p25ConfigFile, true); }
-}
-// Load the dmr2ysf config file
-if (file_exists('/etc/dmr2ysf')) {
-	$dmr2ysfConfigFile = '/etc/dmr2ysf';
-	if (fopen($dmr2ysfConfigFile,'r')) { $configdmr2ysf = parse_ini_file($dmr2ysfConfigFile, true); }
-}
-// Load the dmr2nxdn config file
-if (file_exists('/etc/dmr2nxdn')) {
-	$dmr2nxdnConfigFile = '/etc/dmr2nxdn';
-	if (fopen($dmr2nxdnConfigFile,'r')) { $configdmr2nxdn = parse_ini_file($dmr2nxdnConfigFile, true); }
-}
-// Load the aprsgateway config file
-if (file_exists('/etc/aprsgateway')) {
-    $aprsGatewayConfigFile = '/etc/aprsgateway';
-    if (fopen($aprsGatewayConfigFile,'r')) { $configaprsgateway = parse_ini_file($aprsGatewayConfigFile, true); }
-}
-
 ?>
 <table>
   <tr><th colspan="2"><?php echo $lang['modes_enabled'];?></th></tr>
@@ -176,11 +109,11 @@ if ( $testMMDVModeDSTAR == 1 ) { //Hide the D-Star Reflector information when D-
 echo "<br />\n";
 echo "<table>\n";
 echo "<tr><th colspan=\"2\">".$lang['dstar_repeater']."</th></tr>\n";
-echo "<tr><th>RPT1</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $configdstar['callsign'])."</td></tr>\n";
-echo "<tr><th>RPT2</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $configdstar['gateway'])."</td></tr>\n";
+echo "<tr><th>RPT1</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['DStarRepeaterConfigs']['callsign'])."</td></tr>\n";
+echo "<tr><th>RPT2</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['DStarRepeaterConfigs']['gateway'])."</td></tr>\n";
 echo "<tr><th colspan=\"2\">".$lang['dstar_net']."</th></tr>\n";
-echo "<tr><th>APRS</th><td style=\"background: #ffffff;\">".substr($configaprsgateway['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
-echo "<tr><th>IRC</th><td style=\"background: #ffffff;\">".substr($configircddb['ircddbHostname'], 0 ,16)."</td></tr>\n";
+echo "<tr><th>APRS</th><td style=\"background: #ffffff;\">".substr($_SESSION['APRSGatewayConfigs']['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
+echo "<tr><th>IRC</th><td style=\"background: #ffffff;\">".substr($_SESSION['ircDDBConfigs']['ircddbHostname'], 0 ,16)."</td></tr>\n";
 echo "<tr><td colspan=\"2\" style=\"background: #ffffff;\">".getActualLink($reverseLogLinesMMDVM, "D-Star")."</td></tr>\n";
 echo "</table>\n";
 }
@@ -191,13 +124,13 @@ $dmrMasterFile = fopen("/usr/local/etc/DMR_Hosts.txt", "r");
 $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
 $dmrMasterPort = getConfigItem("DMR Network", "Port", $_SESSION['MMDVMHostConfigs']);
 if ($dmrMasterHost == '127.0.0.1') {
-	if (isset($configdmrgateway['XLX Network 1']['Address'])) { $xlxMasterHost1 = $configdmrgateway['XLX Network 1']['Address']; }
+	if (isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Address'])) { $xlxMasterHost1 = $_SESSION['DMRGatewayConfigs']['XLX Network 1']['Address']; }
 	else { $xlxMasterHost1 = ""; }
-	$dmrMasterHost1 = $configdmrgateway['DMR Network 1']['Address'];
-	$dmrMasterHost2 = $configdmrgateway['DMR Network 2']['Address'];
-	$dmrMasterHost3 = str_replace('_', ' ', $configdmrgateway['DMR Network 3']['Name']);
-	if (isset($configdmrgateway['DMR Network 4']['Name'])) {$dmrMasterHost4 = str_replace('_', ' ', $configdmrgateway['DMR Network 4']['Name']);}
-	if (isset($configdmrgateway['DMR Network 5']['Name'])) {$dmrMasterHost5 = str_replace('_', ' ', $configdmrgateway['DMR Network 5']['Name']);}
+	$dmrMasterHost1 = $_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'];
+	$dmrMasterHost2 = $_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'];
+	$dmrMasterHost3 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 3']['Name']);
+	if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Name'])) {$dmrMasterHost4 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 4']['Name']);}
+	if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name'])) {$dmrMasterHost5 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name']);}
 	while (!feof($dmrMasterFile)) {
 		$dmrMasterLine = fgets($dmrMasterFile);
 		$dmrMasterHostF = preg_split('/\s+/', $dmrMasterLine);
@@ -258,10 +191,10 @@ else {
 echo "<tr><th colspan=\"2\">".$lang['dmr_master']."</th></tr>\n";
 if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {
 		if ($dmrMasterHost == '127.0.0.1') {
-			if ((isset($configdmrgateway['XLX Network 1']['Enabled'])) && ($configdmrgateway['XLX Network 1']['Enabled'] == 1)) {
+			if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled'] == 1)) {
 				echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
 			}
-                        if ( !isset($configdmrgateway['XLX Network 1']['Enabled']) && isset($configdmrgateway['XLX Network']['Enabled']) && $configdmrgateway['XLX Network']['Enabled'] == 1) {
+                        if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
 				if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) { $xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\''); }
                                 else { $xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d", time() - 86340).'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\''); }
 				//$xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
@@ -269,22 +202,22 @@ if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {
 				else if ( strpos($xlxMasterHost1, 'Unlinking') !== false ) { $xlxMasterHost1 = "XLX Not Linked"; }
 				echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$xlxMasterHost1."\">".$xlxMasterHost1."</td></tr>\n";
                         }
-			if ($configdmrgateway['DMR Network 1']['Enabled'] == 1) {
+			if ($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Enabled'] == 1) {
 				echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost1Tooltip."\">".$dmrMasterHost1."</td></tr>\n";
 			}
-			if ($configdmrgateway['DMR Network 2']['Enabled'] == 1) {
+			if ($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Enabled'] == 1) {
 				echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost2Tooltip."\">".$dmrMasterHost2."</td></tr>\n";
 			}
-			if ($configdmrgateway['DMR Network 3']['Enabled'] == 1) {
+			if ($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Enabled'] == 1) {
 				echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost3Tooltip."\">".$dmrMasterHost3."</td></tr>\n";
 			}
-			if (isset($configdmrgateway['DMR Network 4']['Enabled'])) {
-				if ($configdmrgateway['DMR Network 4']['Enabled'] == 1) {
+			if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'])) {
+				if ($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'] == 1) {
                                         echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost4Tooltip."\">".$dmrMasterHost4."</td></tr>\n";
 				}
 			}
-			if (isset($configdmrgateway['DMR Network 5']['Enabled'])) {
-				if ($configdmrgateway['DMR Network 5']['Enabled'] == 1) {
+			if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'])) {
+				if ($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'] == 1) {
                                         echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost5Tooltip."\">".$dmrMasterHost5."</td></tr>\n";
 				}
 			}
@@ -300,8 +233,8 @@ echo "</table>\n";
 }
 
 $testMMDVModeYSF = getConfigItem("System Fusion Network", "Enable", $_SESSION['MMDVMHostConfigs']);
-if ( isset($configdmr2ysf['Enabled']['Enabled']) ) {
-    $testDMR2YSF = $configdmr2ysf['Enabled']['Enabled'];
+if ( isset($_SESSION['DMR2YSFConfigs']['Enabled']['Enabled']) ) {
+    $testDMR2YSF = $_SESSION['DMR2YSFConfigs']['Enabled']['Enabled'];
 }
 if ( $testMMDVModeYSF == 1 || (isset($testDMR2YSF) && $testDMR2YSF == 1) ) { //Hide the YSF information when System Fusion Network mode not enabled.
         $ysfLinkedTo = getActualLink($reverseLogLinesYSFGateway, "YSF");
@@ -352,10 +285,10 @@ if ( $testMMDVModeYSF == 1 || (isset($testDMR2YSF) && $testDMR2YSF == 1) ) { //H
 }
 
 $testYSF2DMR = 0;
-if ( isset($configysf2dmr['Enabled']['Enabled']) ) { $testYSF2DMR = $configysf2dmr['Enabled']['Enabled']; }
+if ( isset($_SESSION['YSF2DMRConfigs']['Enabled']['Enabled']) ) { $testYSF2DMR = $_SESSION['YSF2DMRConfigs']['Enabled']['Enabled']; }
 if ($testYSF2DMR == 1) { //Hide the YSF2DMR information when YSF2DMR Network mode not enabled.
         $dmrMasterFile = fopen("/usr/local/etc/DMR_Hosts.txt", "r");
-        $dmrMasterHost = $configysf2dmr['DMR Network']['Address'];
+        $dmrMasterHost = $_SESSION['YSF2DMRConfigs']['DMR Network']['Address'];
         while (!feof($dmrMasterFile)) {
                 $dmrMasterLine = fgets($dmrMasterFile);
                 $dmrMasterHostF = preg_split('/\s+/', $dmrMasterLine);
@@ -370,14 +303,14 @@ if ($testYSF2DMR == 1) { //Hide the YSF2DMR information when YSF2DMR Network mod
         echo "<br />\n";
         echo "<table>\n";
         echo "<tr><th colspan=\"2\">YSF2DMR</th></tr>\n";
-	echo "<tr><th>DMR ID</th><td style=\"background: #ffffff;\">".$configysf2dmr['DMR Network']['Id']."</td></tr>\n";
+	echo "<tr><th>DMR ID</th><td style=\"background: #ffffff;\">".$_SESSION['YSF2DMRConfigs']['DMR Network']['Id']."</td></tr>\n";
 	echo "<tr><th colspan=\"2\">YSF2".$lang['dmr_master']."</th></tr>\n";
         echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\" title=\"".$dmrMasterHostTooltip."\">".$dmrMasterHost."</td></tr>\n";
         echo "</table>\n";
 }
 
 $testMMDVModeP25 = getConfigItem("P25 Network", "Enable", $_SESSION['MMDVMHostConfigs']);
-if ( isset($configysf2p25['Enabled']['Enabled']) ) { $testYSF2P25 = $configysf2p25['Enabled']['Enabled']; }
+if ( isset($_SESSION['YSF2P25Configs']['Enabled']['Enabled']) ) { $testYSF2P25 = $_SESSION['YSF2P25Configs']['Enabled']['Enabled']; }
 if ( $testMMDVModeP25 == 1 || $testYSF2P25 ) { //Hide the P25 information when P25 Network mode not enabled.
 	echo "<br />\n";
 	echo "<table>\n";
@@ -391,8 +324,8 @@ if ( $testMMDVModeP25 == 1 || $testYSF2P25 ) { //Hide the P25 information when P
 }
 
 $testMMDVModeNXDN = getConfigItem("NXDN Network", "Enable", $_SESSION['MMDVMHostConfigs']);
-if ( isset($configysf2nxdn['Enabled']['Enabled']) ) { if ($configysf2nxdn['Enabled']['Enabled'] == 1) { $testYSF2NXDN = 1; } }
-if ( isset($configdmr2nxdn['Enabled']['Enabled']) ) { if ($configdmr2nxdn['Enabled']['Enabled'] == 1) { $testDMR2NXDN = 1; } }
+if ( isset($_SESSION['YSF2NXDNConfigs']['Enabled']['Enabled']) ) { if ($_SESSION['YSF2NXDNConfigs']['Enabled']['Enabled'] == 1) { $testYSF2NXDN = 1; } }
+if ( isset($_SESSION['DMR2NXDNConfigs']['Enabled']['Enabled']) ) { if ($_SESSION['DMR2NXDNConfigs']['Enabled']['Enabled'] == 1) { $testDMR2NXDN = 1; } }
 if ( $testMMDVModeNXDN == 1 || isset($testYSF2NXDN) || isset($testDMR2NXDN) ) { //Hide the NXDN information when NXDN Network mode not enabled.
 	echo "<br />\n";
 	echo "<table>\n";
@@ -415,8 +348,8 @@ if ( $testMMDVModePOCSAG == 1 ) { //Hide the POCSAG information when POCSAG Netw
 	echo "<table>\n";
 	echo "<tr><th colspan=\"2\">POCSAG</th></tr>\n";
 	echo "<tr><th>Tx</th><td>".getMHZ(getConfigItem("POCSAG", "Frequency", $_SESSION['MMDVMHostConfigs']))."</td></tr>\n";
-	if (isset($configdapnetgateway['DAPNET']['Address'])) {
-		$dapnetGatewayRemoteAddr = $configdapnetgateway['DAPNET']['Address'];
+	if (isset($_SESSION['DAPNETGatewayConfigs']['DAPNET']['Address'])) {
+		$dapnetGatewayRemoteAddr = $_SESSION['DAPNETGatewayConfigs']['DAPNET']['Address'];
 	        $dapnetGatewayRemoteTooltip = $dapnetGatewayRemoteAddr;
 		if (strlen($dapnetGatewayRemoteAddr) > 19) { $dapnetGatewayRemoteAddr = substr($dapnetGatewayRemoteAddr, 0, 17) . '..'; }
 		echo "<tr><th colspan=\"2\">POCSAG Master</th></tr>\n";

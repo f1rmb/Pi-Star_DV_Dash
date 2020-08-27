@@ -2791,7 +2791,7 @@ $MYCALL=strtoupper($callsign);
 		if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 		    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"controllerSoft\" value=\"DSTAR\" onclick=\"alert('After applying your Configuration Settings, you will need to powercycle your Pi.');\" />DStarRepeater <input type=\"radio\" name=\"controllerSoft\" value=\"MMDVM\" checked=\"checked\" />MMDVMHost (DV-Mega Minimum Firmware 3.07 Required)</td>\n";
 		}
-		elseif (file_exists('/etc/dstar-radio.dstarrepeater')) {
+		else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
 		    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"controllerSoft\" value=\"DSTAR\" checked=\"checked\" />DStarRepeater <input type=\"radio\" name=\"controllerSoft\" value=\"MMDVM\" onclick=\"alert('After applying your Configuration Settings, you will need to powercycle your Pi.');\" />MMDVMHost (DV-Mega Minimum Firmware 3.07 Required)</td>\n";
 		}
 		else { // Not set - default to MMDVMHost

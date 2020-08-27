@@ -7,20 +7,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
 
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
-$configs = array();
 
-if ($configfile = fopen($gatewayConfigPath,'r')) {
-        while ($line = fgets($configfile)) {
-                list($key,$value) = preg_split('/=/',$line);
-                $value = trim(str_replace('"','',$value));
-                if ($key != 'ircddbPassword' && strlen($value) > 0)
-                $configs[$key] = $value;
-        }
-
-}
-$progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
-$rev="20141101";
-$MYCALL=strtoupper($callsign);
 ?>
     <b><?php echo $lang['local_tx_list'];?></b>
     <table>

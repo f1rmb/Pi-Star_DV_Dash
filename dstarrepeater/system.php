@@ -8,29 +8,6 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';
-$configs = array();
-
-if ($configfile = fopen($gatewayConfigPath,'r')) {
-        while ($line = fgets($configfile)) {
-                list($key,$value) = preg_split('/=/',$line);
-                $value = trim(str_replace('"','',$value));
-                if ($key != 'ircddbPassword' && strlen($value) > 0)
-                $configs[$key] = $value;
-        }
-
-}
-$progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
-$rev="20141101";
-$MYCALL=strtoupper($callsign);
-?>
-<?php
-$cpuLoad = sys_getloadavg();
-$cpuTempCRaw = exec('cat /sys/class/thermal/thermal_zone0/temp');
-if ($cpuTempCRaw > 1000) { $cpuTempC = round($cpuTempCRaw / 1000, 1); } else { $cpuTempC = round($cpuTempCRaw, 1); }
-$cpuTempF = round(+$cpuTempC * 9 / 5 + 32, 1);
-if ($cpuTempC < 50) { $cpuTempHTML = "<td style=\"background: #1d1\">".$cpuTempC."&deg;C/".$cpuTempF."&deg;F</td>\n"; }
-if ($cpuTempC >= 50) { $cpuTempHTML = "<td style=\"background: #fa0\">".$cpuTempC."&deg;C/".$cpuTempF."&deg;F</td>\n"; }
-if ($cpuTempC >= 69) { $cpuTempHTML = "<td style=\"background: #f00\">".$cpuTempC."&deg;C/".$cpuTempF."&deg;F</td>\n"; }
 
 function getServiceStatusClass($active) {
     echo (($active) ? 'active-service-cell' : 'inactive-service-cell');
