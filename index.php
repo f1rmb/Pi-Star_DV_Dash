@@ -7,30 +7,50 @@ session_start();
 require_once('config/version.php');
 require_once('config/ircddblocal.php');
 require_once('config/language.php');
-//require_once('mmdvmhost/vitals.php');
+
+function getMMDVMConfigContent() {
+    // loads /etc/mmdvmhost into array for further use
+    $conf = array();
+    if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
+	while ($config = fgets($configs)) {
+	    array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
+	}
+	fclose($configs);
+    }
+    return $conf;
+}
 
 // Load the ircDDBGateway config file
-$configircddb = array();
-if ($configfile = fopen($gatewayConfigPath, 'r')) {
-    while ($line = fgets($configfile)) {
-	if (strpos($line, '=') !== FALSE) {
-            list($key, $value) = explode('=', $line, 2);
-            $value = trim(str_replace('"','',$value));
-	    
-	    $configircddb[$key] = $value;
+function getIRCDDBConfigContent() {
+    $configircddb = array();
+    if ($configfile = fopen($gatewayConfigPath, 'r')) {
+	while ($line = fgets($configfile)) {
+	    if (strpos($line, '=') !== FALSE) {
+		list($key, $value) = explode('=', $line, 2);
+		$value = trim(str_replace('"','',$value));
+		
+		$configircddb[$key] = $value;
+	    }
 	}
+	fclose($configfile);
     }
-    fclose($configfile);
+    return $configircddb;
 }
 
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
-$rev=$version;
-$MYCALL=strtoupper($callsign);
+$rev = $version;
+$MYCALL = strtoupper($callsign);
 
 //Load the Pi-Star Release file
 $pistarReleaseConfig = '/etc/pistar-release';
 $configPistarRelease = array();
 $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
+
+$_SESSION['mmdvmconfigs'] = getMMDVMConfigContent();
+$_SESSION['configircddb'] = getIRCDDBConfigContent();
+//exec('echo "g='.$_SESSION['mmdvmconfigs'][0].'" >> /tmp/trace.txt');
+
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -84,21 +104,6 @@ $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 	</div>
 	
 <?php
-
-function getMMDVMConfigContent() {
-	// loads /etc/mmdvmhost into array for further use
-	$conf = array();
-	if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
-	    while ($config = fgets($configs)) {
-			array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
-		}
-		fclose($configs);
-	}
-	return $conf;
-}
-
-$_SESSION['mmdvmconfigs'] = getMMDVMConfigContent();
-//exec('echo "g='.$_SESSION['mmdvmconfigs'][0].'" >> /tmp/trace.txt');
 
 // Output some default features
 if ($_SERVER["PHP_SELF"] == "/index.php")

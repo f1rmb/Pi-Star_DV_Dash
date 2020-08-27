@@ -7,8 +7,8 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
 
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
-$configs = array();
 
+$configs = array();
 if ($configfile = fopen($gatewayConfigPath,'r')) {
         while ($line = fgets($configfile)) {
                 list($key,$value) = preg_split('/=/',$line);
