@@ -7,6 +7,66 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php');
 
+function checkSessionValidity() {
+    if (!isset($_SESSION['BMAPIKey']) && file_exists('/etc/bmapi.key')) {
+	$configBMapi = parse_ini_file('/etc/bmapi.key', true);
+	if (isset($configBMapi['key']['apikey']) && !empty($configBMapi['key']['apikey'])) {
+	    $_SESSION['BMAPIKey'] = $configBMapi['key']['apikey'];
+	    // Check the BM API Key
+	    if ( strlen($_SESSION['BMAPIKey']) <= 20 ) { unset($_SESSION['BMAPIKey']); }
+	}
+    }
+    if (!isset($_SESSION['DAPNETAPIKeyConfigs']) && file_exists('/etc/dapnetapi.key')) {
+	$_SESSION['DAPNETAPIKeyConfigs'] = parse_ini_file('/etc/dapnetapi.key', true);
+    }
+    if (!isset($_SESSION['PiStarRelease'])) {
+	$_SESSION['PiStarRelease'] = parse_ini_file('/etc/pistar-release', true);
+    }
+    if (!isset($_SESSION['MMDVMHostConfigs'])) {
+	$_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
+    }
+    if (!isset($_SESSION['ircDDBConfigs'])) {
+	global $gatewayConfigPath;
+	$_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
+    }
+    if (!isset($_SESSION['DStarRepeaterConfigs'])) {
+	$_SESSION['DStarRepeaterConfigs'] = getNoSectionsConfigContent('/etc/dstarrepeater');
+    }
+    if (!isset($_SESSION['DMRGatewayConfigs'])) {
+	$_SESSION['DMRGatewayConfigs'] = parse_ini_file('/etc/dmrgateway', true);
+    }
+    if (!isset($_SESSION['YSFGatewayConfigs'])) {
+	$_SESSION['YSFGatewayConfigs'] = parse_ini_file('/etc/ysfgateway', true);
+    }
+    if (!isset($_SESSION['DAPNETGatewayConfigs'])) {
+	$_SESSION['DAPNETGatewayConfigs'] = parse_ini_file('/etc/dapnetgateway', true);
+    }
+    if (!isset($_SESSION['YSF2DMRConfigs']) && file_exists('/etc/ysf2dmr')) {
+	$_SESSION['YSF2DMRConfigs'] = parse_ini_file('/etc/ysf2dmr', true);
+    }
+    if (!isset($_SESSION['YSF2NXDNConfigs']) && file_exists('/etc/ysf2nxdn')) {
+	$_SESSION['YSF2NXDNConfigs'] = parse_ini_file('/etc/ysf2nxdn', true);
+    }
+    if (!isset($_SESSION['YSF2P25Configs']) && file_exists('/etc/ysf2p25')) {
+	$_SESSION['YSF2P25Configs'] = parse_ini_file('/etc/ysf2p25', true);
+    }
+    if (!isset($_SESSION['DMR2YSFConfigs']) && file_exists('/etc/dmr2ysf')) {
+	$_SESSION['DMR2YSFConfigs'] = parse_ini_file('/etc/dmr2ysf', true);
+    }
+    if (!isset($_SESSION['DMR2NXDNConfigs']) && file_exists('/etc/dmr2nxdn')) {
+	$_SESSION['DMR2NXDNConfigs'] = parse_ini_file('/etc/dmr2nxdn', true);
+    }
+    if (!isset($_SESSION['APRSGatewayConfigs']) && file_exists('/etc/aprsgateway')) {
+	$_SESSION['APRSGatewayConfigs'] = parse_ini_file('/etc/aprsgateway', true);
+    }
+    if (!isset($_SESSION['NXDNGatewayConfigs']) && file_exists('/etc/nxdngateway')) {
+	$_SESSION['NXDNGatewayConfigs'] = parse_ini_file('/etc/nxdngateway', true);
+    }
+    if (!isset($_SESSION['P25GatewayConfigs']) && file_exists('/etc/p25gateway')) {
+	$_SESSION['P25GatewayConfigs'] = parse_ini_file('/etc/p25gateway', true);
+    }
+}
+
 function get_string_between($string, $start, $end){
 	$string = " ".$string;
 	$ini = strpos($string,$start);

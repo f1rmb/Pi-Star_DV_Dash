@@ -4,12 +4,12 @@ session_name("PiStar Dashboard Session");
 session_id('pistardashsess');
 session_start();
 
+//require_once('set_session.php');
 require_once('config/config.php');
 require_once('config/version.php');
 require_once('mmdvmhost/functions.php');
 require_once('config/ircddblocal.php');
 require_once('config/language.php');
-
 
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
 $rev = $version;
@@ -19,6 +19,13 @@ $_SESSION['MYCALL'] = $MYCALL;
 // Clear session data (page {re}load);
 unset($_SESSION['BMAPIKey']);
 unset($_SESSION['DAPNETAPIKeyConfigs']);
+unset($_SESSION['PiStarRelease']);
+unset($_SESSION['MMDVMHostConfigs']);
+unset($_SESSION['ircDDBConfigs']);
+unset($_SESSION['DStarRepeaterConfigs']);
+unset($_SESSION['DMRGatewayConfigs']);
+unset($_SESSION['YSFGatewayConfigs']);
+unset($_SESSION['DAPNETGatewayConfigs']);
 unset($_SESSION['YSF2DMRConfigs']);
 unset($_SESSION['YSF2NXDNConfigs']);
 unset($_SESSION['YSF2P25Configs']);
@@ -28,50 +35,7 @@ unset($_SESSION['APRSGatewayConfigs']);
 unset($_SESSION['NXDNGatewayConfigs']);
 unset($_SESSION['P25GatewayConfigs']);
 
-
-// Load a bunch of config data.
-if (file_exists('/etc/bmapi.key')) {
-    $configBMapi = parse_ini_file('/etc/bmapi.key', true);
-    if (isset($configBMapi['key']['apikey']) && !empty($configBMapi['key']['apikey'])) {
-	$_SESSION['BMAPIKey'] = $configBMapi['key']['apikey'];
-	// Check the BM API Key
-	if ( strlen($_SESSION['BMAPIKey']) <= 20 ) { unset($_SESSION['BMAPIKey']); }
-    }
-}
-if (file_exists('/etc/dapnetapi.key')) {
-    $_SESSION['DAPNETAPIKeyConfigs'] = parse_ini_file('/etc/dapnetapi.key', true);
-}
-$_SESSION['PiStarRelease'] = parse_ini_file('/etc/pistar-release', true);
-$_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
-$_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
-$_SESSION['DStarRepeaterConfigs'] = getNoSectionsConfigContent('/etc/dstarrepeater');
-$_SESSION['DMRGatewayConfigs'] = parse_ini_file('/etc/dmrgateway', true);
-$_SESSION['YSFGatewayConfigs'] = parse_ini_file('/etc/ysfgateway', true);
-$_SESSION['DAPNETGatewayConfigs'] = parse_ini_file('/etc/dapnetgateway', true);
-if (file_exists('/etc/ysf2dmr')) {
-    $_SESSION['YSF2DMRConfigs'] = parse_ini_file('/etc/ysf2dmr', true);
-}
-if (file_exists('/etc/ysf2nxdn')) {
-    $_SESSION['YSF2NXDNConfigs'] = parse_ini_file('/etc/ysf2nxdn', true);
-}
-if (file_exists('/etc/ysf2p25')) {
-    $_SESSION['YSF2P25Configs'] = parse_ini_file('/etc/ysf2p25', true);
-}
-if (file_exists('/etc/dmr2ysf')) {
-    $_SESSION['DMR2YSFConfigs'] = parse_ini_file('/etc/dmr2ysf', true);
-}
-if (file_exists('/etc/dmr2nxdn')) {
-    $_SESSION['DMR2NXDNConfigs'] = parse_ini_file('/etc/dmr2nxdn', true);
-}
-if (file_exists('/etc/aprsgateway')) {
-    $_SESSION['APRSGatewayConfigs'] = parse_ini_file('/etc/aprsgateway', true);
-}
-if (file_exists('/etc/nxdngateway')) {
-    $_SESSION['NXDNGatewayConfigs'] = parse_ini_file('/etc/nxdngateway', true);
-}
-if (file_exists('/etc/p25gateway')) {
-    $_SESSION['P25GatewayConfigs'] = parse_ini_file('/etc/p25gateway', true);
-}
+checkSessionValidity();
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
