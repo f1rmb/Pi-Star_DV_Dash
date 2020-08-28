@@ -12,9 +12,9 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDa
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
 
-if (isset($_SESSION['DAPNETAPIKey']['DAPNETAPI']['USER']) && (empty($_SESSION['DAPNETAPIKey']['DAPNETAPI']['USER']) != TRUE)) {
+if (isset($_SESSION['DAPNETAPIKeyConfigs']['DAPNETAPI']['USER']) && (empty($_SESSION['DAPNETAPIKeyConfigs']['DAPNETAPI']['USER']) != TRUE)) {
     // Max length for the textarea (pistar-dapnetapi will split in 5 messages maximum * 80 characters. 
-    $maxlength = (5 * (80 - (strlen($_SESSION['DAPNETAPIKey']['DAPNETAPI']['USER']) + 2 /* 'CALLSIGN: ' prefix */ + 4 /* 'x/n ' count */)));
+    $maxlength = (5 * (80 - (strlen($_SESSION['DAPNETAPIKeyConfigs']['DAPNETAPI']['USER']) + 2 /* 'CALLSIGN: ' prefix */ + 4 /* 'x/n ' count */)));
     
     // Data has been posted for this page (POST)
     if ((empty($_POST) != TRUE) && (isset($_POST['dapSubmit']) && (empty($_POST['dapSubmit']) != TRUE)) &&
@@ -35,7 +35,7 @@ if (isset($_SESSION['DAPNETAPIKey']['DAPNETAPI']['USER']) && (empty($_SESSION['D
         $dapnetTrx = rtrim($dapnetTrx, ","); // Remove comma at the end of the string, if any.
 	
         // if trx area is different that the one in api.key file, override it using DAPNET_TRXAREA envvar 
-        if (strlen($dapnetTrx) > 0 && (strcmp($dapnetTrx, $_SESSION['DAPNETAPIKey']['DAPNETAPI']['TRXAREA']) != 0)) {
+        if (strlen($dapnetTrx) > 0 && (strcmp($dapnetTrx, $_SESSION['DAPNETAPIKeyConfigs']['DAPNETAPI']['TRXAREA']) != 0)) {
             $dapnetTrx = 'DAPNET_TRXAREA="'.$dapnetTrx.'"';
         }
         else {
@@ -62,7 +62,7 @@ if (isset($_SESSION['DAPNETAPIKey']['DAPNETAPI']['USER']) && (empty($_SESSION['D
 	
     }
     else {
-	$dapnetTrxAreas = (isset($_SESSION['DAPNETAPIKey']['DAPNETAPI']['TRXAREA']) && (! empty($_SESSION['DAPNETAPIKey']['DAPNETAPI']['TRXAREA'])) ? $_SESSION['DAPNETAPIKey']['DAPNETAPI']['TRXAREA'] : "");
+	$dapnetTrxAreas = (isset($_SESSION['DAPNETAPIKeyConfigs']['DAPNETAPI']['TRXAREA']) && (! empty($_SESSION['DAPNETAPIKeyConfigs']['DAPNETAPI']['TRXAREA'])) ? $_SESSION['DAPNETAPIKeyConfigs']['DAPNETAPI']['TRXAREA'] : "");
         
         echo '<b>DAPNET Messenger</b>'."\n";
         echo '<form action="'.htmlentities($_SERVER['PHP_SELF']).'" method="post">'."\n";

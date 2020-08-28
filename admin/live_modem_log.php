@@ -100,19 +100,20 @@ if ($_SERVER["PHP_SELF"] == "/admin/live_modem_log.php") {
 		  </div>
 	      </p>
 	  </div>
-  <div class="contentwide">
-  <table width="100%">
-  <tr><th><?php echo $lang['live_logs'];?></th></tr>
-  <tr><td align="left"><div id="tail">Starting logging, please wait...<br /></div></td></tr>
-  <tr><th>Download the log: <a href="/admin/download_modem_log.php" style="color: #ffffff;">here</a></th></tr>
-  </table>
-  </div>
-  <div class="footer">
-  Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
-  Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
-  or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
-  </div>
-  </div>
+	  <div class="contentwide">
+	      <table width="100%">
+		  <tr><th><?php echo $lang['live_logs'];?></th></tr>
+		  <tr><td align="left"><div id="tail">Starting logging, please wait...<br /></div></td></tr>
+		  <tr><th>Download the log: <a href="/admin/download_modem_log.php" style="color: #ffffff;">here</a></th></tr>
+	      </table>
+	  </div>
+	  <div class="footer">
+	      Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
+	      &copy; Daniel Caujolle-Bert (F1RMB) 2017-<?php echo date("Y"); ?>.<br />
+	      Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
+	      or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
+	  </div>
+      </div>
   </body>
   </html>
 

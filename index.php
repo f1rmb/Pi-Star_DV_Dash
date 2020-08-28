@@ -18,7 +18,7 @@ $_SESSION['MYCALL'] = $MYCALL;
 
 // Clear session data (page {re}load);
 unset($_SESSION['BMAPIKey']);
-unset($_SESSION['DAPNETAPIKey']);
+unset($_SESSION['DAPNETAPIKeyConfigs']);
 unset($_SESSION['YSF2DMRConfigs']);
 unset($_SESSION['YSF2NXDNConfigs']);
 unset($_SESSION['YSF2P25Configs']);
@@ -39,7 +39,7 @@ if (file_exists('/etc/bmapi.key')) {
     }
 }
 if (file_exists('/etc/dapnetapi.key')) {
-    $_SESSION['DAPNETAPIKey'] = parse_ini_file('/etc/dapnetapi.key', true);
+    $_SESSION['DAPNETAPIKeyConfigs'] = parse_ini_file('/etc/dapnetapi.key', true);
 }
 $_SESSION['PiStarRelease'] = parse_ini_file('/etc/pistar-release', true);
 $_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
@@ -419,11 +419,13 @@ else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
 <div class="footer">
     <?php if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
 	echo 'Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-'.date("Y").'<br />'."\n";
+	echo '&copy; Daniel Caujolle-Bert (F1RMB) 2017-'.date("Y").'<br />'."\n";
 	echo 'Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />'."\n";
 	echo 'or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />'."\n";
     }
     else {
 	echo 'Pi-Star / Pi-Star Dashboard, &copy; Andy Taylor (MW0MWZ) 2014-'.date("Y").'<br />'."\n";
+	echo '&copy; Daniel Caujolle-Bert (F1RMB) 2017-'.date("Y").'<br />'."\n";
 	echo 'ircDDBGateway Dashboard by Hans-J. Barthen (DL5DI),<br />'."\n";
 	echo 'MMDVMDash developed by Kim Huebel (DG9VH), <br />'."\n";
 	echo 'Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Facebook Group</a><br />'."\n";

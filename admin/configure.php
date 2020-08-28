@@ -682,6 +682,7 @@ $MYCALL=strtoupper($callsign);
 			exec('sudo mount -o remount,ro /');
 			echo "<br />\n</div>\n";
 			echo "<div class=\"footer\">\nPi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-".date("Y").".<br />\n";
+			echo "&copy; Daniel Caujolle-Bert (F1RMB) 2017-".date("Y").".<br />\n";
 			echo "Need help? Click <a style=\"color: #ffffff;\" href=\"https://www.facebook.com/groups/pistarusergroup/\" target=\"_new\">here for the Support Group</a><br />\n";
 			echo 'or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a>'."\n";
 			echo "<br />\n</div>\n</div>\n</body>\n</html>\n";
@@ -4425,6 +4426,7 @@ $MYCALL=strtoupper($callsign);
 	    </div>
 	    <div class="footer">
 		Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
+		&copy; Daniel Caujolle-Bert (F1RMB) 2017-<?php echo date("Y"); ?>.<br />
 		Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
 		or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
 	    </div>
@@ -4438,6 +4440,7 @@ $MYCALL=strtoupper($callsign);
 	</div>
 	<div class="footer">
 	    Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
+	    &copy; Daniel Caujolle-Bert (F1RMB) 2017-<?php echo date("Y"); ?>.<br />
 	    Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
 	    or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
 	</div>

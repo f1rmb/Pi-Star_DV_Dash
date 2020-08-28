@@ -109,20 +109,21 @@ function getDAPNETAPIConfig() {
 // retrieves the corresponding config-entry within a [section]
 function getConfigItem($section, $key, $configs) {
     if (empty($section)) {
-	return null;
+        return null;
     }
-    
     $sectionpos = array_search("[" . $section . "]", $configs);
     if ($sectionpos !== FALSE) {
-	$sectionpos++;
-	$len = count($configs);
-	while(startsWith($configs[$sectionpos], $key."=") === false && $sectionpos <= ($len) ) {
-	    if (startsWith($configs[$sectionpos],"[")) {
-		return null;
-	    }
-	    $sectionpos++;
-	}
-	return substr($configs[$sectionpos], strlen($key) + 1);
+        $sectionpos++;
+        $len = count($configs);
+        while(($sectionpos < $len) && (startsWith($configs[$sectionpos], $key."=") === FALSE)) {
+            if (startsWith($configs[$sectionpos],"[")) {
+                return null;
+            }
+            $sectionpos++;
+        }
+        if ($sectionpos < $len) {
+            return substr($configs[$sectionpos], strlen($key) + 1);
+        }
     }
     return null;
 }
@@ -1201,7 +1202,7 @@ if (!in_array($_SERVER["PHP_SELF"],array('/mmdvmhost/bm_links.php','/mmdvmhost/b
         // Will separate personnal and global messages only in Admin page, if MY_RIC is defined in dapnetapi.key.
         $origin = (isset($_GET['origin']) ? $_GET['origin'] : (isset($myOrigin) ? $myOrigin : "unknown"));
         
-		$logLinesDAPNETGateway = getDAPNETGatewayLog(($origin == "admin" ?  getConfigItem("DAPNETAPI", "MY_RIC", getDAPNETAPIConfig()) : null));
+		$logLinesDAPNETGateway = getDAPNETGatewayLog(($origin == "admin" ?  getConfigItem("DAPNETAPI", "MY_RIC", $_SESSION['DAPNETAPIKeyConfigs']) : null));
 	}
 }
 ?>
