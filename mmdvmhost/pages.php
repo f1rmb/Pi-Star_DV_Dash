@@ -157,7 +157,7 @@ function listDAPNETGWMessages($logLinesDAPNETGateway, $tillMYRIC) {
 }
 
 //
-if (strcmp($origin, "admin") == 0) {
+if ((strcmp($origin, "admin") == 0) && isset($_SESSION['DAPNETAPIKeyConfigs'])) {
     $myRIC = getConfigItem("DAPNETAPI", "MY_RIC", $_SESSION['DAPNETAPIKeyConfigs']);
     
     // Display personnal messages only if RIC has been defined, and some personnal messages are available

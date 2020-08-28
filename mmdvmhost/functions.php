@@ -1177,32 +1177,32 @@ function getActualReflector($logLines, $mode) {
 
 //Some basic inits
 if (!in_array($_SERVER["PHP_SELF"],array('/mmdvmhost/bm_links.php','/mmdvmhost/bm_manager.php'),true)) {
-	$logLinesMMDVM = getMMDVMLog();
-	$reverseLogLinesMMDVM = $logLinesMMDVM;
-	array_multisort($reverseLogLinesMMDVM,SORT_DESC);
-	$lastHeard = getLastHeard($reverseLogLinesMMDVM);
-
-	// Only need these in repeaterinfo.php
-	if (strpos($_SERVER["PHP_SELF"], 'repeaterinfo.php') !== false || strpos($_SERVER["PHP_SELF"], 'index.php') !== false) {
-		//$YSFGatewayconfigs = getYSFGatewayConfig();
-		$logLinesYSFGateway = getYSFGatewayLog();
-		$reverseLogLinesYSFGateway = $logLinesYSFGateway;
-		array_multisort($reverseLogLinesYSFGateway,SORT_DESC);
-		//$P25Gatewayconfigs = getP25GatewayConfig();
-		$logLinesP25Gateway = getP25GatewayLog();
-		//$reverseLogLinesP25Gateway = array_reverse(getP25GatewayLog());
-		//$NXDNGatewayconfigs = getNXDNGatewayConfig();
-		$logLinesNXDNGateway = getNXDNGatewayLog();
-		//$reverseLogLinesNXDNGateway = array_reverse(getNXDNGatewayLog());
-	}
+    $logLinesMMDVM = getMMDVMLog();
+    $reverseLogLinesMMDVM = $logLinesMMDVM;
+    array_multisort($reverseLogLinesMMDVM,SORT_DESC);
+    $lastHeard = getLastHeard($reverseLogLinesMMDVM);
     
-	// Only need these in index.php
-	if (strpos($_SERVER["PHP_SELF"], 'index.php') !== false || strpos($_SERVER["PHP_SELF"], 'pages.php') !== false) {
-
+    // Only need these in repeaterinfo.php
+    if (strpos($_SERVER["PHP_SELF"], 'repeaterinfo.php') !== false || strpos($_SERVER["PHP_SELF"], 'index.php') !== false) {
+	//$YSFGatewayconfigs = getYSFGatewayConfig();
+	$logLinesYSFGateway = getYSFGatewayLog();
+	$reverseLogLinesYSFGateway = $logLinesYSFGateway;
+	array_multisort($reverseLogLinesYSFGateway,SORT_DESC);
+	//$P25Gatewayconfigs = getP25GatewayConfig();
+	$logLinesP25Gateway = getP25GatewayLog();
+	//$reverseLogLinesP25Gateway = array_reverse(getP25GatewayLog());
+	//$NXDNGatewayconfigs = getNXDNGatewayConfig();
+	$logLinesNXDNGateway = getNXDNGatewayLog();
+	//$reverseLogLinesNXDNGateway = array_reverse(getNXDNGatewayLog());
+    }
+    
+    // Only need these in index.php
+    if (strpos($_SERVER["PHP_SELF"], 'index.php') !== false || strpos($_SERVER["PHP_SELF"], 'pages.php') !== false) {
+	
         // Will separate personnal and global messages only in Admin page, if MY_RIC is defined in dapnetapi.key.
         $origin = (isset($_GET['origin']) ? $_GET['origin'] : (isset($myOrigin) ? $myOrigin : "unknown"));
         
-		$logLinesDAPNETGateway = getDAPNETGatewayLog(($origin == "admin" ?  getConfigItem("DAPNETAPI", "MY_RIC", $_SESSION['DAPNETAPIKeyConfigs']) : null));
-	}
+	$logLinesDAPNETGateway = getDAPNETGatewayLog(($origin == "admin" ? (isset($_SESSION['DAPNETAPIKeyConfigs']) ? getConfigItem("DAPNETAPI", "MY_RIC", $_SESSION['DAPNETAPIKeyConfigs']) : null) : null));
+    }
 }
 ?>
