@@ -34,43 +34,76 @@ require_once('../config/version.php');
 	    <div class="contentwide">
 		<?php
 		if(isset($_POST['data'])) {
-		    // File Wrangling
-		    exec('sudo cp /etc/crontab /tmp/a8h4d8n3c83h4.tmp');
-		    exec('sudo chown www-data:www-data /tmp/a8h4d8n3c83h4.tmp');
-		    exec('sudo chmod 664 /tmp/a8h4d8n3c83h4.tmp');
+		    // split and remove DOS EOL
+		    $data = explode("\n", str_replace("\r", "", $_POST['data']));
 		    
-		    // Open the file and write the data
-		    $filepath = '/tmp/a8h4d8n3c83h4.tmp';
-		    $fh = fopen($filepath, 'w');
-		    fwrite($fh, str_replace("\r", "", $_POST['data']));
-		    fclose($fh);
-		    exec('sudo mount -o remount,rw /');
-		    exec('sudo cp /tmp/a8h4d8n3c83h4.tmp /etc/crontab');
-		    exec('sudo chmod 644 /etc/crontab');
-		    exec('sudo chown root:root /etc/crontab');
-		    exec('sudo mount -o remount,ro /');
+		    // Prepare data and update the configuration file
+		    $content = "";
+		    foreach($data as $line) {
+			if (strpos($line, '=') !== FALSE) {
+			    list($key, $value) = explode('=', $line, 2);
+			    $value = trim(str_replace('"', '', $value));
+			    
+ 			    if (isset($key) && !empty($key)) {
+				    if (function_exists('process_before_saving')) {
+					process_before_saving($key, $value);
+				    }
+		  
+				if ($value == '') {
+				    $content .= $key."= \n";
+				}
+				else {
+				    $content .= $key."=".$value."\n";
+				}
+			    }
+			}
+		    }
+
+		    $filepath = $tempfile;
+		    $wCount = FALSE;
+		    // write it into file
+		    if (($handle = fopen($tempfile, 'w')) != FALSE) {
+			if (($wCount = fwrite($handle, $content)) != FALSE) {
+			    // Updates complete - copy the working file back to the proper location
+			    exec('sudo mount -o remount,rw /');
+			    exec('sudo cp '.$tempfile.' '.$configfile.'');
+			    exec('sudo chmod 644 '.$configfile.'');
+			    exec('sudo chown root:root '.$configfile.'');
+			    exec('sudo mount -o remount,ro /');
+			    
+			    // Reload the affected daemon
+			    if (isset($servicenames) && (count($servicenames) > 0)) {
+				foreach($servicenames as $servicename) {
+				    exec('sudo systemctl restart '.$servicename); // Reload the daemon
+				}
+			    }
+			}
+			
+			fclose($handle);
+		    }
 		    
 		    // Re-open the file and read it
 		    $fh = fopen($filepath, 'r');
 		    $theData = fread($fh, filesize($filepath));
-		    
 		}
 		else {
 		    // File Wrangling
-		    exec('sudo cp /etc/crontab /tmp/a8h4d8n3c83h4.tmp');
-		    exec('sudo chown www-data:www-data /tmp/a8h4d8n3c83h4.tmp');
-		    exec('sudo chmod 664 /tmp/a8h4d8n3c83h4.tmp');
+		    exec('sudo cp '.$configfile.' '.$tempfile);
+		    exec('sudo chown www-data:www-data '.$tempfile);
+		    exec('sudo chmod 664 '.$tempfile);
 		    
 		    // Open the file and read it
-		    $filepath = '/tmp/a8h4d8n3c83h4.tmp';
+		    $filepath = $tempfile;
 		    $fh = fopen($filepath, 'r');
 		    $theData = fread($fh, filesize($filepath));
 		}
 		fclose($fh);
 		
 		?>
+		
 		<form name="test" method="post" action="">
-		    <textarea name="data" cols="80" rows="45"><?php echo $theData; ?></textarea><br />
+		    <label for="data" class="header" style="display:block;text-align:center;" ><?php echo $editorname ?></label> 
+		    <textarea id="data" name="data" cols="80" rows="45"><?php echo $theData; ?></textarea><br />
 		    <input type="submit" name="submit" value="<?php echo $lang['apply']; ?>" />
 		</form>
 		

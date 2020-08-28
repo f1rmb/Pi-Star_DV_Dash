@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 $cmdoutput = array();
 # Avoid that FS is remounted RO while upgrading, the process could take some time to finish
 exec('systemctl stop pistar-watchdog.timer > /dev/null 2>&1');

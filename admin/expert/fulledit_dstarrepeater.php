@@ -10,5 +10,6 @@ $configfile = '/etc/dstarrepeater';
 $tempfile = '/tmp/ZHN0YXJyZXBlYXRlcg.tmp';
 $servicenames = array('dstarrepeater.service');
 
-require_once('edit_template_nosections.php');
+require_once('fulledit_template_nosections.php');
+
 ?>

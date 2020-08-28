@@ -1,11 +1,12 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 // Load the language support
 require_once('config/language.php');
-// Load the Pi-Star Release file
-$pistarReleaseConfig = '/etc/pistar-release';
-$configPistarRelease = array();
-$configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
-// Load the Version Info
 require_once('config/version.php');
 include_once('mmdvmhost/tools.php');
 
@@ -134,7 +135,7 @@ function formatSize( $bytes ) {
     <body>
 	<div class="container">
 	    <div class="header">
-		<div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / Dashboard:<?php echo $version; ?></div>
+		<div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / Dashboard:<?php echo $version; ?></div>
 		<h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard']." - SysInfo";?></h1>
 		<p>
 		    <div class="navbar">
@@ -235,6 +236,7 @@ function formatSize( $bytes ) {
 	    </div>
 	    <div class="footer">
 		Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
+		&copy; Daniel Caujolle-Bert (F1RMB) 2017-<?php echo date("Y"); ?>.<br />
 		Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
 		or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
 	    </div>

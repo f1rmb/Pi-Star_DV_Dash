@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
 
@@ -74,13 +80,13 @@ else: ?>
     $ci = 0;
     for($i = 1;$i < 5; $i++){
       $param="repeaterBand" . $i;
-      if((isset($configs[$param])) && strlen($configs[$param]) == 1) {
+      if((isset($_SESSION['ircDDBConfigs'][$param])) && strlen($_SESSION['ircDDBConfigs'][$param]) == 1) {
         $ci++;
         if($ci > 1) { $ci = 0; }
-        $module = $configs[$param];
+        $module = $_SESSION['ircDDBConfigs'][$param];
         $rcall = sprintf("%-7.7s%-1.1s",$MYCALL,$module);
         $param="repeaterCall" . $i;
-        if(isset($configs[$param])) { $rptrcall=sprintf("%-7.7s%-1.1s",$configs[$param],$module); } else { $rptrcall = $rcall;}
+        if(isset($_SESSION['ircDDBConfigs'][$param])) { $rptrcall=sprintf("%-7.7s%-1.1s",$_SESSION['ircDDBConfigs'][$param],$module); } else { $rptrcall = $rcall;}
         print "<option>$rptrcall</option>\n";
       }
     } ?>
@@ -97,7 +103,7 @@ $dcsFile = fopen("/usr/local/etc/DCS_Hosts.txt", "r");
 $dplusFile = fopen("/usr/local/etc/DPlus_Hosts.txt", "r");
 $dextraFile = fopen("/usr/local/etc/DExtra_Hosts.txt", "r");
 
-echo "    <option value=\"".substr($configs['reflector1'], 0, 6)."\" selected=\"selected\">".substr($configs['reflector1'], 0, 6)."</option>\n";
+echo "    <option value=\"".substr($_SESSION['ircDDBConfigs']['reflector1'], 0, 6)."\" selected=\"selected\">".substr($_SESSION['ircDDBConfigs']['reflector1'], 0, 6)."</option>\n";
 echo "    <option value=\"customOption\">Text Entry</option>\n";
 
 while (!feof($dcsFile)) {
@@ -133,7 +139,7 @@ fclose($dextraFile);
     </select><input name="RefName" style="display:none;" disabled="disabled" type="text" size="7" maxlength="7"
             onblur="if(this.value==''){toggleField(this,this.previousSibling);}" />
     <select name="Letter">
-	<?php echo "  <option value=\"".substr($configs['reflector1'], 7)."\" selected=\"selected\">".substr($configs['reflector1'], 7)."</option>\n"; ?>
+	<?php echo "  <option value=\"".substr($_SESSION['ircDDBConfigs']['reflector1'], 7)."\" selected=\"selected\">".substr($_SESSION['ircDDBConfigs']['reflector1'], 7)."</option>\n"; ?>
 	<option>A</option>
 	<option>B</option>
 	<option>C</option>

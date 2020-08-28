@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
@@ -63,48 +69,44 @@ function httpStatusText($code = 0) {
 $dmrID = "";
 
 // Check if DMR is Enabled
-$testMMDVModeDMR = getConfigItem("DMR", "Enable", $mmdvmconfigs);
+$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['MMDVMHostConfigs']);
 
 if ( $testMMDVModeDMR == 1 ) {
-  //Load the dmrgateway config file
-  $dmrGatewayConfigFile = '/etc/dmrgateway';
-  if (fopen($dmrGatewayConfigFile,'r')) { $configdmrgateway = parse_ini_file($dmrGatewayConfigFile, true); }
-
   // Get the current DMR Master from the config
-  $dmrMasterHost = getConfigItem("DMR Network", "Address", $mmdvmconfigs);
+  $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
   if ( $dmrMasterHost == '127.0.0.1' ) {
     // DMRGateway, need to check each config
-    if (isset($configdmrgateway['DMR Network 1']['Address'])) {
-      if (($configdmrgateway['DMR Network 1']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 1']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 1']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 1']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 2']['Address'])) {
-      if (($configdmrgateway['DMR Network 2']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 2']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 2']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 2']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 3']['Address'])) {
-      if (($configdmrgateway['DMR Network 3']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 3']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 3']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 3']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 4']['Address'])) {
-      if (($configdmrgateway['DMR Network 4']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 4']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 4']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 4']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 5']['Address'])) {
-      if (($configdmrgateway['DMR Network 5']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 5']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 5']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 5']['Id'];
       }
     }
   } else if ( $dmrMasterHost == 'tgif.network' ) {
     // MMDVMHost Connected directly to TGIF, get the ID form here
-    if (getConfigItem("DMR", "Id", $mmdvmconfigs)) {
-      $dmrID = getConfigItem("DMR", "Id", $mmdvmconfigs);
+    if (getConfigItem("DMR", "Id", $_SESSION['MMDVMHostConfigs'])) {
+      $dmrID = getConfigItem("DMR", "Id", $_SESSION['MMDVMHostConfigs']);
     } else {
-      $dmrID = getConfigItem("General", "Id", $mmdvmconfigs);
+      $dmrID = getConfigItem("General", "Id", $_SESSION['MMDVMHostConfigs']);
     }
   }
 }
@@ -113,7 +115,7 @@ if ( $dmrID ) {
   // Work out if the data has been posted or not
   if ( !empty($_POST) && isset($_POST["tgifSubmit"]) ): // Data has been posted for this page
     // Are we a repeater
-    if ( getConfigItem("DMR Network", "Slot1", $mmdvmconfigs) == "0" ) {
+    if ( getConfigItem("DMR Network", "Slot1", $_SESSION['MMDVMHostConfigs']) == "0" ) {
         $targetSlot = "1";
     } else {
         $targetSlot = preg_replace("/[^0-9]/", "", $_POST["tgifSlot"]);

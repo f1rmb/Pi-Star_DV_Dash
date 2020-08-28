@@ -1,11 +1,12 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 // Load the language support
 require_once('../config/language.php');
-//Load the Pi-Star Release file
-$pistarReleaseConfig = '/etc/pistar-release';
-$configPistarRelease = array();
-$configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
-//Load the Version Info
 require_once('../config/version.php');
 ?>
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -41,6 +42,10 @@ require_once('../config/version.php');
 	  $content = "";
 	  
 	  foreach($data as $key => $value) {
+	      if (function_exists('process_before_saving')) {
+		  process_before_saving($key, $value);
+	      }
+	      
 	      if ($value == '') {
 		  $content .= $key."= \n";
 	      }
@@ -48,7 +53,7 @@ require_once('../config/version.php');
 		  $content .= $key."=".$value."\n";
 	      }
 	  }
-	  
+
 	  $wCount = FALSE;
 	  // write it into file
 	  if (($handle = fopen($tempfile, 'w')) != FALSE) {
@@ -110,6 +115,7 @@ require_once('../config/version.php');
 
 <div class="footer">
     Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
+    &copy; Daniel Caujolle-Bert (F1RMB) 2017-<?php echo date("Y"); ?>.<br />
     Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
     or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
 </div>

@@ -1,26 +1,78 @@
 <?php
+session_set_cookie_params(0, "/");
+session_name("PiStar Dashboard Session");
+session_id('pistardashsess');
+session_start();
+
+require_once('config/config.php');
 require_once('config/version.php');
+require_once('mmdvmhost/functions.php');
 require_once('config/ircddblocal.php');
 require_once('config/language.php');
 
-$configs = array();
-if ($configfile = fopen($gatewayConfigPath,'r')) {
-        while ($line = fgets($configfile)) {
-                list($key,$value) = preg_split('/=/',$line);
-                $value = trim(str_replace('"','',$value));
-                if ($key != 'ircddbPassword' && strlen($value) > 0)
-                $configs[$key] = $value;
-        }
 
-}
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
-$rev=$version;
-$MYCALL=strtoupper($callsign);
+$rev = $version;
+$MYCALL = strtoupper($callsign);
+$_SESSION['MYCALL'] = $MYCALL;
 
-//Load the Pi-Star Release file
-$pistarReleaseConfig = '/etc/pistar-release';
-$configPistarRelease = array();
-$configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
+// Clear session data (page {re}load);
+unset($_SESSION['BMAPIKey']);
+unset($_SESSION['DAPNETAPIKeyConfigs']);
+unset($_SESSION['YSF2DMRConfigs']);
+unset($_SESSION['YSF2NXDNConfigs']);
+unset($_SESSION['YSF2P25Configs']);
+unset($_SESSION['DMR2YSFConfigs']);
+unset($_SESSION['DMR2NXDNConfigs']);
+unset($_SESSION['APRSGatewayConfigs']);
+unset($_SESSION['NXDNGatewayConfigs']);
+unset($_SESSION['P25GatewayConfigs']);
+
+
+// Load a bunch of config data.
+if (file_exists('/etc/bmapi.key')) {
+    $configBMapi = parse_ini_file('/etc/bmapi.key', true);
+    if (isset($configBMapi['key']['apikey']) && !empty($configBMapi['key']['apikey'])) {
+	$_SESSION['BMAPIKey'] = $configBMapi['key']['apikey'];
+	// Check the BM API Key
+	if ( strlen($_SESSION['BMAPIKey']) <= 20 ) { unset($_SESSION['BMAPIKey']); }
+    }
+}
+if (file_exists('/etc/dapnetapi.key')) {
+    $_SESSION['DAPNETAPIKeyConfigs'] = parse_ini_file('/etc/dapnetapi.key', true);
+}
+$_SESSION['PiStarRelease'] = parse_ini_file('/etc/pistar-release', true);
+$_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
+$_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
+$_SESSION['DStarRepeaterConfigs'] = getNoSectionsConfigContent('/etc/dstarrepeater');
+$_SESSION['DMRGatewayConfigs'] = parse_ini_file('/etc/dmrgateway', true);
+$_SESSION['YSFGatewayConfigs'] = parse_ini_file('/etc/ysfgateway', true);
+$_SESSION['DAPNETGatewayConfigs'] = parse_ini_file('/etc/dapnetgateway', true);
+if (file_exists('/etc/ysf2dmr')) {
+    $_SESSION['YSF2DMRConfigs'] = parse_ini_file('/etc/ysf2dmr', true);
+}
+if (file_exists('/etc/ysf2nxdn')) {
+    $_SESSION['YSF2NXDNConfigs'] = parse_ini_file('/etc/ysf2nxdn', true);
+}
+if (file_exists('/etc/ysf2p25')) {
+    $_SESSION['YSF2P25Configs'] = parse_ini_file('/etc/ysf2p25', true);
+}
+if (file_exists('/etc/dmr2ysf')) {
+    $_SESSION['DMR2YSFConfigs'] = parse_ini_file('/etc/dmr2ysf', true);
+}
+if (file_exists('/etc/dmr2nxdn')) {
+    $_SESSION['DMR2NXDNConfigs'] = parse_ini_file('/etc/dmr2nxdn', true);
+}
+if (file_exists('/etc/aprsgateway')) {
+    $_SESSION['APRSGatewayConfigs'] = parse_ini_file('/etc/aprsgateway', true);
+}
+if (file_exists('/etc/nxdngateway')) {
+    $_SESSION['NXDNGatewayConfigs'] = parse_ini_file('/etc/nxdngateway', true);
+}
+if (file_exists('/etc/p25gateway')) {
+    $_SESSION['P25GatewayConfigs'] = parse_ini_file('/etc/p25gateway', true);
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -55,8 +107,8 @@ $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 <body>
     <div class="container">
 	<div class="header">
-	    <div style="font-size: 8px; text-align: left; padding-left: 8px; float: left;">Hostname: <?php echo exec('cat /etc/hostname'); ?></div><div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
-	    <h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard_for']." ".$MYCALL; ?></h1>
+	    <div style="font-size: 8px; text-align: left; padding-left: 8px; float: left;">Hostname: <?php echo exec('cat /etc/hostname'); ?></div><div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
+	    <h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard_for']." ".$_SESSION['MYCALL']; ?></h1>
 	    
 	    <p>
  		<div class="navbar">
@@ -74,6 +126,7 @@ $configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
 	</div>
 	
 <?php
+
 // Output some default features
 if ($_SERVER["PHP_SELF"] == "/index.php")
 {
@@ -112,23 +165,11 @@ else if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
     echo '</div>'."\n";
     echo '</div>'."\n";
 }
+
 // First lets figure out if we are in MMDVMHost mode, or dstarrepeater mode;
 if (file_exists('/etc/dstar-radio.mmdvmhost')) {
-	include 'config/config.php';					// MMDVMDash Config
-	include_once 'mmdvmhost/tools.php';				// MMDVMDash Tools
-
-	function getMMDVMConfigFileContent() {
-		// loads /etc/mmdvmhost into array for further use
-		$conf = array();
-		if ($configs = @fopen('/etc/mmdvmhost', 'r')) {
-			while ($config = fgets($configs)) {
-				array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
-			}
-			fclose($configs);
-		}
-		return $conf;
-	}
-	$mmdvmconfigfile = getMMDVMConfigFileContent();
+//include 'config/config.php';					// MMDVMDash Config
+//	include_once 'mmdvmhost/tools.php';				// MMDVMDash Tools
 
 	echo '<div class="nav">'."\n";					// Start the Side Menu
 	echo '<script type="text/javascript">'."\n";
@@ -145,7 +186,7 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 
 	echo '<div class="content">'."\n";
 
-	$testMMDVModeDSTARnet = getConfigItem("D-Star Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeDSTARnet = getConfigItem("D-Star Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeDSTARnet == 1 ) {				// If D-Star network is enabled, add these extra features.
 
 	if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 		// Admin Only Option
@@ -209,19 +250,19 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
                 include 'mmdvmhost/tgif_manager.php';			// TGIF DMR Link Manager
         }
 
-	$testMMDVModeYSFnet = getConfigItem("System Fusion Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeYSFnet = getConfigItem("System Fusion Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeYSFnet == 1 ) {				// If YSF network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/ysf_manager.php';		// YSF Links
 		}
 	}
-	$testMMDVModeP25net = getConfigItem("P25 Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeP25net = getConfigItem("P25 Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeP25net == 1 ) {				// If P25 network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/p25_manager.php';		// P25 Links
 		}
 	}
-	$testMMDVModeNXDNnet = getConfigItem("NXDN Network", "Enable", $mmdvmconfigs);
+	$testMMDVModeNXDNnet = getConfigItem("NXDN Network", "Enable", $_SESSION['MMDVMHostConfigs']);
         if ( $testMMDVModeNXDNnet == 1 ) {				// If NXDN network is enabled, add these extra features.
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
 			include 'mmdvmhost/nxdn_manager.php';		// NXDN Links
@@ -272,7 +313,7 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 	echo '</div>'."\n";
 	
 	// If POCSAG is enabled, show the information pannel
-	$testMMDVModePOCSAG = getConfigItem("POCSAG Network", "Enable", $mmdvmconfigfile);
+	$testMMDVModePOCSAG = getConfigItem("POCSAG Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( $testMMDVModePOCSAG == 1 ) {
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") {  // Admin Only Options
 			echo "<br />\n";
@@ -304,7 +345,8 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 		echo '</div>'."\n";
 	}
 
-} elseif (file_exists('/etc/dstar-radio.dstarrepeater')) {
+}
+else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
         if (file_exists('/etc/aprsgateway')) {
 	    $aprsGatewayConfigFile = '/etc/aprsgateway';
 	    if (fopen($aprsGatewayConfigFile,'r')) { $configaprsgateway = parse_ini_file($aprsGatewayConfigFile, true); }
@@ -377,11 +419,13 @@ if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 <div class="footer">
     <?php if ($_SERVER["PHP_SELF"] == "/admin/index.php") {
 	echo 'Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-'.date("Y").'<br />'."\n";
+	echo '&copy; Daniel Caujolle-Bert (F1RMB) 2017-'.date("Y").'<br />'."\n";
 	echo 'Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />'."\n";
 	echo 'or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />'."\n";
     }
     else {
 	echo 'Pi-Star / Pi-Star Dashboard, &copy; Andy Taylor (MW0MWZ) 2014-'.date("Y").'<br />'."\n";
+	echo '&copy; Daniel Caujolle-Bert (F1RMB) 2017-'.date("Y").'<br />'."\n";
 	echo 'ircDDBGateway Dashboard by Hans-J. Barthen (DL5DI),<br />'."\n";
 	echo 'MMDVMDash developed by Kim Huebel (DG9VH), <br />'."\n";
 	echo 'Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Facebook Group</a><br />'."\n";

@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 $cmdoutput = array();
 switch ($action) {

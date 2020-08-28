@@ -1,55 +1,54 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 // Load the language support
 require_once('config/language.php');
-// Load the Pi-Star Release file
-$pistarReleaseConfig = '/etc/pistar-release';
-$configPistarRelease = array();
-$configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
-// Load the Version Info
 require_once('config/version.php');
 
 // Sanity Check that this file has been opened correctly
 if ($_SERVER["PHP_SELF"] == "/admin/live_modem_log.php") {
-
-  // Sanity Check Passed.
-  header('Cache-Control: no-cache');
-  session_start();
-
-  if (!isset($_GET['ajax'])) {
-    unset($_SESSION['offset']);
-    //$_SESSION['offset'] = 0;
-  }
-
-  if (isset($_GET['ajax'])) {
-    //session_start();
-    if (file_exists('/etc/dstar-radio.mmdvmhost')) {
-      $logfile = "/var/log/pi-star/MMDVM-".gmdate('Y-m-d').".log";
-    }
-    elseif (file_exists('/etc/dstar-radio.dstarrepeater')) {
-      if (file_exists("/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log";}
-      if (file_exists("/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log";}
+    
+    // Sanity Check Passed.
+    header('Cache-Control: no-cache');
+    
+    if (!isset($_GET['ajax'])) {
+	unset($_SESSION['offset']);
+	//$_SESSION['offset'] = 0;
     }
     
-    if (empty($logfile) || !file_exists($logfile)) {
-      exit();
+    if (isset($_GET['ajax'])) {
+	if (file_exists('/etc/dstar-radio.mmdvmhost')) {
+	    $logfile = "/var/log/pi-star/MMDVM-".gmdate('Y-m-d').".log";
+	}
+	else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
+	    if (file_exists("/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log";}
+	    if (file_exists("/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log";}
+	}
+	
+	if (empty($logfile) || !file_exists($logfile)) {
+	    exit();
+	}
+	
+	$handle = fopen($logfile, 'rb');
+	if (isset($_SESSION['offset'])) {
+	    fseek($handle, 0, SEEK_END);
+	    if ($_SESSION['offset'] > ftell($handle)) { //log rotated/truncated
+		$_SESSION['offset'] = 0; //continue at beginning of the new log
+	    }
+	    $data = stream_get_contents($handle, -1, $_SESSION['offset']);
+	    $_SESSION['offset'] += strlen($data);
+	    echo nl2br($data);
+	}
+	else {
+	    fseek($handle, 0, SEEK_END);
+	    $_SESSION['offset'] = ftell($handle);
+	} 
+	exit();
     }
-    
-    $handle = fopen($logfile, 'rb');
-    if (isset($_SESSION['offset'])) {
-      fseek($handle, 0, SEEK_END);
-      if ($_SESSION['offset'] > ftell($handle)) //log rotated/truncated
-        $_SESSION['offset'] = 0; //continue at beginning of the new log
-      $data = stream_get_contents($handle, -1, $_SESSION['offset']);
-      $_SESSION['offset'] += strlen($data);
-      echo nl2br($data);
-      }
-    else {
-      fseek($handle, 0, SEEK_END);
-      $_SESSION['offset'] = ftell($handle);
-      } 
-  exit();
-  }
-  
 ?>
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -89,7 +88,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/live_modem_log.php") {
   <body>
       <div class="container">
 	  <div class="header">
-	      <div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
+	      <div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
 	      <h1>Pi-Star <?php echo $lang['digital_voice']." - ".$lang['live_logs'];?></h1>
 	      <p>
 		  <div class="navbar">
@@ -101,19 +100,20 @@ if ($_SERVER["PHP_SELF"] == "/admin/live_modem_log.php") {
 		  </div>
 	      </p>
 	  </div>
-  <div class="contentwide">
-  <table width="100%">
-  <tr><th><?php echo $lang['live_logs'];?></th></tr>
-  <tr><td align="left"><div id="tail">Starting logging, please wait...<br /></div></td></tr>
-  <tr><th>Download the log: <a href="/admin/download_modem_log.php" style="color: #ffffff;">here</a></th></tr>
-  </table>
-  </div>
-  <div class="footer">
-  Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
-  Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
-  or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
-  </div>
-  </div>
+	  <div class="contentwide">
+	      <table width="100%">
+		  <tr><th><?php echo $lang['live_logs'];?></th></tr>
+		  <tr><td align="left"><div id="tail">Starting logging, please wait...<br /></div></td></tr>
+		  <tr><th>Download the log: <a href="/admin/download_modem_log.php" style="color: #ffffff;">here</a></th></tr>
+	      </table>
+	  </div>
+	  <div class="footer">
+	      Pi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-<?php echo date("Y"); ?>.<br />
+	      &copy; Daniel Caujolle-Bert (F1RMB) 2017-<?php echo date("Y"); ?>.<br />
+	      Need help? Click <a style="color: #ffffff;" href="https://www.facebook.com/groups/pistarusergroup/" target="_new">here for the Support Group</a><br />
+	      or Click <a style="color: #ffffff;" href="https://forum.pistar.uk/" target="_new">here to join the Support Forum</a><br />
+	  </div>
+      </div>
   </body>
   </html>
 

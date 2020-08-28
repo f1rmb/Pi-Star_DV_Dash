@@ -1,19 +1,13 @@
-<?php include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
-include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
-$configs = array();
+<?php
 
-if ($configfile = fopen($gatewayConfigPath,'r')) {
-        while ($line = fgets($configfile)) {
-                list($key,$value) = preg_split('/=/',$line);
-                $value = trim(str_replace('"','',$value));
-                if ($key != 'ircddbPassword' && strlen($value) > 0)
-                $configs[$key] = $value;
-        }
-
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
 }
-$progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
-$rev="20141101";
-$MYCALL=strtoupper($callsign);
+
+include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
+
 ?>
     <b><?php echo $lang['d-star_link_status'];?></b>
     <table>
@@ -35,22 +29,22 @@ $MYCALL=strtoupper($callsign);
     $tr = 0;
     for($i = 1;$i < 5; $i++){
 	$param="repeaterBand" . $i;
-	if((isset($configs[$param])) && strlen($configs[$param]) == 1) {
+	if((isset($_SESSION['ircDDBConfigs'][$param])) && strlen($_SESSION['ircDDBConfigs'][$param]) == 1) {
 	    $ci++;
 	    if($ci > 1) { $ci = 0; }
 	    print "<tr>";
 	    $tr = 1;
-	    $module = $configs[$param];
-	    $rcall = sprintf("%-7.7s%-1.1s",$MYCALL,$module);
+	    $module = $_SESSION['ircDDBConfigs'][$param];
+	    $rcall = sprintf("%-7.7s%-1.1s", $_SESSION['MYCALL'], $module);
 	    $param="repeaterCall" . $i;
-	    if(isset($configs[$param])) { $rptrcall=sprintf("%-7.7s%-1.1s",$configs[$param],$module); } else { $rptrcall = $rcall;}
+	    if(isset($_SESSION['ircDDBConfigs'][$param])) { $rptrcall=sprintf("%-7.7s%-1.1s",$_SESSION['ircDDBConfigs'][$param],$module); } else { $rptrcall = $rcall;}
 	    print "<td>".str_replace(' ', '&nbsp;', substr($rptrcall,0,8))."</td>";
 	    $param="reflector" . $i;
-	    if(isset($configs[$param])) { print "<td>".str_replace(' ', '&nbsp;', substr($configs[$param],0,8))."</td>"; } else { print "<td>&nbsp;</td>";}
+	    if(isset($_SESSION['ircDDBConfigs'][$param])) { print "<td>".str_replace(' ', '&nbsp;', substr($_SESSION['ircDDBConfigs'][$param],0,8))."</td>"; } else { print "<td>&nbsp;</td>";}
 	    $param="atStartup" . $i;
-	    if($configs[$param] == 1){print "<td style=\"background:#1d1;\">Yes</td>"; } else { print "<td style=\"background:#f33;\">No</td>"; }
+	    if($_SESSION['ircDDBConfigs'][$param] == 1){print "<td style=\"background:#1d1;\">Yes</td>"; } else { print "<td style=\"background:#f33;\">No</td>"; }
 	    $param="reconnect" . $i;
-	    if(isset($configs[$param])) { $t = $configs[$param]; } else { $t = 0; }
+	    if(isset($_SESSION['ircDDBConfigs'][$param])) { $t = $_SESSION['ircDDBConfigs'][$param]; } else { $t = 0; }
 	    if($t > 12){ $t = 12; }
 	    print "<td>$tot[$t]</td>";
 	    $j=0;

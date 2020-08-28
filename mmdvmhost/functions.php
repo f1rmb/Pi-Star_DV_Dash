@@ -1,4 +1,12 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
+require_once($_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php');
+
 function get_string_between($string, $start, $end){
 	$string = " ".$string;
 	$ini = strpos($string,$start);
@@ -8,16 +16,32 @@ function get_string_between($string, $start, $end){
 	return substr($string,$ini,$len);
 }
 
-function getMMDVMConfig() {
-	// loads /etc/mmdvmhost into array for further use
-	$conf = array();
-	if ($configs = @fopen(MMDVMINIPATH."/".MMDVMINIFILENAME, 'r')) {
-		while ($config = fgets($configs)) {
-			array_push($conf, trim ( $config, " \t\n\r\0\x0B"));
-		}
-		fclose($configs);
+function getMMDVMConfigContent() {
+    $confs = array();
+    if ($handle = @fopen('/etc/mmdvmhost', 'r')) {
+	while ($configs = fgets($handle)) {
+	    array_push($confs, trim($configs, " \t\n\r\0\x0B"));
 	}
-	return $conf;
+	fclose($handle);
+    }
+    return $confs;
+}
+
+// Load any non sectionned config file
+function getNoSectionsConfigContent($configPath) {
+    $confs = array();
+    if ($handle = @fopen($configPath, 'r')) {
+	while ($line = fgets($handle)) {
+	    if (strpos($line, '=') !== FALSE) {
+		list($key, $value) = explode('=', $line, 2);
+		$value = trim(str_replace('"', '', $value));
+		
+		$confs[$key] = $value;
+	    }
+	}
+	fclose($handle);
+    }
+    return $confs;
 }
 
 function getYSFGatewayConfig() {
@@ -69,8 +93,8 @@ function getDAPNETGatewayConfig() {
 }
 
 function getDAPNETAPIConfig() {
-	// loads /etc/dapnetapi.key into array for further use
-	$conf = array();
+    // loads /etc/dapnetapi.key into array for further use
+    $conf = array();
     if (file_exists('/etc/dapnetapi.key')) {
         if ($configs = @fopen('/etc/dapnetapi.key', 'r')) {
             while ($config = fgets($configs)) {
@@ -79,9 +103,10 @@ function getDAPNETAPIConfig() {
             fclose($configs);
         }
     }
-	return $conf;
+    return $conf;
 }
 
+// retrieves the corresponding config-entry within a [section]
 function getConfigItem($section, $key, $configs) {
     if (empty($section)) {
         return null;
@@ -103,9 +128,9 @@ function getConfigItem($section, $key, $configs) {
     return null;
 }
 
-function getEnabled ($mode, $mmdvmconfigs) {
+function getEnabled ($mode, $configs) {
 	// returns enabled/disabled-State of mode
-	return getConfigItem($mode, "Enable", $mmdvmconfigs);
+	return getConfigItem($mode, "Enable", $configs);
 }
 
 //M: 2019-03-06 11:17:25.804 Opening DAPNET connection
@@ -172,9 +197,9 @@ function getModeClass($status, $disabled = false) {
     }
 }
 
-function showMode($mode, $mmdvmconfigs) {
+function showMode($mode, $configs) {
     // shows if mode is enabled or not.
-    if (getEnabled($mode, $mmdvmconfigs) == 1) {
+    if (getEnabled($mode, $configs) == 1) {
 	if ($mode == "D-Star Network") {
 	    getModeClass(isProcessRunning("ircddbgatewayd"));
 	}
@@ -191,7 +216,7 @@ function showMode($mode, $mmdvmconfigs) {
 	    getModeClass(isProcessRunning("DAPNETGateway") && (isDAPNETGatewayConnected() == 1));
 	}
 	elseif ($mode == "DMR Network") {
-	    if (getConfigItem("DMR Network", "Address", $mmdvmconfigs) == '127.0.0.1') {
+	    if (getConfigItem("DMR Network", "Address", $configs) == '127.0.0.1') {
 		getModeClass(isProcessRunning("DMRGateway"));
 	    }
 	    else {
@@ -204,25 +229,25 @@ function showMode($mode, $mmdvmconfigs) {
 	    }
 	}
     }
-    elseif ( ($mode == "YSF XMode") && (getEnabled("System Fusion", $mmdvmconfigs) == 1) ) {
+    elseif ( ($mode == "YSF XMode") && (getEnabled("System Fusion", $configs) == 1) ) {
 	getModeClass( (isProcessRunning("MMDVMHost")) && (isProcessRunning("YSF2DMR") || isProcessRunning("YSF2NXDN") || isProcessRunning("YSF2P25")), true);
     }
-    elseif ( ($mode == "DMR XMode") && (getEnabled("DMR", $mmdvmconfigs) == 1) ) {
+    elseif ( ($mode == "DMR XMode") && (getEnabled("DMR", $configs) == 1) ) {
 	getModeClass( (isProcessRunning("MMDVMHost")) && (isProcessRunning("DMR2YSF") || isProcessRunning("DMR2NXDN")), true);
     }
-    elseif ( ($mode == "YSF2DMR Network") && (getEnabled("System Fusion", $mmdvmconfigs) == 1) ) {
+    elseif ( ($mode == "YSF2DMR Network") && (getEnabled("System Fusion", $configs) == 1) ) {
 	getModeClass(isProcessRunning("YSF2DMR"), true);
     }
-    elseif ( ($mode == "YSF2NXDN Network") && (getEnabled("System Fusion", $mmdvmconfigs) == 1) ) {
+    elseif ( ($mode == "YSF2NXDN Network") && (getEnabled("System Fusion", $configs) == 1) ) {
 	getModeClass(isProcessRunning("YSF2NXDN"), true);
     }
-    elseif ( ($mode == "YSF2P25 Network") && (getEnabled("System Fusion", $mmdvmconfigs) == 1) ) {
+    elseif ( ($mode == "YSF2P25 Network") && (getEnabled("System Fusion", $configs) == 1) ) {
 	getModeClass(isProcessRunning("YSF2P25"), true);
     }
-    elseif ( ($mode == "DMR2NXDN Network") && (getEnabled("DMR", $mmdvmconfigs) == 1) ) {
+    elseif ( ($mode == "DMR2NXDN Network") && (getEnabled("DMR", $configs) == 1) ) {
 	getModeClass(isProcessRunning("DMR2NXDN"), true);
     }
-    elseif ( ($mode == "DMR2YSF Network") && (getEnabled("DMR", $mmdvmconfigs) == 1) ) {
+    elseif ( ($mode == "DMR2YSF Network") && (getEnabled("DMR", $configs) == 1) ) {
 	getModeClass(isProcessRunning("DMR2YSF"), true);
     }
     else {
@@ -778,7 +803,7 @@ function getLastHeard($logLines) {
 	return $lastHeard;
 }
 
-function getActualMode($metaLastHeard, $mmdvmconfigs) {
+function getActualMode($metaLastHeard, &$configs) {
 	// returns mode of repeater actual working in
         $utc_tz =  new DateTimeZone('UTC');
         $local_tz = new DateTimeZone(date_default_timezone_get ());
@@ -791,47 +816,47 @@ function getActualMode($metaLastHeard, $mmdvmconfigs) {
 	}
 
 	$now =  new DateTime();
-	$hangtime = getConfigItem("General", "ModeHang", $mmdvmconfigs);
+	$hangtime = getConfigItem("General", "ModeHang", $configs);
 
 	if ($hangtime != "") {
 		$timestamp->add(new DateInterval('PT' . $hangtime . 'S'));
 	} else {
 		$source = $listElem[5];
 		if ($source == "RF" && $mode === "D-Star") {
-			$hangtime = getConfigItem("D-Star", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("D-Star", "ModeHang", $configs);
 		}
 		else if ($source == "Net" && $mode === "D-Star") {
-			$hangtime = getConfigItem("D-Star Network", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("D-Star Network", "ModeHang", $configs);
 		}
 		else if ($source == "RF" && $mode === "DMR") {
-			$hangtime = getConfigItem("DMR", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("DMR", "ModeHang", $configs);
 		}
 		else if ($source == "Net" && $mode === "DMR") {
-			$hangtime = getConfigItem("DMR Network", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("DMR Network", "ModeHang", $configs);
 		}
 		else if ($source == "RF" && $mode === "YSF") {
-			$hangtime = getConfigItem("System Fusion", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("System Fusion", "ModeHang", $configs);
 		}
 		else if ($source == "Net" && $mode === "YSF") {
-			$hangtime = getConfigItem("System Fusion Network", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("System Fusion Network", "ModeHang", $configs);
 		}
 		else if ($source == "RF" && $mode === "P25") {
-			$hangtime = getConfigItem("P25", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("P25", "ModeHang", $configs);
 		}
 		else if ($source == "Net" && $mode === "P25") {
-			$hangtime = getConfigItem("P25 Network", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("P25 Network", "ModeHang", $configs);
 		}
 		else if ($source == "RF" && $mode === "NXDN") {
-			$hangtime = getConfigItem("NXDN", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("NXDN", "ModeHang", $configs);
 		}
 		else if ($source == "Net" && $mode === "NXDN") {
-			$hangtime = getConfigItem("NXDN Network", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("NXDN Network", "ModeHang", $configs);
 		}
 		else if ($source == "Net" && $mode === "POCSAG") {
-			$hangtime = getConfigItem("POCSAG Network", "ModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("POCSAG Network", "ModeHang", $configs);
 		}
 		else {
-			$hangtime = getConfigItem("General", "RFModeHang", $mmdvmconfigs);
+			$hangtime = getConfigItem("General", "RFModeHang", $configs);
 		}
 		$timestamp->add(new DateInterval('PT' . $hangtime . 'S'));
 	}
@@ -1151,34 +1176,33 @@ function getActualReflector($logLines, $mode) {
 //}
 
 //Some basic inits
-$mmdvmconfigs = getMMDVMConfig();
 if (!in_array($_SERVER["PHP_SELF"],array('/mmdvmhost/bm_links.php','/mmdvmhost/bm_manager.php'),true)) {
-	$logLinesMMDVM = getMMDVMLog();
-	$reverseLogLinesMMDVM = $logLinesMMDVM;
-	array_multisort($reverseLogLinesMMDVM,SORT_DESC);
-	$lastHeard = getLastHeard($reverseLogLinesMMDVM);
-
-	// Only need these in repeaterinfo.php
-	if (strpos($_SERVER["PHP_SELF"], 'repeaterinfo.php') !== false || strpos($_SERVER["PHP_SELF"], 'index.php') !== false) {
-		//$YSFGatewayconfigs = getYSFGatewayConfig();
-		$logLinesYSFGateway = getYSFGatewayLog();
-		$reverseLogLinesYSFGateway = $logLinesYSFGateway;
-		array_multisort($reverseLogLinesYSFGateway,SORT_DESC);
-		//$P25Gatewayconfigs = getP25GatewayConfig();
-		$logLinesP25Gateway = getP25GatewayLog();
-		//$reverseLogLinesP25Gateway = array_reverse(getP25GatewayLog());
-		//$NXDNGatewayconfigs = getNXDNGatewayConfig();
-		$logLinesNXDNGateway = getNXDNGatewayLog();
-		//$reverseLogLinesNXDNGateway = array_reverse(getNXDNGatewayLog());
-	}
+    $logLinesMMDVM = getMMDVMLog();
+    $reverseLogLinesMMDVM = $logLinesMMDVM;
+    array_multisort($reverseLogLinesMMDVM,SORT_DESC);
+    $lastHeard = getLastHeard($reverseLogLinesMMDVM);
     
-	// Only need these in index.php
-	if (strpos($_SERVER["PHP_SELF"], 'index.php') !== false || strpos($_SERVER["PHP_SELF"], 'pages.php') !== false) {
-
+    // Only need these in repeaterinfo.php
+    if (strpos($_SERVER["PHP_SELF"], 'repeaterinfo.php') !== false || strpos($_SERVER["PHP_SELF"], 'index.php') !== false) {
+	//$YSFGatewayconfigs = getYSFGatewayConfig();
+	$logLinesYSFGateway = getYSFGatewayLog();
+	$reverseLogLinesYSFGateway = $logLinesYSFGateway;
+	array_multisort($reverseLogLinesYSFGateway,SORT_DESC);
+	//$P25Gatewayconfigs = getP25GatewayConfig();
+	$logLinesP25Gateway = getP25GatewayLog();
+	//$reverseLogLinesP25Gateway = array_reverse(getP25GatewayLog());
+	//$NXDNGatewayconfigs = getNXDNGatewayConfig();
+	$logLinesNXDNGateway = getNXDNGatewayLog();
+	//$reverseLogLinesNXDNGateway = array_reverse(getNXDNGatewayLog());
+    }
+    
+    // Only need these in index.php
+    if (strpos($_SERVER["PHP_SELF"], 'index.php') !== false || strpos($_SERVER["PHP_SELF"], 'pages.php') !== false) {
+	
         // Will separate personnal and global messages only in Admin page, if MY_RIC is defined in dapnetapi.key.
         $origin = (isset($_GET['origin']) ? $_GET['origin'] : (isset($myOrigin) ? $myOrigin : "unknown"));
         
-		$logLinesDAPNETGateway = getDAPNETGatewayLog(($origin == "admin" ?  getConfigItem("DAPNETAPI", "MY_RIC", getDAPNETAPIConfig()) : null));
-	}
+	$logLinesDAPNETGateway = getDAPNETGatewayLog(($origin == "admin" ? (isset($_SESSION['DAPNETAPIKeyConfigs']) ? getConfigItem("DAPNETAPI", "MY_RIC", $_SESSION['DAPNETAPIKeyConfigs']) : null) : null));
+    }
 }
 ?>

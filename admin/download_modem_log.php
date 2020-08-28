@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 if ($_SERVER["PHP_SELF"] == "/admin/download_modem_log.php") {
 	if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 		$logfile = "/var/log/pi-star/MMDVM-".gmdate('Y-m-d').".log";

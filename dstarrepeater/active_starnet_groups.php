@@ -1,19 +1,12 @@
-<?php include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
-include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
-$configs = array();
+<?php
 
-if ($configfile = fopen($gatewayConfigPath,'r')) {
-        while ($line = fgets($configfile)) {
-                list($key,$value) = preg_split('/=/',$line);
-                $value = trim(str_replace('"','',$value));
-                if ($key != 'ircddbPassword' && strlen($value) > 0)
-                $configs[$key] = $value;
-        }
-
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
 }
-$progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
-$rev="20141101";
-$MYCALL=strtoupper($callsign);
+
+include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
 ?>
 <b><?php echo $lang['active_starnet_groups'];?></b>
 <table style="table-layout: fixed;">
@@ -28,24 +21,52 @@ $MYCALL=strtoupper($callsign);
     $ci = 0;
     $i = 0;
     $stngrp = array();
-    for($i = 1;$i < 6; $i++){
-	$param="starNetCallsign" . $i;
-	if(isset($configs[$param])) {
-	    $gname = $configs[$param];
+    for($i = 1; $i < 6; $i++) {
+	$param = "starNetCallsign" . $i;
+	exec('echo T:\"'.$_SESSION['ircDDBConfigs'][$param].'\" >> /tmp/trace.txt');
+	if(isset($_SESSION['ircDDBConfigs'][$param]) && !empty($_SESSION['ircDDBConfigs'][$param])) {
+	    $gname = $_SESSION['ircDDBConfigs'][$param];
 	    $stngrp[$gname] = $i;
 	    $ci++;
-	    if($ci > 1) { $ci = 0; }
-	    print "<tr>";
-	    print "<td align=\"center\">".str_replace(' ', '&nbsp;', substr($gname,0,8))."</td>";
-	    $param="starNetLogoff" . $i;
-	    if(isset($configs[$param])){ $output = str_replace(' ', '&nbsp;', substr($configs[$param],0,8)); print "<td align=\"center\">$output</td>";} else { print"<td>&nbsp;</td>";}
-	    $param="starNetInfo" . $i;
-	    if(isset($configs[$param])){ print "<td colspan=\"3\" align=\"left\">$configs[$param]</td>";} else { print"<td colspan=\"3\">&nbsp;</td>";}
-	    $param="starNetUserTimeout" . $i;
-	    if(isset($configs[$param])){ print "<td align=\"center\">$configs[$param]</td>";} else { print"<td>&nbsp;</td>";}
-	    $param="starNetGroupTimeout" . $i;
-	    if(isset($configs[$param])){ print "<td align=\"center\">$configs[$param]</td>";} else { print"<td>&nbsp;</td>";}
-	    print "</tr>\n";
+	    if($ci > 1) {
+		$ci = 0;
+	    }
+	    echo '<tr>'."\n";
+	    echo '<td align="center">'.str_replace(' ', '&nbsp;', substr($gname, 0, 8)).'</td>'."\n";
+	    
+	    $param = "starNetLogoff" . $i;
+	    if(isset($_SESSION['ircDDBConfigs'][$param])) {
+		$output = str_replace(' ', '&nbsp;', substr($_SESSION['ircDDBConfigs'][$param],0,8));
+		echo '<td align="center">'.$output.'</td>'."\n";
+	    }
+	    else {
+		echo '<td>&nbsp;</td>'."\n";
+	    }
+	    
+	    $param = "starNetInfo" . $i;
+	    if(isset($_SESSION['ircDDBConfigs'][$param])){
+		echo '<td colspan="3" align="left">'.$_SESSION['ircDDBConfigs'][$param].'</td>'."\n";
+	    }
+	    else {
+		echo '<td colspan="3">&nbsp;</td>'."\n";
+	    }
+	    
+	    $param = "starNetUserTimeout" . $i;
+	    if(isset($_SESSION['ircDDBConfigs'][$param])) {
+		echo '<td align="center">'.$_SESSION['ircDDBConfigs'][$param].'</td>'."\n";
+	    }
+	    else {
+		echo '<td>&nbsp;</td>'."\n";
+	    }
+	    
+	    $param = "starNetGroupTimeout" . $i;
+	    if(isset($_SESSION['ircDDBConfigs'][$param])){
+		echo '<td align="center">'.$_SESSION['ircDDBConfigs'][$param].'</td>'."\n";
+	    }
+	    else {
+		echo '<td>&nbsp;</td>'."\n";
+	    }
+	    echo '</tr>'."\n";
 	}
     }
 ?>

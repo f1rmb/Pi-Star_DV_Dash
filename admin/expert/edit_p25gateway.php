@@ -1,5 +1,10 @@
 <?php
 
+if (!isset($_SESSION) || !is_array($_SESSION)) {
+    session_id('pistardashsess');
+    session_start();
+}
+
 $configfile = '/etc/p25gateway';
 $tempfile = '/tmp/aFE45dgs4tFS.tmp';
 

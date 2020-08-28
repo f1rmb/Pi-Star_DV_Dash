@@ -29,7 +29,7 @@ body, font {
     -webkit-border-radius: 10px 10px 0px 0px; 
     -khtml-border-radius: 10px 10px 0px 0px;
     -ms-border-radius: 10px 10px 0px 0px;
- }
+}
 
 .nav {
     float : left;
