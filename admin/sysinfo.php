@@ -7,11 +7,6 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
 
 // Load the language support
 require_once('config/language.php');
-// Load the Pi-Star Release file
-$pistarReleaseConfig = '/etc/pistar-release';
-$configPistarRelease = array();
-$configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
-// Load the Version Info
 require_once('config/version.php');
 include_once('mmdvmhost/tools.php');
 
@@ -140,7 +135,7 @@ function formatSize( $bytes ) {
     <body>
 	<div class="container">
 	    <div class="header">
-		<div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / Dashboard:<?php echo $version; ?></div>
+		<div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / Dashboard:<?php echo $version; ?></div>
 		<h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard']." - SysInfo";?></h1>
 		<p>
 		    <div class="navbar">

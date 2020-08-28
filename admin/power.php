@@ -7,11 +7,6 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
 
 // Load the language support
 require_once('config/language.php');
-// Load the Pi-Star Release file
-$pistarReleaseConfig = '/etc/pistar-release';
-$configPistarRelease = array();
-$configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
-// Load the Version Info
 require_once('config/version.php');
 
 // Sanity Check that this file has been opened correctly
@@ -41,7 +36,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/power.php") {
   <body>
       <div class="container">
 	  <div class="header">
-	      <div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
+	      <div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
 	      <h1>Pi-Star <?php echo $lang['digital_voice']." - ".$lang['power'];?></h1>
 	      <p>
 		  <div class="navbar">
