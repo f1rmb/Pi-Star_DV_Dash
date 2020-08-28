@@ -83,17 +83,24 @@ function getDAPNETAPIConfig() {
 }
 
 function getConfigItem($section, $key, $configs) {
-	// retrieves the corresponding config-entry within a [section]
-	$sectionpos = array_search("[" . $section . "]", $configs) + 1;
-	$len = count($configs);
+    if (empty($section)) {
+        return null;
+    }
+    $sectionpos = array_search("[" . $section . "]", $configs);
+    if ($sectionpos !== FALSE) {
+        $sectionpos++;
+        $len = count($configs);
         while(($sectionpos < $len) && (startsWith($configs[$sectionpos], $key."=") === FALSE)) {
-		if (startsWith($configs[$sectionpos],"[")) {
-			return null;
-		}
-		$sectionpos++;
-	}
-
-	return substr($configs[$sectionpos], strlen($key) + 1);
+            if (startsWith($configs[$sectionpos],"[")) {
+                return null;
+            }
+            $sectionpos++;
+        }
+        if ($sectionpos < $len) {
+            return substr($configs[$sectionpos], strlen($key) + 1);
+        }
+    }
+    return null;
 }
 
 function getEnabled ($mode, $mmdvmconfigs) {
