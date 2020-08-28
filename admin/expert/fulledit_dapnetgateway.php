@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'DAPNetGateway';
 $configfile = '/etc/dapnetgateway';
 $tempfile = '/tmp/cVKu8oJJKWqe.tmp';
 $servicenames = array('dapnetgateway.service');

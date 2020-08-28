@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'DAPNetAPI Key';
 $configfile = '/etc/dapnetapi.key';
 $tempfile = '/tmp/jsADGHwf9sj294.tmp';
 $servicenames = array('dapnetgateway.service');

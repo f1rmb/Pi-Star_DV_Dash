@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'XLX Hosts';
 $configfile = '/root/XLXHosts.txt';
 $tempfile = '/tmp/xGTcrAjxp2DN2.tmp';
 

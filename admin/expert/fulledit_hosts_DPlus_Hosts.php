@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'DPlus Hosts';
 $configfile = '/root/DPlus_Hosts.txt';
 $tempfile = '/tmp/xmVwKAY7H4X42.tmp';
 

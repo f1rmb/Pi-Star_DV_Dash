@@ -39,40 +39,57 @@ require_once('../config/version.php');
 	    <div class="contentwide">
 		<?php
 		if(isset($_POST['data'])) {
-		    // File Wrangling
-		    exec('sudo cp '.$configfile.' '.$tempfile);
-		    exec('sudo chown www-data:www-data '.$tempfile);
-		    exec('sudo chmod 664 '.$tempfile);
+		    // split and remove DOS EOL
+		    $data = explode("\n", str_replace("\r", "", $_POST['data']));
 		    
-		    // Open the file and write the data
-		    $filepath = $tempfile;
-		    $fh = fopen($filepath, 'w');
-		    $data = str_replace("\r", "", $_POST['data']);
-
-		    if (function_exists('process_before_saving')) {
-			process_before_saving($data);
-		    }
-		    			
-		    fwrite($fh, $data);;
-		    fclose($fh);
-		    
-		    exec('sudo mount -o remount,rw /');
-		    exec('sudo cp '.$tempfile.' '.$configfile);
-		    exec('sudo chmod 644 '.$configfile);
-		    exec('sudo chown root:root '.$configfile);
-		    exec('sudo mount -o remount,ro /');
-		    
-		    // Reload the affected daemon
-		    if (isset($servicenames) && (count($servicenames) > 0)) {
-			foreach($servicenames as $servicename) {
-			    exec('sudo systemctl restart '.$servicename); // Reload the daemon
+		    // Prepare data and update the configuration file
+		    $content = "";
+		    foreach($data as $line) {
+			if (strpos($line, '=') !== FALSE) {
+			    list($key, $value) = explode('=', $line, 2);
+			    $value = trim(str_replace('"', '', $value));
+			    
+ 			    if (isset($key) && !empty($key)) {
+				    if (function_exists('process_before_saving')) {
+					process_before_saving($key, $value);
+				    }
+		  
+				if ($value == '') {
+				    $content .= $key."= \n";
+				}
+				else {
+				    $content .= $key."=".$value."\n";
+				}
+			    }
 			}
+		    }
+
+		    $filepath = $tempfile;
+		    $wCount = FALSE;
+		    // write it into file
+		    if (($handle = fopen($tempfile, 'w')) != FALSE) {
+			if (($wCount = fwrite($handle, $content)) != FALSE) {
+			    // Updates complete - copy the working file back to the proper location
+			    exec('sudo mount -o remount,rw /');
+			    exec('sudo cp '.$tempfile.' '.$configfile.'');
+			    exec('sudo chmod 644 '.$configfile.'');
+			    exec('sudo chown root:root '.$configfile.'');
+			    exec('sudo mount -o remount,ro /');
+			    
+			    // Reload the affected daemon
+			    if (isset($servicenames) && (count($servicenames) > 0)) {
+				foreach($servicenames as $servicename) {
+				    exec('sudo systemctl restart '.$servicename); // Reload the daemon
+				}
+			    }
+			}
+			
+			fclose($handle);
 		    }
 		    
 		    // Re-open the file and read it
 		    $fh = fopen($filepath, 'r');
 		    $theData = fread($fh, filesize($filepath));
-		    
 		}
 		else {
 		    // File Wrangling

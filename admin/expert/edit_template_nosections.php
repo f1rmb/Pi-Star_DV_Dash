@@ -47,6 +47,10 @@ require_once('../config/version.php');
 	  $content = "";
 	  
 	  foreach($data as $key => $value) {
+	      if (function_exists('process_before_saving')) {
+		  process_before_saving($key, $value);
+	      }
+	      
 	      if ($value == '') {
 		  $content .= $key."= \n";
 	      }
@@ -54,7 +58,7 @@ require_once('../config/version.php');
 		  $content .= $key."=".$value."\n";
 	      }
 	  }
-	  
+
 	  $wCount = FALSE;
 	  // write it into file
 	  if (($handle = fopen($tempfile, 'w')) != FALSE) {

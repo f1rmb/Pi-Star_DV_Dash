@@ -17,5 +17,6 @@ function process_before_saving($key, &$value)
     }
 }
 
-require_once('edit_template_nosections.php');
+require_once('fulledit_template_nosections.php');
+
 ?>

@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'DCS Hosts';
 $configfile = '/root/DCS_Hosts.txt';
 $tempfile = '/tmp/hjuTqB75YtgCn.tmp';
 

@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'PiStar Remote';
 $configfile = '/etc/pistar-remote';
 $tempfile = '/tmp/fmehg65934eg.tmp';
 $servicenames = array('pistar-remote.service');

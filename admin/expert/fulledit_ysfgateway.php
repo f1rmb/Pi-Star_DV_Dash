@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'YSFGateway';
 $configfile = '/etc/ysfgateway';
 $tempfile = '/tmp/eXNmZ2F0ZXdheQ.tmp';
 $servicenames = array('mmdvmhost.service', 'ysfgateway.service');

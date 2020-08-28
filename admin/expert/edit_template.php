@@ -50,6 +50,11 @@ require_once('../config/version.php');
 		//after the form submit
 		if($_POST) {
 		    $data = $_POST;
+		    
+		    if (function_exists('process_before_saving')) {
+			process_before_saving($data);
+		    }
+		    
 		    //update ini file, call function
 		    update_ini_file($data, $filepath);
 		}

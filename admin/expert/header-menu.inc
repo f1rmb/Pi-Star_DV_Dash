@@ -58,6 +58,14 @@
 		    <ul class="dropdown">
 			<li class="subs"><a href="fulledit_mmdvmhost.php">MMDVMHost</a></li>
 			<li class="subs"><a href="fulledit_pistar-remote.php">PiStar-Remote</a></li>
+			<!-- DStar Sub -->
+			<li class="subs has-subs"><a href="#">DStar</a>
+			    <ul class="dropdown">
+				<li class="subs"><a href="fulledit_dstarrepeater.php">DStarRepeater</a></li>
+				<li class="subs"><a href="fulledit_ircddbgateway.php">ircDDB Gateway</a></li>
+				<li class="subs"><a href="fulledit_timeserver.php">TimeServer</a></li>
+			    </ul>
+			</li>
 			<!-- DMR Sub -->
 			<li class="subs has-subs"><a href="#">DMR</a>
 			    <ul class="dropdown">

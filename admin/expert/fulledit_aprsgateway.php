@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'APRSGateway';
 $configfile = '/etc/aprsgateway';
 $tempfile = '/tmp/oDFuttgksHSRb8.tmp';
 $servicenames = array('aprsgateway.service');

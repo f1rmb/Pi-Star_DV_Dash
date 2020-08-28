@@ -5,6 +5,7 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_start();
 }
 
+$editorname = 'DMRGateway';
 $configfile = '/etc/dmrgateway';
 $tempfile = '/tmp/fmehg65694eg.tmp';
 $servicenames = array('mmdvmhost.service', 'dmrgateway.service');
