@@ -9,9 +9,10 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDa
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
+
 ?>
 <script type="text/javascript" >
- $(function(){
+ $(function() {
      $('table.lh-table').floatThead({
 	 position: 'fixed',
 	 scrollContainer: true
@@ -58,14 +59,17 @@ for ($i = 0; $i < $maxCount; $i++) {
 	// Callsign
 	if (is_numeric($listElem[2]) || strpos($listElem[2], "openSPOT") !== FALSE) {
 	    echo "<td align=\"left\">$listElem[2]</td>";
-	} elseif (!preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $listElem[2])) {
+	}
+	else if (!preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $listElem[2])) {
             echo "<td align=\"left\">$listElem[2]</td>";
-	} else {
+	}
+	else {
 	    if (strpos($listElem[2],"-") > 0) { $listElem[2] = substr($listElem[2], 0, strpos($listElem[2],"-")); }
 	    if ( $listElem[3] && $listElem[3] != '    ' ) {
 		//echo "<td align=\"left\"><a href=\"http://www.qrz.com/db/$listElem[2]\" data-featherlight=\"iframe\" data-featherlight-iframe-min-width=\"90%\" data-featherlight-iframe-max-width=\"90%\" data-featherlight-iframe-width=\"2000\" data-featherlight-iframe-height=\"2000\">$listElem[2]</a>/$listElem[3]</td>";
 		echo "<td align=\"left\"><a href=\"http://www.qrz.com/db/$listElem[2]\" target=\"_blank\">$listElem[2]</a>/$listElem[3]</td>";
-	    } else {
+	    }
+	    else {
 		//echo "<td align=\"left\"><a href=\"http://www.qrz.com/db/$listElem[2]\" data-featherlight=\"iframe\" data-featherlight-iframe-min-width=\"90%\" data-featherlight-iframe-max-width=\"90%\" data-featherlight-iframe-width=\"2000\" data-featherlight-iframe-height=\"2000\">$listElem[2]</a></td>";
 		echo "<td align=\"left\"><a href=\"http://www.qrz.com/db/$listElem[2]\" target=\"_blank\">$listElem[2]</a></td>";
 	    }
@@ -75,14 +79,16 @@ for ($i = 0; $i < $maxCount; $i++) {
 	if (strlen($listElem[4]) == 1) { $listElem[4] = str_pad($listElem[4], 8, " ", STR_PAD_LEFT); }
 	if (substr($listElem[4], 0, 6) === 'CQCQCQ' ) {
 	    echo "<td align=\"left\">$listElem[4]</td>";
-	} else {
+	}
+	else {
 	    echo "<td align=\"left\">".str_replace(" ","&nbsp;", $listElem[4])."</td>";
 	}
 	
 	// Src
 	if ($listElem[5] == "RF"){
 	    echo "<td style=\"background:#1d1;\">RF</td>";
-	} else {
+	}
+	else {
 	    echo "<td>$listElem[5]</td>";
 	}
 	// Duration
@@ -95,29 +101,37 @@ for ($i = 0; $i < $maxCount; $i++) {
             $duration = $now->getTimestamp() - $dt->getTimestamp();
             $duration_string = $duration<999 ? "&asymp; " . round($duration) . "s" : "&infin;";
             echo "<td colspan =\"3\" style=\"background:#f33;\">TX " . $duration_string . "</td>";
-	} else if ($listElem[6] == "SMS") {
+	}
+	else if ($listElem[6] == "SMS") {
 	    echo "<td colspan =\"3\" style=\"background:#1d1;\">SMS</td>";
-	} else {
+	}
+	else {
 	    echo "<td>$listElem[6]</td>";
 	    
 	    // Colour the Loss Field
 	    if (floatval($listElem[7]) < 1) {
-		echo "<td>$listElem[7]</td>"; }
-	    elseif (floatval($listElem[7]) == 1) {
-		echo "<td style=\"background:#1d1;\">$listElem[7]</td>"; }
-	    elseif (floatval($listElem[7]) > 1 && floatval($listElem[7]) <= 3) {
-		echo "<td style=\"background:#fa0;\">$listElem[7]</td>"; }
+		echo "<td>$listElem[7]</td>";
+	    }
+	    else if (floatval($listElem[7]) == 1) {
+		echo "<td style=\"background:#1d1;\">$listElem[7]</td>";
+	    }
+	    else if (floatval($listElem[7]) > 1 && floatval($listElem[7]) <= 3) {
+		echo "<td style=\"background:#fa0;\">$listElem[7]</td>";
+	    }
 	    else {
 		echo "<td style=\"background:#f33;\">$listElem[7]</td>";
 	    }
 	    
 	    // Colour the BER Field
 	    if (floatval($listElem[8]) == 0) {
-		echo "<td>$listElem[8]</td>"; }
-	    elseif (floatval($listElem[8]) >= 0.0 && floatval($listElem[8]) <= 1.9) {
-		echo "<td style=\"background:#1d1;\">$listElem[8]</td>"; }
-	    elseif (floatval($listElem[8]) >= 2.0 && floatval($listElem[8]) <= 4.9) {
-		echo "<td style=\"background:#fa0;\">$listElem[8]</td>"; }
+		echo "<td>$listElem[8]</td>";
+	    }
+	    else if (floatval($listElem[8]) >= 0.0 && floatval($listElem[8]) <= 1.9) {
+		echo "<td style=\"background:#1d1;\">$listElem[8]</td>";
+	    }
+	    else if (floatval($listElem[8]) >= 2.0 && floatval($listElem[8]) <= 4.9) {
+		echo "<td style=\"background:#fa0;\">$listElem[8]</td>";
+	    }
 	    else {
 		echo "<td style=\"background:#f33;\">$listElem[8]</td>";
 	    }

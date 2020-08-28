@@ -14,7 +14,7 @@ $localTXList = $lastHeard;
 
 ?>
 <script type="text/javascript" >
- $(function(){
+ $(function() {
      $('table.local-tx-table').floatThead({
 	 position: 'fixed',
 	 scrollContainer: true
@@ -64,7 +64,7 @@ for ($i = 0; $i < count($localTXList); $i++) {
 	    if (is_numeric($listElem[2]) || strpos($listElem[2], "openSPOT") !== FALSE) {
 		echo "<td align=\"left\">$listElem[2]</td>";
 	    }
-	    elseif (!preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $listElem[2])) {
+	    else if (!preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $listElem[2])) {
 		echo "<td align=\"left\">$listElem[2]</td>";
 	    }
 	    else {
@@ -106,14 +106,22 @@ for ($i = 0; $i < count($localTXList); $i++) {
 		echo"<td>$listElem[6]</td>"; //duration
 		
 		// Colour the BER Field
-		if (floatval($listElem[8]) == 0) { echo "<td>$listElem[8]</td>"; }
-		elseif (floatval($listElem[8]) >= 0.0 && floatval($listElem[8]) <= 1.9) { echo "<td style=\"background:#1d1;\">$listElem[8]</td>"; }
-		elseif (floatval($listElem[8]) >= 2.0 && floatval($listElem[8]) <= 4.9) { echo "<td style=\"background:#fa0;\">$listElem[8]</td>"; }
-		else { echo "<td style=\"background:#f33;\">$listElem[8]</td>"; }
+		if (floatval($listElem[8]) == 0) {
+		    echo "<td>$listElem[8]</td>";
+		}
+		else if (floatval($listElem[8]) >= 0.0 && floatval($listElem[8]) <= 1.9) {
+		    echo "<td style=\"background:#1d1;\">$listElem[8]</td>";
+		}
+		else if (floatval($listElem[8]) >= 2.0 && floatval($listElem[8]) <= 4.9) {
+		    echo "<td style=\"background:#fa0;\">$listElem[8]</td>";
+		}
+		else {
+		    echo "<td style=\"background:#f33;\">$listElem[8]</td>";
+		}
 		
 		echo"<td>$listElem[9]</td>"; //rssi
 	    }
-
+	    
 	    echo"</tr>\n";
 	    $counter++;
 	}

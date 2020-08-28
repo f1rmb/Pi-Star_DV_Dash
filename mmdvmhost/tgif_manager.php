@@ -72,37 +72,33 @@ $dmrID = "";
 $testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['MMDVMHostConfigs']);
 
 if ( $testMMDVModeDMR == 1 ) {
-  //Load the dmrgateway config file
-  $dmrGatewayConfigFile = '/etc/dmrgateway';
-  if (fopen($dmrGatewayConfigFile,'r')) { $configdmrgateway = parse_ini_file($dmrGatewayConfigFile, true); }
-
   // Get the current DMR Master from the config
   $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
   if ( $dmrMasterHost == '127.0.0.1' ) {
     // DMRGateway, need to check each config
-    if (isset($configdmrgateway['DMR Network 1']['Address'])) {
-      if (($configdmrgateway['DMR Network 1']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 1']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 1']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 1']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 2']['Address'])) {
-      if (($configdmrgateway['DMR Network 2']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 2']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 2']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 2']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 3']['Address'])) {
-      if (($configdmrgateway['DMR Network 3']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 3']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 3']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 3']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 4']['Address'])) {
-      if (($configdmrgateway['DMR Network 4']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 4']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 4']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 4']['Id'];
       }
     }
-    if (isset($configdmrgateway['DMR Network 5']['Address'])) {
-      if (($configdmrgateway['DMR Network 5']['Address'] == "tgif.network") && ($configdmrgateway['DMR Network 5']['Enabled'])) {
-        $dmrID = $configdmrgateway['DMR Network 5']['Id'];
+    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Address'])) {
+      if (($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Address'] == "tgif.network") && ($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'])) {
+        $dmrID = $_SESSION['DMRGatewayConfigs']['DMR Network 5']['Id'];
       }
     }
   } else if ( $dmrMasterHost == 'tgif.network' ) {

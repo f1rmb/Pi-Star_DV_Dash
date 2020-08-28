@@ -16,16 +16,37 @@ $rev = $version;
 $MYCALL = strtoupper($callsign);
 $_SESSION['MYCALL'] = $MYCALL;
 
-//Load the Pi-Star Release file
-$pistarReleaseConfig = '/etc/pistar-release';
-$configPistarRelease = array();
-$configPistarRelease = parse_ini_file($pistarReleaseConfig, true);
+// Clear session data (page {re}load);
+unset($_SESSION['BMAPIKey']);
+unset($_SESSION['DAPNETAPIKey']);
+unset($_SESSION['YSF2DMRConfigs']);
+unset($_SESSION['YSF2NXDNConfigs']);
+unset($_SESSION['YSF2P25Configs']);
+unset($_SESSION['DMR2YSFConfigs']);
+unset($_SESSION['DMR2NXDNConfigs']);
+unset($_SESSION['APRSGatewayConfigs']);
+unset($_SESSION['NXDNGatewayConfigs']);
+unset($_SESSION['P25GatewayConfigs']);
 
-// Load a bunch of config files.
+
+// Load a bunch of config data.
+if (file_exists('/etc/bmapi.key')) {
+    $configBMapi = parse_ini_file('/etc/bmapi.key', true);
+    if (isset($configBMapi['key']['apikey']) && !empty($configBMapi['key']['apikey'])) {
+	$_SESSION['BMAPIKey'] = $configBMapi['key']['apikey'];
+	// Check the BM API Key
+	if ( strlen($_SESSION['BMAPIKey']) <= 20 ) { unset($_SESSION['BMAPIKey']); }
+    }
+}
+if (file_exists('/etc/dapnetapi.key')) {
+    $_SESSION['DAPNETAPIKey'] = parse_ini_file('/etc/dapnetapi.key', true);
+}
+$_SESSION['PiStarRelease'] = parse_ini_file('/etc/pistar-release', true);
 $_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
 $_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
 $_SESSION['DStarRepeaterConfigs'] = getNoSectionsConfigContent('/etc/dstarrepeater');
 $_SESSION['DMRGatewayConfigs'] = parse_ini_file('/etc/dmrgateway', true);
+$_SESSION['YSFGatewayConfigs'] = parse_ini_file('/etc/ysfgateway', true);
 $_SESSION['DAPNETGatewayConfigs'] = parse_ini_file('/etc/dapnetgateway', true);
 if (file_exists('/etc/ysf2dmr')) {
     $_SESSION['YSF2DMRConfigs'] = parse_ini_file('/etc/ysf2dmr', true);
@@ -44,6 +65,12 @@ if (file_exists('/etc/dmr2nxdn')) {
 }
 if (file_exists('/etc/aprsgateway')) {
     $_SESSION['APRSGatewayConfigs'] = parse_ini_file('/etc/aprsgateway', true);
+}
+if (file_exists('/etc/nxdngateway')) {
+    $_SESSION['NXDNGatewayConfigs'] = parse_ini_file('/etc/nxdngateway', true);
+}
+if (file_exists('/etc/p25gateway')) {
+    $_SESSION['P25GatewayConfigs'] = parse_ini_file('/etc/p25gateway', true);
 }
 
 ?>
@@ -80,7 +107,7 @@ if (file_exists('/etc/aprsgateway')) {
 <body>
     <div class="container">
 	<div class="header">
-	    <div style="font-size: 8px; text-align: left; padding-left: 8px; float: left;">Hostname: <?php echo exec('cat /etc/hostname'); ?></div><div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $configPistarRelease['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
+	    <div style="font-size: 8px; text-align: left; padding-left: 8px; float: left;">Hostname: <?php echo exec('cat /etc/hostname'); ?></div><div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
 	    <h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard_for']." ".$_SESSION['MYCALL']; ?></h1>
 	    
 	    <p>
