@@ -20,7 +20,6 @@ if ($_SERVER["PHP_SELF"] == "/admin/expert/upgrade.php") {
     
     // Sanity Check Passed.
     header('Cache-Control: no-cache');
-    session_start();
     
     if (!isset($_GET['ajax'])) {
 	//unset($_SESSION['update_offset']);
@@ -33,7 +32,6 @@ if ($_SERVER["PHP_SELF"] == "/admin/expert/upgrade.php") {
     }
     
     if (isset($_GET['ajax'])) {
-	//session_start();
 	if (!file_exists('/var/log/pi-star/pi-star_upgrade.log')) {
 	    exit();
 	}
