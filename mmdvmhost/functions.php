@@ -86,7 +86,7 @@ function getConfigItem($section, $key, $configs) {
 	// retrieves the corresponding config-entry within a [section]
 	$sectionpos = array_search("[" . $section . "]", $configs) + 1;
 	$len = count($configs);
-	while(startsWith($configs[$sectionpos],$key."=") === false && $sectionpos <= ($len) ) {
+        while(($sectionpos < $len) && (startsWith($configs[$sectionpos], $key."=") === FALSE)) {
 		if (startsWith($configs[$sectionpos],"[")) {
 			return null;
 		}
