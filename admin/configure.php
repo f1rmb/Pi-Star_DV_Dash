@@ -2619,8 +2619,8 @@ $MYCALL=strtoupper($callsign);
 		    //
 		    
 
-		    // Save ircDDBGateway config file
-		    if (saveConfigFileNoSection($configircddb, '/tmp/OoWLvXg3z4VE7FO.tmp', '/etc/ircddbgateway') == false) {
+		    // Save MMDVMHost config file
+		    if (saveConfigFile($configmmdvm, '/tmp/bW1kdm1ob3N0DQo.tmp', '/etc/mmdvmhost', 140) == false) {
 			return false;
 		    }
 
@@ -2629,16 +2629,16 @@ $MYCALL=strtoupper($callsign);
 			return false;
 		    }
 
-		    // Save MMDVMHost config file
-		    if (saveConfigFile($configmmdvm, '/tmp/bW1kdm1ob3N0DQo.tmp', '/etc/mmdvmhost', 140) == false) {
+		    // Save ircDDBGateway config file
+		    if (saveConfigFileNoSection($configircddb, '/tmp/OoWLvXg3z4VE7FO.tmp', '/etc/ircddbgateway') == false) {
 			return false;
 		    }
 		    
-		    // Save APRSGateway config file
-		    if (saveConfigFile($configaprsgateway, '/tmp/oDFuttgksHSRb8.tmp', '/etc/aprsgateway', 17) == false) {
+		    // Save DMRGateway config file
+		    if (saveConfigFile($configdmrgateway, '/tmp/k4jhdd34jeFr8f.tmp', '/etc/dmrgateway', 55) == false) {
 			return false;
 		    }
-
+		    
 		    // Save YSFGateway config file
 		    if (saveConfigFile($configysfgateway, '/tmp/eXNmZ2F0ZXdheQ.tmp', '/etc/ysfgateway', 35) == false) {
 			return false;
@@ -2651,6 +2651,16 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Save P25Gateway config file
 		    if (saveConfigFile($configp25gateway, '/tmp/sJSySkheSgrelJX.tmp', '/etc/p25gateway', 30) == false) {
+			return false;
+		    }
+		    
+		    // Save APRSGateway config file
+		    if (saveConfigFile($configaprsgateway, '/tmp/oDFuttgksHSRb8.tmp', '/etc/aprsgateway', 17) == false) {
+			return false;
+		    }
+
+		    // Save DAPNETGateway config file
+		    if (saveConfigFile($configdapnetgw, '/tmp/lsHWie734HS.tmp', '/etc/dapnetgateway', 19) == false) {
 			return false;
 		    }
 		    
@@ -2684,18 +2694,8 @@ $MYCALL=strtoupper($callsign);
 			return false;
 		    }
 		    
-		    // Save DAPNETGatewat config file
-		    if (saveConfigFile($configdapnetgw, '/tmp/lsHWie734HS.tmp', '/etc/dapnetgateway', 19) == false) {
-			return false;
-		    }
-		    
 		    // Save DAPNET APi Key config file
 		    if (saveConfigFile($configdapnetapi, '/tmp/jsADGHwf9sj294.tmp', '/etc/dapnetapi.key', 3) == false) {
-			return false;
-		    }
-		    
-		    // Save DMRGateway config file
-		    if (saveConfigFile($configdapnetapi, '/tmp/k4jhdd34jeFr8f.tmp', '/etc/dmrgateway', 55) == false) {
 			return false;
 		    }
 		    
