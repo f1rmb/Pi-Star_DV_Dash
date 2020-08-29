@@ -107,13 +107,13 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	<tr><th>Tx</th><td style="background: #ffffff;"><?php echo getMHZ(getConfigItem("Info", "TXFrequency", $_SESSION['MMDVMHostConfigs'])); ?></td></tr>
 	<tr><th>Rx</th><td style="background: #ffffff;"><?php echo getMHZ(getConfigItem("Info", "RXFrequency", $_SESSION['MMDVMHostConfigs'])); ?></td></tr>
 	<?php
-	if (getDVModemFirmware()) {
-	    echo '<tr><th>FW</th><td style="background: #ffffff;">'.getDVModemFirmware().'</td></tr>'."\n";
+	if (isset($_SESSION['DvModemFWVersion'])) {
+	    echo '<tr><th>FW</th><td style="background: #ffffff;">'.$_SESSION['DvModemFWVersion'].'</td></tr>'."\n";
 	}
 	?>
 	<?php
-	if (getDVModemTCXOFreq()) {
-	    echo '<tr><th>TCXO</th><td style="background: #ffffff;">'.getDVModemTCXOFreq().'</td></tr>'."\n";
+	if ($_SESSION['DvModemTCXOFreq']) {
+	    echo '<tr><th>TCXO</th><td style="background: #ffffff;">'.$_SESSION['DvModemTCXOFreq'].'</td></tr>'."\n";
 	} ?>
 </table>
 
