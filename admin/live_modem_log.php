@@ -31,8 +31,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/live_modem_log.php") {
 	    $logfile = "/var/log/pi-star/MMDVM-".gmdate('Y-m-d').".log";
 	}
 	else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
-	    if (file_exists("/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log";}
-	    if (file_exists("/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log")) {$logfile = "/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log";}
+	    if (file_exists("/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log")) {
+		$logfile = "/var/log/pi-star/DStarRepeater-".gmdate('Y-m-d').".log";
+	    }
+	    else if (file_exists("/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log")) {
+		$logfile = "/var/log/pi-star/dstarrepeaterd-".gmdate('Y-m-d').".log";
+	    }
 	}
 	
 	if (empty($logfile) || !file_exists($logfile)) {
@@ -110,7 +114,10 @@ if ($_SERVER["PHP_SELF"] == "/admin/live_modem_log.php") {
 	      <table width="100%">
 		  <tr><th><?php echo $lang['live_logs'];?></th></tr>
 		  <tr><td align="left"><div id="tail">Starting logging, please wait...<br /></div></td></tr>
-		  <tr><th>Download the log: <a href="/admin/download_modem_log.php" style="color: #ffffff;">here</a></th></tr>
+		  <tr><th align="right">
+		      <button class="button" onclick="location.href='/admin/download_modem_log.php'" style="margin:2px 5px;">Download This Log</button>
+		      <button class="button" onclick="location.href='/admin/download_all_logs.php'" style="margin:2px 5px;">Download All Logs</button>
+		  </th></tr>
 	      </table>
 	  </div>
 	  <div class="footer">

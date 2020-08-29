@@ -56,5 +56,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/download_modem_log.php") {
 	@fclose($file);
 	exit;
 }
-else { die; }
+else {
+    die();
+}
 ?>
