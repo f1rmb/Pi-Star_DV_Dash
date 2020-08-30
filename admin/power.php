@@ -61,22 +61,24 @@ if ($_SERVER["PHP_SELF"] == "/admin/power.php") {
 			    <?php
 			    if ( escapeshellcmd($_POST["action"]) == "reboot" ) {
 				echo '<tr><td colspan="2" style="background: #000000; color: #00ff00;"><br /><br />Reboot command has been sent to your Pi,
-                        <br />please wait 50 secs for it to reboot.<br />
-                        <br />You will be re-directed back to the
-                        <br />dashboard automatically in 50 seconds.<br /><br /><br />
-                        <script language="JavaScript" type="text/javascript">
-                                setTimeout("location.href = \'/index.php\'",50000);
-                        </script>
-                        </td></tr>';
+				   <br />please wait 50 secs for it to reboot.<br />
+				   <br />You will be re-directed back to the
+				   <br />dashboard automatically in 50 seconds.<br /><br /><br />
+				   <script language="JavaScript" type="text/javascript">
+                                   setTimeout("location.href = \'/index.php\'", 50000);
+				   </script>
+				   </td></tr>'; 
 				system('sudo mount -o remount,ro / > /dev/null &');
 				exec('sleep 5 && sudo shutdown -r now > /dev/null &');
-			    };
-			    if ( escapeshellcmd($_POST["action"]) == "shutdown" ) {
+			    }
+			    else if ( escapeshellcmd($_POST["action"]) == "shutdown" ) {
 				echo '<tr><td colspan="2" style="background: #000000; color: #00ff00;"><br /><br />Shutdown command has been sent to your Pi,
-                        <br /> please wait 30 secs for it to fully shutdown<br />before removing the power.<br /><br /><br /></td></tr>';
+				   <br /> please wait 30 secs for it to fully shutdown<br />before removing the power.<br /><br /><br /></td></tr>';
 				system('sudo mount -o remount,ro / > /dev/null &');
 				exec('sleep 5 && sudo shutdown -h now > /dev/null &');
-			    };
+			    }
+
+			    unset($_POST);
 			    ?>
 			</table>
 		    <?php }
@@ -89,11 +91,11 @@ if ($_SERVER["PHP_SELF"] == "/admin/power.php") {
 				<tr>
 				    <td align="center">
 					Reboot<br />
-					<button style="border: none; background: none;" name="action" value="reboot"><img src="/images/reboot.png" border="0" alt="Reboot" /></button>
+					<button style="border: none; background: none;" name="action" value="reboot" onclick="return confirm('WARNING: This will reboot your system !.\nYour system will be unavailable for many seconds to minutes.\n\nPress Cancel to go back.');"><img src="/images/reboot.png" border="0" alt="Reboot" /></button>
 				    </td>
 				    <td align="center">
 					Shutdown<br />
-					<button style="border: none; background: none;" name="action" value="shutdown"><img src="/images/shutdown.png" border="0" alt="Shutdown" /></button>
+					<button style="border: none; background: none;" id="shutdown" name="action" value="shutdown" onclick="return confirm('WARNING: This will shutdown your system !.\nYou will have to power-cycle manually to restart it.\n\nPress Cancel to go back.');" ><img src="/images/shutdown.png" border="0" alt="Shutdown" /></button>					
 				    </td>
 				</tr>
 			    </table>
