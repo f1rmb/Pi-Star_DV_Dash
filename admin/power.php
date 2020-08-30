@@ -90,12 +90,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/power.php") {
 				</tr>
 				<tr>
 				    <td align="center">
-					Reboot<br />
-					<button style="border: none; background: none;" name="action" value="reboot" onclick="return confirm('WARNING: This will reboot your system !.\nYour system will be unavailable for many seconds to minutes.\n\nPress Cancel to go back.');"><img src="/images/reboot.png" border="0" alt="Reboot" /></button>
+					<h3>Reboot</h3><br />
+					<button style="border: none; background: none; margin: 15px 0px;" name="action" value="reboot" onclick="return confirm('WARNING: This will reboot your system !.\nYour system will be unavailable for many seconds to minutes.\n\nPress Cancel to go back.');"><img src="/images/reboot.png" border="0" alt="Reboot" /></button>
 				    </td>
 				    <td align="center">
-					Shutdown<br />
-					<button style="border: none; background: none;" id="shutdown" name="action" value="shutdown" onclick="return confirm('WARNING: This will shutdown your system !.\nYou will have to power-cycle manually to restart it.\n\nPress Cancel to go back.');" ><img src="/images/shutdown.png" border="0" alt="Shutdown" /></button>					
+					<h3>Shutdown</h3><br />
+					<button style="border: none; background: none; margin: 15px 0px;" id="shutdown" name="action" value="shutdown" onclick="return confirm('WARNING: This will shutdown your system !.\nYou will have to power-cycle manually to restart it.\n\nPress Cancel to go back.');" ><img src="/images/shutdown.png" border="0" alt="Shutdown" /></button>					
 				    </td>
 				</tr>
 			    </table>
