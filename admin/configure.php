@@ -532,9 +532,6 @@ $MYCALL=strtoupper($callsign);
 	     if (confirm('WARNING: This will set all your settings back to factory defaults. WiFi setup will be retained to maintain network access to this Pi.\n\nAre you SURE you want to do this?\n\nPress OK to restore the factory configuration\nPress Cancel to go back.')) {
 		 document.getElementById("factoryReset").submit();
 	     }
-	     else {
-		 return false;
-	     }
 	 }
 	 function resizeIframe(obj) {
 	     var numpix = parseInt(obj.contentWindow.document.body.scrollHeight, 10);
