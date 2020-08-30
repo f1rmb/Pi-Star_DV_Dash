@@ -263,12 +263,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				    <th colspan="2"><?php echo $lang['backup_restore'];?></th>
 				</tr>
 				<tr>
-				    <td align="center" valign="top" width="50%">Download Configuration<br />
-					<button style="border: none; background: none;" name="action" value="download"><img src="/images/download.png" border="0" alt="Download Config" /></button>
+				    <td align="center" valign="top" width="50%"><h3>Download Configuration</h3><br />
+					<button style="border: none; background: none; margin: 15px 0px;" name="action" value="download"><img src="/images/download.png" border="0" alt="Download Config" /></button>
 				    </td>
-				    <td align="center" valign="top">Restore Configuration<br />
-					<button style="border: none; background: none;" name="action" value="restore"><img src="/images/restore.png" border="0" alt="Restore Config" /></button><br />
-    					<input type="file" name="fileToUpload" id="fileToUpload" />
+				    <td align="center" valign="top"><h3>Restore Configuration</h3><br />
+					<button style="border: none; background: none; margin: 10px 0px;" name="action" value="restore"><img src="/images/restore.png" border="0" alt="Restore Config" /></button><br />
+    					<input type="file" style="margin: 5px 0px;" name="fileToUpload" id="fileToUpload" />
 				    </td>
 				</tr>
 				<tr>
