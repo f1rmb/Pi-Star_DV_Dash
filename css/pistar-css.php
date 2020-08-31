@@ -16,6 +16,10 @@ include_once('css-base.php');
 body, font {
     font: 12px verdana,arial,sans-serif;
     color: #ffffff;
+    -webkit-text-size-adjust: none;
+    -moz-text-size-adjust: none;
+    -ms-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 .header {
