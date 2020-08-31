@@ -108,13 +108,13 @@ if ( $testMMDVModeDMR == 1 ) {
     </tr>'."\n";
 	
 	echo '    <tr>'."\n";
-	echo '      <td>'.$dmrMasterHost.'</td>';
-	echo '<td>'.$bmReflectorDef.'</td>';
-	echo '<td>'.$bmReflectorInterval.'</td>';
-	echo '<td>'.$bmReflectorActive.'</td>';
-	echo '<td>'.$bmStaticTGList.'</td>';
-	echo '<td>'.$bmDynamicTGList.'</td>';
-	echo '</tr>'."\n";
+	echo '     <td>'.$dmrMasterHost.'</td>';
+	echo '     <td>'.$bmReflectorDef.'</td>';
+	echo '     <td>'.$bmReflectorInterval.'</td>';
+	echo '     <td>'.$bmReflectorActive.'</td>';
+	echo '     <td>'.$bmStaticTGList.'</td>';
+	echo '     <td>'.$bmDynamicTGList.'</td>';
+	echo '    </tr>'."\n";
 	echo '  </table>'."\n";
 	echo '  <br />'."\n";
     }

@@ -25,8 +25,10 @@ if ($_SERVER["PHP_SELF"] == "/admin/expert/ssh_access.php") {
 	    <meta name="robots" content="follow" />
 	    <meta name="language" content="English" />
 	    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	    <meta name="Author" content="Andrew Taylor (MW0MWZ), Daniel Caujolle-Bet (F1RMB)" />
+	    <meta name="Description" content="Pi-Star SSH Access" />
+	    <meta name="KeyWords" content="MMDVMHost,ircDDBGateway,D-Star,ircDDB,DMRGateway,DMR,YSFGateway,YSF,C4FM,NXDNGateway,NXDN,P25Gateway,P25,Pi-Star,DL5DI,DG9VH,MW0MWZ,F1RMB" />
 	    <meta name="Author" content="Andrew Taylor (MW0MWZ)" />
-	    <meta name="Description" content="Pi-Star Update" />
 	    <meta name="KeyWords" content="Pi-Star" />
 	    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 	    <meta http-equiv="pragma" content="no-cache" />

@@ -498,9 +498,9 @@ $MYCALL=strtoupper($callsign);
 	<meta name="language" content="English" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<?php echo "<meta name=\"GENERATOR\" content=\"$progname $rev\" />\n"; ?>
-	<meta name="Author" content="Andrew Taylor (MW0MWZ)" />
+	<meta name="Author" content="Andrew Taylor (MW0MWZ), Daniel Caujolle-Bert (F1RMB)" />
 	<meta name="Description" content="Pi-Star Configuration" />
-	<meta name="KeyWords" content="Pi-Star, MW0MWZ" />
+	<meta name="KeyWords" content="MMDVMHost,ircDDBGateway,D-Star,ircDDB,DMRGateway,DMR,YSFGateway,YSF,C4FM,NXDNGateway,NXDN,P25Gateway,P25,Pi-Star,DL5DI,DG9VH,MW0MWZ,F1RMB" />
 	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 	<meta http-equiv="pragma" content="no-cache" />
 	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
