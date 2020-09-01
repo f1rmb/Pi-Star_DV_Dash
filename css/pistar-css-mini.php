@@ -313,6 +313,10 @@ h1 {
     outline: none;
 }
 
+input:disabled + label {
+    color: #cccccc;
+}
+
 input.toggle-round-flat + label {
     padding: 1px;
     border: 1px solid transparent;

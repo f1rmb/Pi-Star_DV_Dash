@@ -61,7 +61,8 @@ if ( $testMMDVModeDMR == 1 ) {
 	    if ( getConfigItem("DMR Network", "Slot1", $_SESSION['MMDVMHostConfigs']) == "0" ) {
 		unset($_POST["TS"]);
 		$targetSlot = "0";
-	    } else {
+	    }
+	    else {
 		$targetSlot = $_POST["TS"];
 	    }
 	    // Figure out what has been posted
@@ -137,7 +138,12 @@ if ( $testMMDVModeDMR == 1 ) {
 		echo '    <tr>';
 		echo '<td><input type="submit" value="Drop QSO" title="Drop current QSO" name="dropQso" /><input type="submit" value="Drop All Dyn." title="Drop all dynamic groups" name="dropDyn" /></td>';
 		echo '<td><select name="reflectorNr">'."\n";
-		if ( $bmReflectorActive == "None" || $bmReflectorActive == "REF0" ) { echo '        <option selected="selected" value="0">None</option>'."\n"; } else { echo '        <option value="0">None</option>'."\n"; }
+		if ( $bmReflectorActive == "None" || $bmReflectorActive == "REF0" ) {
+		    echo '        <option selected="selected" value="0">None</option>'."\n";
+		}
+		else {
+		    echo '        <option value="0">None</option>'."\n";
+		}
 		for ($refNrBase = 1; $refNrBase <= 999; $refNrBase++) {
 		    $refNr = 4000 + $refNrBase;
 		    if ( "REF".$refNr == $bmReflectorActive ) { echo '        <option selected="selected" value="'.$refNr.'">REF'.$refNr.'</option>'."\n"; }
@@ -155,7 +161,7 @@ if ( $testMMDVModeDMR == 1 ) {
       </tr>'."\n";
 		echo '    <tr>';
 		echo '<td><input type="text" name="tgNr" size="10" maxlength="7" /></td>';
-		echo '<td><input type="radio" name="TS" value="1" />TS1 <input type="radio" name="TS" value="2" checked="checked" />TS2</td>';
+		echo '<td><input type="radio" id="ts1" name="TS" value="1" '.((getConfigItem("General", "Duplex", $_SESSION['MMDVMHostConfigs']) == "1") ? '' : 'disabled').'/><label for="ts1"/>TS1</label><input type="radio" id="ts2" name="TS" value="2" checked="checked"/><label for="ts2"/>TS2</td>';
 		echo '<td><input type="radio" name="TGmgr" value="ADD" checked="checked" />Add <input type="radio" name="TGmgr" value="DEL" />Delete</td>';
 		echo '<td><input type="submit" value="Modify Static" name="tgSubmit" /></td>';
 		echo '</tr>'."\n";
