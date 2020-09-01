@@ -161,7 +161,7 @@ if ( $testMMDVModeDMR == 1 ) {
       </tr>'."\n";
 		echo '    <tr>';
 		echo '<td><input type="text" name="tgNr" size="10" maxlength="7" /></td>';
-		echo '<td><input type="radio" id="ts1" name="TS" value="1" '.((getConfigItem("General", "Duplex", $_SESSION['MMDVMHostConfigs']) == "1") ? '' : 'disabled').'/><label for="ts1"/>TS1</label><input type="radio" id="ts2" name="TS" value="2" checked="checked"/><label for="ts2"/>TS2</td>';
+		echo '<td><input type="radio" id="ts1" name="TS" value="1" '.((getConfigItem("General", "Duplex", $_SESSION['MMDVMHostConfigs']) == "1") ? '' : 'disabled').'/><label for="ts1"/>TS1</label> <input type="radio" id="ts2" name="TS" value="2" checked="checked"/><label for="ts2"/>TS2</td>';
 		echo '<td><input type="radio" name="TGmgr" value="ADD" checked="checked" />Add <input type="radio" name="TGmgr" value="DEL" />Delete</td>';
 		echo '<td><input type="submit" value="Modify Static" name="tgSubmit" /></td>';
 		echo '</tr>'."\n";
