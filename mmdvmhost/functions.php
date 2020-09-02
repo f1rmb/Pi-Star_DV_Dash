@@ -7,68 +7,61 @@ if (!isset($_SESSION) || !is_array($_SESSION)) {
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php');
 
+function loadSessionConfigFile($key, $configFile, $minEntries = 2) {
+    if ((!isset($_SESSION[$key]) || (count($_SESSION[$key], COUNT_RECURSIVE) < $minEntries)) && file_exists($configFile)) {
+	$_SESSION[$key] = parse_ini_file($configFile, true);
+    }
+}
+
 function checkSessionValidity() {
-    if (!isset($_SESSION['BMAPIKey']) && file_exists('/etc/bmapi.key')) {
+    if (!isset($_SESSION['MYCALL'])) {
+	global $callsign;
+	
+	if (empty($callsign)) {
+	    include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+	}
+	$_SESSION['MYCALL'] = strtoupper($callsign);
+    }
+
+    if ((!isset($_SESSION['BMAPIKey']) || (count($_SESSION['BMAPIKey']) < 2)) && file_exists('/etc/bmapi.key')) {
 	$configBMapi = parse_ini_file('/etc/bmapi.key', true);
 	if (isset($configBMapi['key']['apikey']) && !empty($configBMapi['key']['apikey'])) {
 	    $_SESSION['BMAPIKey'] = $configBMapi['key']['apikey'];
 	    // Check the BM API Key
-	    if ( strlen($_SESSION['BMAPIKey']) <= 20 ) { unset($_SESSION['BMAPIKey']); }
+	    if ( strlen($_SESSION['BMAPIKey']) <= 20 ) {
+		unset($_SESSION['BMAPIKey']);
+	    }
 	}
     }
-    if (!isset($_SESSION['DAPNETAPIKeyConfigs']) && file_exists('/etc/dapnetapi.key')) {
-	$_SESSION['DAPNETAPIKeyConfigs'] = parse_ini_file('/etc/dapnetapi.key', true);
-    }
-    if (!isset($_SESSION['PiStarRelease'])) {
-	$_SESSION['PiStarRelease'] = parse_ini_file('/etc/pistar-release', true);
-    }
-    if (!isset($_SESSION['MMDVMHostConfigs'])) {
+    loadSessionConfigFile('DAPNETAPIKeyConfigs', '/etc/dapnetapi.key');
+    loadSessionConfigFile('PiStarRelease', '/etc/pistar-release');
+    if (!isset($_SESSION['MMDVMHostConfigs']) || (count($_SESSION['MMDVMHostConfigs']) < 2)) {
 	$_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
     }
-    if (!isset($_SESSION['ircDDBConfigs'])) {
+    if (!isset($_SESSION['ircDDBConfigs']) || (count($_SESSION['ircDDBConfigs']) < 2)) {
 	global $gatewayConfigPath;
+
+	if (empty($gatewayConfigPath)) {
+	    include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+	}
 	$_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
     }
-    if (!isset($_SESSION['DStarRepeaterConfigs'])) {
-	$_SESSION['DStarRepeaterConfigs'] = getNoSectionsConfigContent('/etc/dstarrepeater');
-    }
-    if (!isset($_SESSION['DMRGatewayConfigs'])) {
-	$_SESSION['DMRGatewayConfigs'] = parse_ini_file('/etc/dmrgateway', true);
-    }
-    if (!isset($_SESSION['YSFGatewayConfigs'])) {
-	$_SESSION['YSFGatewayConfigs'] = parse_ini_file('/etc/ysfgateway', true);
-    }
-    if (!isset($_SESSION['DAPNETGatewayConfigs'])) {
-	$_SESSION['DAPNETGatewayConfigs'] = parse_ini_file('/etc/dapnetgateway', true);
-    }
-    if (!isset($_SESSION['YSF2DMRConfigs']) && file_exists('/etc/ysf2dmr')) {
-	$_SESSION['YSF2DMRConfigs'] = parse_ini_file('/etc/ysf2dmr', true);
-    }
-    if (!isset($_SESSION['YSF2NXDNConfigs']) && file_exists('/etc/ysf2nxdn')) {
-	$_SESSION['YSF2NXDNConfigs'] = parse_ini_file('/etc/ysf2nxdn', true);
-    }
-    if (!isset($_SESSION['YSF2P25Configs']) && file_exists('/etc/ysf2p25')) {
-	$_SESSION['YSF2P25Configs'] = parse_ini_file('/etc/ysf2p25', true);
-    }
-    if (!isset($_SESSION['DMR2YSFConfigs']) && file_exists('/etc/dmr2ysf')) {
-	$_SESSION['DMR2YSFConfigs'] = parse_ini_file('/etc/dmr2ysf', true);
-    }
-    if (!isset($_SESSION['DMR2NXDNConfigs']) && file_exists('/etc/dmr2nxdn')) {
-	$_SESSION['DMR2NXDNConfigs'] = parse_ini_file('/etc/dmr2nxdn', true);
-    }
-    if (!isset($_SESSION['APRSGatewayConfigs']) && file_exists('/etc/aprsgateway')) {
-	$_SESSION['APRSGatewayConfigs'] = parse_ini_file('/etc/aprsgateway', true);
-    }
-    if (!isset($_SESSION['NXDNGatewayConfigs']) && file_exists('/etc/nxdngateway')) {
-	$_SESSION['NXDNGatewayConfigs'] = parse_ini_file('/etc/nxdngateway', true);
-    }
-    if (!isset($_SESSION['P25GatewayConfigs']) && file_exists('/etc/p25gateway')) {
-	$_SESSION['P25GatewayConfigs'] = parse_ini_file('/etc/p25gateway', true);
-    }
-    if (!isset($_SESSION['DvModemFWVersion'])) {
+    loadSessionConfigFile('DStarRepeaterConfigs', '/etc/dstarrepeater');
+    loadSessionConfigFile('DMRGatewayConfigs', '/etc/dmrgateway');
+    loadSessionConfigFile('YSFGatewayConfigs', '/etc/ysfgateway');
+    loadSessionConfigFile('DAPNETGatewayConfigs', '/etc/dapnetgateway');
+    loadSessionConfigFile('YSF2DMRConfigs', '/etc/ysf2dmr');
+    loadSessionConfigFile('YSF2NXDNConfigs', '/etc/ysf2nxdn');
+    loadSessionConfigFile('YSF2P25Configs', '/etc/ysf2p25');
+    loadSessionConfigFile('DMR2YSFConfigs', '/etc/dmr2ysf');
+    loadSessionConfigFile('DMR2NXDNConfigs', '/etc/dmr2nxdn');
+    loadSessionConfigFile('APRSGatewayConfigs', '/etc/aprsgateway');
+    loadSessionConfigFile('NXDNGatewayConfigs', '/etc/nxdngateway');
+    loadSessionConfigFile('P25GatewayConfigs', '/etc/p25gateway');
+    if (!isset($_SESSION['DvModemFWVersion']) || (count($_SESSION['DvModemFWVersion']) < 2)) {
 	$_SESSION['DvModemFWVersion'] = getDVModemFirmware();
     }
-    if (!isset($_SESSION['DvModemTCXOFreq'])) {
+    if (!isset($_SESSION['DvModemTCXOFreq']) || (count($_SESSION['DvModemTCXOFreq']) < 2)) {
 	$_SESSION['DvModemTCXOFreq'] = getDVModemTCXOFreq();
     }
 }
