@@ -23,7 +23,7 @@ function checkSessionValidity() {
 	$_SESSION['MYCALL'] = strtoupper($callsign);
     }
 
-    if ((!isset($_SESSION['BMAPIKey']) || (count($_SESSION['BMAPIKey']) < 2)) && file_exists('/etc/bmapi.key')) {
+    if ((!isset($_SESSION['BMAPIKey']) || (count($_SESSION['BMAPIKey'], COUNT_RECURSIVE) < 1)) && file_exists('/etc/bmapi.key')) {
 	$configBMapi = parse_ini_file('/etc/bmapi.key', true);
 	if (isset($configBMapi['key']['apikey']) && !empty($configBMapi['key']['apikey'])) {
 	    $_SESSION['BMAPIKey'] = $configBMapi['key']['apikey'];
@@ -35,10 +35,10 @@ function checkSessionValidity() {
     }
     loadSessionConfigFile('DAPNETAPIKeyConfigs', '/etc/dapnetapi.key');
     loadSessionConfigFile('PiStarRelease', '/etc/pistar-release');
-    if (!isset($_SESSION['MMDVMHostConfigs']) || (count($_SESSION['MMDVMHostConfigs']) < 2)) {
+    if (!isset($_SESSION['MMDVMHostConfigs']) || (count($_SESSION['MMDVMHostConfigs'], COUNT_RECURSIVE) < 2)) {
 	$_SESSION['MMDVMHostConfigs'] = getMMDVMConfigContent();
     }
-    if (!isset($_SESSION['ircDDBConfigs']) || (count($_SESSION['ircDDBConfigs']) < 2)) {
+    if (!isset($_SESSION['ircDDBConfigs']) || (count($_SESSION['ircDDBConfigs'], COUNT_RECURSIVE) < 2)) {
 	global $gatewayConfigPath;
 
 	if (empty($gatewayConfigPath)) {
@@ -58,10 +58,10 @@ function checkSessionValidity() {
     loadSessionConfigFile('APRSGatewayConfigs', '/etc/aprsgateway');
     loadSessionConfigFile('NXDNGatewayConfigs', '/etc/nxdngateway');
     loadSessionConfigFile('P25GatewayConfigs', '/etc/p25gateway');
-    if (!isset($_SESSION['DvModemFWVersion']) || (count($_SESSION['DvModemFWVersion']) < 2)) {
+    if (!isset($_SESSION['DvModemFWVersion']) || (count($_SESSION['DvModemFWVersion'], COUNT_RECURSIVE) < 1)) {
 	$_SESSION['DvModemFWVersion'] = getDVModemFirmware();
     }
-    if (!isset($_SESSION['DvModemTCXOFreq']) || (count($_SESSION['DvModemTCXOFreq']) < 2)) {
+    if (!isset($_SESSION['DvModemTCXOFreq']) || (count($_SESSION['DvModemTCXOFreq'], COUNT_RECURSIVE) < 1)) {
 	$_SESSION['DvModemTCXOFreq'] = getDVModemTCXOFreq();
     }
 }
