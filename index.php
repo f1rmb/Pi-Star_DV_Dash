@@ -313,11 +313,6 @@ checkSessionValidity();
 		
 	    }
 	    else if (file_exists('/etc/dstar-radio.dstarrepeater')) {
-		if (file_exists('/etc/aprsgateway')) {
-		    $aprsGatewayConfigFile = '/etc/aprsgateway';
-		    if (fopen($aprsGatewayConfigFile,'r')) { $configaprsgateway = parse_ini_file($aprsGatewayConfigFile, true); }
-		}
-		
 		echo '<div class="contentwide">'."\n";
 		include 'dstarrepeater/gateway_software_config.php';		// dstarrepeater gateway config
 		echo '<script type="text/javascript">'."\n";
