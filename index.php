@@ -63,7 +63,7 @@ checkSessionValidity();
 	<?php include_once "config/browserdetect.php"; ?>
 	<script type="text/javascript" src="/jquery.min.js"></script>
 	<script type="text/javascript" src="/jquery-floatThead.min.js"></script>
-	<script type="text/javascript" src="/functions.js"></script>
+	<script type="text/javascript" src="/functions.js?version=1.706"></script>
 	<script type="text/javascript">
 	 $.ajaxSetup({ cache: false });
 	</script>
@@ -173,14 +173,14 @@ checkSessionValidity();
 		    }
 		    
 		    echo '<script type="text/javascript">'."\n";
-		    echo 'function reloadcssConnections(){'."\n";
-		    echo '  $("#cssConnects").load("/dstarrepeater/css_connections.php",function(){ setTimeout(reloadcssConnections,15000) });'."\n";
+		    echo 'function reloadccsConnections(){'."\n";
+		    echo '  $("#ccsConnects").load("/dstarrepeater/ccs_connections.php",function(){ setTimeout(reloadccsConnections,15000) });'."\n";
 		    echo '}'."\n";
-		    echo 'setTimeout(reloadcssConnections,15000);'."\n";
+		    echo 'setTimeout(reloadccsConnections,15000);'."\n";
 		    echo '$(window).trigger(\'resize\');'."\n";
 		    echo '</script>'."\n";
-		    echo '<div id="cssConnects">'."\n";
-		    include 'dstarrepeater/css_connections.php';			// dstarrepeater gateway config
+		    echo '<div id="ccsConnects">'."\n";
+		    include 'dstarrepeater/ccs_connections.php';			// dstarrepeater gateway config
 		    echo '</div>'."\n";
 		}
 		
@@ -333,14 +333,14 @@ checkSessionValidity();
 		}
 		
 		echo '<script type="text/javascript">'."\n";
-		echo 'function reloadcssConnections(){'."\n";
-		echo '  $("#cssConnects").load("/dstarrepeater/css_connections.php",function(){ setTimeout(reloadcssConnections,15000) });'."\n";
+		echo 'function reloadccsConnections(){'."\n";
+		echo '  $("#ccsConnects").load("/dstarrepeater/ccs_connections.php",function(){ setTimeout(reloadccsConnections,15000) });'."\n";
 		echo '}'."\n";
-		echo 'setTimeout(reloadcssConnections,15000);'."\n";
+		echo 'setTimeout(reloadccsConnections,15000);'."\n";
 		echo '$(window).trigger(\'resize\');'."\n";
 		echo '</script>'."\n";
-		echo '<div id="cssConnects">'."\n";
-		include 'dstarrepeater/css_connections.php';			// dstarrepeater gateway config
+		echo '<div id="ccsConnects">'."\n";
+		include 'dstarrepeater/ccs_connections.php';			// dstarrepeater gateway config
 		echo '</div>'."\n";
 		
 		echo '<script type="text/javascript">'."\n";

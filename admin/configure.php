@@ -507,10 +507,10 @@ $MYCALL=strtoupper($callsign);
 	<meta http-equiv="Expires" content="0" />
 	<title><?php echo "$MYCALL"." - ".$lang['digital_voice']." ".$lang['dashboard']." - ".$lang['configuration'];?></title>
 	<link rel="stylesheet" type="text/css" href="/css/font-awesome-4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/pistar-css.php?version=0.94" />
+	<link rel="stylesheet" type="text/css" href="/css/pistar-css.php?version=0.994" />
 	<script type="text/javascript" src="/jquery.min.js"></script>
 	<script type="text/javascript" src="/jquery-floatThead.min.js"></script>
-	<script type="text/javascript" src="/functions.js"></script>
+	<script type="text/javascript" src="/functions.js?version=1.706"></script>
 	<script type="text/javascript">
 	 function disablesubmitbuttons() {
 	     var inputs = document.getElementsByTagName('input');
@@ -547,7 +547,7 @@ $MYCALL=strtoupper($callsign);
 	     document.getElementById("confLongitude").value = position.coords.longitude.toFixed(5);
 	 }
 	</script>
-	<script type="text/javascript" src="/functions.js?version=1.705"></script>
+	<script type="text/javascript" src="/functions.js?version=1.706"></script>
     </head>
     <body onload="checkFrequency(); return false;">
 	<div class="container">
