@@ -176,9 +176,9 @@ if ( $dmrID ) {
       <th><a class=tooltip href="#">Action<span><b>Take Action</b></span></a></th>
     </tr>
     <tr>
-      <td><input type="text" id="radioButtonTGIFNonEmpty" name="tgifNumber" size="10" maxlength="7" onkeyup="checkNonEmptyLink(\'radioButtonTGIFNonEmpty\', \'linkTGIFRadioButton\'); return false;"/></td>
+      <td><input type="text" id="tgifNumber" name="tgifNumber" size="10" maxlength="7" oninput="enableOnNonEmpty(\'tgifNumber\', \'tgifActionLink\'); return false;"/></td>
       <td><input type="radio" id="ts1" name="tgifSlot" value="1" '.((getConfigItem("General", "Duplex", $_SESSION['MMDVMHostConfigs']) == "1") ? '' : 'disabled').'/><label for="ts1"/>TS1</label> <input type="radio" id="ts2" name="tgifSlot" value="2" checked="checked" /><label for="ts2"/>TS2</label></td>
-      <td><input type="radio" id="linkTGIFRadioButton" name="tgifAction" value="LINK" disabled /><label for="linkTGIFRadioButton"/>Link</label> <input type="radio" name="tgifAction" value="UNLINK" checked="checked" />UnLink</td>
+      <td><input type="radio" id="tgifActionLink" name="tgifAction" value="LINK" disabled /><label for="linkTGIFRadioButton"/>Link</label> <input type="radio" name="tgifAction" value="UNLINK" checked="checked" />UnLink</td>
       <td><input type="submit" value="Request Change" name="tgifSubmit" /></td>
     </tr>
     </table><br />'."\n";

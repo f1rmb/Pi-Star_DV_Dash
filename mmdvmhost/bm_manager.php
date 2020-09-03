@@ -160,10 +160,10 @@ if ( $testMMDVModeDMR == 1 ) {
         <th><a class=tooltip href="#">Action<span><b>Take Action</b></span></a></th>
       </tr>'."\n";
 		echo '    <tr>';
-		echo '<td><input type="text" name="tgNr" size="10" maxlength="7" /></td>';
+		echo '<td><input type="text" id="tgNr" name="tgNr" size="10" maxlength="7" oninput="enableOnNonEmpty(\'tgNr\', \'tgSubmit\', \'tgAdd\', \'tgDel\'); return false;"/></td>';
 		echo '<td><input type="radio" id="ts1" name="TS" value="1" '.((getConfigItem("General", "Duplex", $_SESSION['MMDVMHostConfigs']) == "1") ? '' : 'disabled').'/><label for="ts1"/>TS1</label> <input type="radio" id="ts2" name="TS" value="2" checked="checked"/><label for="ts2"/>TS2</td>';
-		echo '<td><input type="radio" name="TGmgr" value="ADD" checked="checked" />Add <input type="radio" name="TGmgr" value="DEL" />Delete</td>';
-		echo '<td><input type="submit" value="Modify Static" name="tgSubmit" /></td>';
+		echo '<td><input type="radio" id="tgAdd" name="TGmgr" value="ADD" checked="checked" disabled/><label for="tgAdd">Add</label> <input type="radio" id="tgDel" name="TGmgr" value="DEL" disabled /><label for="tgDel">Delete</label></td>';
+		echo '<td><input type="submit" value="Modify Static" id="tgSubmit" name="tgSubmit" disabled/></td>';
 		echo '</tr>'."\n";
 		echo '  </table>'."\n";
 		echo '  <br />'."\n";

@@ -18,14 +18,20 @@ function checkPass(){                   //used in confirm matching password entr
     document.getElementById('submitpwd').setAttribute("disabled","disabled");
   }
 }
-function checkNonEmptyLink(textInput, radioButton) {
-    var ti = document.getElementById(textInput);
-    var rb = document.getElementById(radioButton);
-    if(ti.value != '') {
-	document.getElementById(radioButton).removeAttribute("disabled");
-    }
-    else {
-	document.getElementById(radioButton).setAttribute("disabled", "disabled");
+function enableOnNonEmpty() {
+    if (arguments.length >= 2)
+    {
+	var ti = document.getElementById(arguments[0]);
+	if(ti.value.replace(/ /g,'') != '') {
+	    for (i = 1; i < arguments.length; i++) {
+		document.getElementById(arguments[i]).removeAttribute("disabled");
+	    }
+	}
+	else {
+	    for (i = 1; i < arguments.length; i++) {
+		document.getElementById(arguments[i]).setAttribute("disabled", "disabled");
+	    }
+	}
     }
 }
 function checkFrequency(){
