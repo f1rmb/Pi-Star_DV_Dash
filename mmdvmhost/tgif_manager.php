@@ -135,7 +135,7 @@ if ( $dmrID ) {
 	$command = "Link";
 	
 	// Figure out what has been posted
-	if ( (isset($_POST["tgifNumber"])) && (isset($_POST["tgifSubmit"])) ) {
+	if ((isset($_POST["tgifNumber"]) && !empty($_POST["tgifNumber"])) && isset($_POST["tgifSubmit"])) {
 	    $targetTG = preg_replace("/[^0-9]/", "", $_POST["tgifNumber"]);
 	    if ($targetTG < 1) {
 		$targetTG = "4000";
@@ -158,8 +158,7 @@ if ( $dmrID ) {
 	echo '<b>TGIF Manager</b>'."\n";
 	echo "<table>\n<tr><th>Command Output</th></tr>\n<tr><td>";
 	//echo "Sending command to TGIF API";
-	echo "".(($command == "Link") ? "".$command." to TG".$targetTG." TS".($targetSlot + 1)."" : "".$command." TS".($targetSlot + 1)."").". TGIF API: ";
-	echo httpStatusText($result);
+	echo "TGIF API: ".((isset($_POST["tgifNumber"]) && !empty($_POST["tgifNumber"])) ? "Talkgroup ".preg_replace("/[^0-9]/", "", $_POST["tgifNumber"]) : "Current Talkgroup")." ".(($command == "Link") ? "linked on" : "unlinked from")." slot ".($targetSlot + 1)." (command status: ".httpStatusText($result).").";
 	echo "</td></tr>\n</table>\n";
 	echo "<br />\n";
 	// Clean up...
@@ -177,9 +176,9 @@ if ( $dmrID ) {
       <th><a class=tooltip href="#">Action<span><b>Take Action</b></span></a></th>
     </tr>
     <tr>
-      <td><input type="text" name="tgifNumber" size="10" maxlength="7" /></td>
+      <td><input type="text" id="radioButtonTGIFNonEmpty" name="tgifNumber" size="10" maxlength="7" onkeyup="checkNonEmptyLink(\'radioButtonTGIFNonEmpty\', \'linkTGIFRadioButton\'); return false;"/></td>
       <td><input type="radio" id="ts1" name="tgifSlot" value="1" '.((getConfigItem("General", "Duplex", $_SESSION['MMDVMHostConfigs']) == "1") ? '' : 'disabled').'/><label for="ts1"/>TS1</label> <input type="radio" id="ts2" name="tgifSlot" value="2" checked="checked" /><label for="ts2"/>TS2</label></td>
-      <td><input type="radio" name="tgifAction" value="LINK" />Link <input type="radio" name="tgifAction" value="UNLINK" checked="checked" />UnLink</td>
+      <td><input type="radio" id="linkTGIFRadioButton" name="tgifAction" value="LINK" disabled /><label for="linkTGIFRadioButton"/>Link</label> <input type="radio" name="tgifAction" value="UNLINK" checked="checked" />UnLink</td>
       <td><input type="submit" value="Request Change" name="tgifSubmit" /></td>
     </tr>
     </table><br />'."\n";

@@ -18,6 +18,16 @@ function checkPass(){                   //used in confirm matching password entr
     document.getElementById('submitpwd').setAttribute("disabled","disabled");
   }
 }
+function checkNonEmptyLink(textInput, radioButton) {
+    var ti = document.getElementById(textInput);
+    var rb = document.getElementById(radioButton);
+    if(ti.value != '') {
+	document.getElementById(radioButton).removeAttribute("disabled");
+    }
+    else {
+	document.getElementById(radioButton).setAttribute("disabled", "disabled");
+    }
+}
 function checkFrequency(){
   // Set the colours
   var goodColor = "#66cc66";
