@@ -70,7 +70,7 @@ if ( $testMMDVModeYSF == 1 ) {
 		<table>
 		    <tr>
 			<th width="150"><a class="tooltip" href="#">Reflector<span><b>Reflector</b></span></a></th>
-			<th width="150"><a class="tooltip" href="#">Link / Un-Link<span><b>Link / Un-Link</b></span></a></th>
+			<th width="150"><a class="tooltip" href="#">Link / Unlink<span><b>Link or Unlink</b></span></a></th>
 			<th width="150"><a class="tooltip" href="#">Action<span><b>Action</b></span></a></th>
 		    </tr>
 		    <tr>
