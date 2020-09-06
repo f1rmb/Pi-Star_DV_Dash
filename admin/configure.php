@@ -1274,6 +1274,15 @@ $MYCALL=strtoupper($callsign);
 			if (escapeshellcmd($_POST['wiresXCommandPassthrough']) == 'OFF' ) { $configysfgateway['General']['WiresXCommandPassthrough'] = "0"; }
 		    }
 		    
+		    // Set the YSFGateway Network Options
+		    if (empty($_POST['ysfNetworkOptions']) != TRUE ) {
+			$ysfOptionsLineStripped = str_replace('"', "", $_POST['ysfNetworkOptions']);
+			$configysfgateway['Network']['Options'] = '"'.$ysfOptionsLineStripped.'"';
+		    }
+		    else {
+			unset ($configysfgateway['Network']['Options']);
+		    }
+		    
 		    // Remove hostfiles.ysfupper and use the new YSFGateway Feature
 		    if (empty($_POST['confHostFilesYSFUpper']) != TRUE ) {
 			if (escapeshellcmd($_POST['confHostFilesYSFUpper']) == 'ON' ) {
@@ -3899,6 +3908,12 @@ $MYCALL=strtoupper($callsign);
 					echo "<td align=\"left\" colspan=\"2\"><div class=\"switch\"><input id=\"toggle-confWiresXCommandPassthrough\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"wiresXCommandPassthrough\" value=\"ON\" /><label for=\"toggle-confWiresXCommandPassthrough\"></label></div></td>\n";
 				    }
 				    ?>
+				</tr>
+				<tr>
+				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['ysf_net'];?>:<span><b>YSF Network</b>Book DG-ID(s) for Reflector</span></a></td>
+				    <td align="left" colspan="2">
+					Options=<input type="text" name="ysfNetworkOptions" size="40" maxlength="100" value="<?php if (isset($configysfgateway['Network']['Options'])) { echo $configysfgateway['Network']['Options']; } ?>" />
+				    </td>
 				</tr>
 				<?php if (file_exists('/etc/dstar-radio.mmdvmhost') && $configysf2dmr['Enabled']['Enabled'] == 1) {
 				    $dmrMasterFile = fopen("/usr/local/etc/DMR_Hosts.txt", "r"); ?>
