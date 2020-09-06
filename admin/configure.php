@@ -1324,7 +1324,9 @@ $MYCALL=strtoupper($callsign);
 			    $configModem['BrandMeister']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
 			}
 			else {
-			    unset($configModem['BrandMeister']['Password']);
+			    if (escapeshellcmd($_POST['controllerSoft']) == 'MMDVM') { // we are in MMDVM Mode, and user removed the BM HS password.
+				unset($configModem['BrandMeister']['Password']);
+			    }
 			}
 		    }
 		    
