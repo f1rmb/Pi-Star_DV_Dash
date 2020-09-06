@@ -358,8 +358,7 @@ if (file_exists('/etc/dstar-radio.dstarrepeater')) {
     $modemConfigFileDStarRepeater = '/etc/dstar-radio.dstarrepeater';
     if (fopen($modemConfigFileDStarRepeater,'r')) { $configModem = parse_ini_file($modemConfigFileDStarRepeater, true); }
 }
-
-if (file_exists('/etc/dstar-radio.mmdvmhost')) {
+else if (file_exists('/etc/dstar-radio.mmdvmhost')) {
     $modemConfigFileMMDVMHost = '/etc/dstar-radio.mmdvmhost';
     if (fopen($modemConfigFileMMDVMHost,'r')) { $configModem = parse_ini_file($modemConfigFileMMDVMHost, true); }
 }
@@ -708,8 +707,12 @@ $MYCALL=strtoupper($callsign);
 		    // Change Radio Control Software
 		    if (empty($_POST['controllerSoft']) != TRUE ) {
 			exec('sudo rm -rf /etc/dstar-radio.*');
-			if (escapeshellcmd($_POST['controllerSoft']) == 'DSTAR') { exec('sudo touch /etc/dstar-radio.dstarrepeater'); }
-			if (escapeshellcmd($_POST['controllerSoft']) == 'MMDVM') { exec('sudo touch /etc/dstar-radio.mmdvmhost'); }
+			if (escapeshellcmd($_POST['controllerSoft']) == 'DSTAR') { 
+			    exec('sudo touch /etc/dstar-radio.dstarrepeater');
+			}
+			else if (escapeshellcmd($_POST['controllerSoft']) == 'MMDVM') {
+			    exec('sudo touch /etc/dstar-radio.mmdvmhost');
+			}
 		    }
 		    
 		    // HostAP
@@ -2621,7 +2624,7 @@ $MYCALL=strtoupper($callsign);
 		    // Modem config file wrangling
 		    //
 		    // Removes empty section
-		    if (!empty($configModem) && isset($configModem['BrandMeister']) && (count($configModem['BrandMeister']) == 0))
+		    if (!empty($configModem) && isset($configModem['BrandMeister']) && (count($configModem['BrandMeister'], COUNT_RECURSIVE) == 0))
 		    {
 			unset($configModem['BrandMeister']);
 		    }
@@ -2709,11 +2712,15 @@ $MYCALL=strtoupper($callsign);
 		    }
 		    
 		    // Save Modem config files
-		    if (saveConfigFile($configModem, '/tmp/sja7hFRkw4euG7.tmp', '/etc/dstar-radio.dstarrepeater') == false) {
-			return false;
+		    if (file_exists('/etc/dstar-radio.dstarrepeater')) {
+			if (saveConfigFile($configModem, '/tmp/sja7hFRkw4euG7.tmp', '/etc/dstar-radio.dstarrepeater') == false) {
+			    return false;
+			}
 		    }
-		    if (saveConfigFile($configModem, '/tmp/sja7hFRkw4euG7.tmp', '/etc/dstar-radio.mmdvmhost') == false) {
-			return false;
+		    else if (file_exists('/etc/dstar-radio.mmdvmhost')) {
+			if (saveConfigFile($configModem, '/tmp/sja7hFRkw4euG7.tmp', '/etc/dstar-radio.mmdvmhost') == false) {
+			    return false;
+			}
 		    }
 		    
 		    // Start the DV Services
