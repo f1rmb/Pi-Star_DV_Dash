@@ -2643,11 +2643,18 @@ $MYCALL=strtoupper($callsign);
 		    }
 		    //
 
-
-		    ensureOptionsIsQuoted($configmmdvm['DMR Network']['Options']);
-		    ensureOptionsIsQuoted($configysfgateway['Network']['Options']);
-		    ensureOptionsIsQuoted($configdmrgateway['DMR Network 2']['Options']);
-		    ensureOptionsIsQuoted($configysf2dmr['DMR Network']['Options']);
+		    if (isset($configmmdvm['DMR Network']['Options'])) {
+			ensureOptionsIsQuoted($configmmdvm['DMR Network']['Options']);
+		    }
+		    if (isset($configysfgateway['Network']['Options'])) {
+			ensureOptionsIsQuoted($configysfgateway['Network']['Options']);
+		    }
+		    if (isset($configdmrgateway['DMR Network 2']['Options'])) {
+			ensureOptionsIsQuoted($configdmrgateway['DMR Network 2']['Options']);
+		    }
+		    if (isset($configysf2dmr['DMR Network']['Options'])) {
+			ensureOptionsIsQuoted($configysf2dmr['DMR Network']['Options']);
+		    }
 
 		    // Save MMDVMHost config file
 		    if (saveConfigFile($configmmdvm, '/tmp/bW1kdm1ob3N0DQo.tmp', '/etc/mmdvmhost', 140) == false) {
