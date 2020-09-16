@@ -366,7 +366,7 @@ else if (file_exists('/etc/dstar-radio.mmdvmhost')) {
 //
 // Build APRS password from callsign
 //
-function aprspass ($callsign) {
+function aprspass($callsign) {
     $stophere = strpos($callsign, '-');
     if ($stophere) $callsign = substr($callsign, 0, $stophere);
     $realcall = strtoupper(substr($callsign, 0, 10));
@@ -382,6 +382,17 @@ function aprspass ($callsign) {
     }
     // mask off the high bit so number is always positive
     return $hash & 0x7fff;
+}
+
+//
+// Ensure Options string is quoted
+//
+function ensureOptionsIsQuoted(&$opt) {
+    if (isset($opt) && !empty($opt) && (strlen($opt) > 1)) {
+	if ($opt[0] != '"' && $opt[strlen($opt) - 1] != '"') {
+	    $opt = '"'.$opt.'"';
+	}
+    }
 }
 
 //
@@ -2631,7 +2642,12 @@ $MYCALL=strtoupper($callsign);
 			unset($configModem['BrandMeister']);
 		    }
 		    //
-		    
+
+
+		    ensureOptionsIsQuoted($configmmdvm['DMR Network']['Options']);
+		    ensureOptionsIsQuoted($configysfgateway['Network']['Options']);
+		    ensureOptionsIsQuoted($configdmrgateway['DMR Network 2']['Options']);
+		    ensureOptionsIsQuoted($configysf2dmr['DMR Network']['Options']);
 
 		    // Save MMDVMHost config file
 		    if (saveConfigFile($configmmdvm, '/tmp/bW1kdm1ob3N0DQo.tmp', '/etc/mmdvmhost', 140) == false) {
