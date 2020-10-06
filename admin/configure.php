@@ -1821,6 +1821,7 @@ $MYCALL=strtoupper($callsign);
 			}
 			else if ( $confHardware == 'zumspotlibre' ) {
 			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyACM0";
 
 			    $configircddb['repeaterType1'] = "0";
 
@@ -1830,6 +1831,17 @@ $MYCALL=strtoupper($callsign);
 			}
 			else if ( $confHardware == 'zumspotusb' ) {
 			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyACM0";
+			    
+			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
+			    $configmmdvm['General']['Duplex'] = 0;
+			    $configmmdvm['DMR Network']['Slot1'] = 0;
+			}
+			else if ( $confHardware == 'lsusb' ) {
+			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyACM0";
 			    
 			    $configircddb['repeaterType1'] = "0";
 
@@ -1839,6 +1851,7 @@ $MYCALL=strtoupper($callsign);
 			}
 			else if ( $confHardware == 'zumspotgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyAMA0";
 
 			    $configircddb['repeaterType1'] = "0";
 
@@ -1848,6 +1861,7 @@ $MYCALL=strtoupper($callsign);
 			}
 			else if ( $confHardware == 'zumspotdualgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyAMA0";
 			    
 			    $configircddb['repeaterType1'] = "0";
 
@@ -1857,6 +1871,7 @@ $MYCALL=strtoupper($callsign);
 			}
 			else if ( $confHardware == 'zumspotduplexgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyAMA0";
 			    
 			    $configircddb['repeaterType1'] = "0";
 
@@ -1865,8 +1880,10 @@ $MYCALL=strtoupper($callsign);
 			}
 			else if ( $confHardware == 'zumradiopiusb' ) {
 			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyAMA0";
 			    
 			    $configircddb['repeaterType1'] = "0";
+			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
@@ -1929,8 +1946,19 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
+			else if ( $confHardware == 'lshshatgpio' ) {
+			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyAMA0";
+			    
+			    $configircddb['repeaterType1'] = "0";
+			    
+			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+			    $configmmdvm['General']['Duplex'] = 0;
+			    $configmmdvm['DMR Network']['Slot1'] = 0;
+			}
 			else if ( $confHardware == 'mmdvmhshatambe' ) {
 			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttySC0";
 			    
 			    $configircddb['repeaterType1'] = "0";
 
@@ -1954,6 +1982,15 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+			    $configmmdvm['General']['Duplex'] = 1;
+			}
+			if ( $confHardware == 'lshsdualhatgpio' ) {
+			    $configdstar['modemType'] = "MMDVM";
+			    $configdstar['mmdvmPort'] = "/dev/ttyAMA0";
+			    
+			    $configircddb['repeaterType1'] = "0";
+			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
 			}
@@ -2050,8 +2087,8 @@ $MYCALL=strtoupper($callsign);
 			    $configdstar['dvmegaVariant'] = "2";
 			    
 			    $configircddb['repeaterType1'] = "0";
+			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
-
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -2061,8 +2098,8 @@ $MYCALL=strtoupper($callsign);
 			    $configdstar['dvmegaVariant'] = "3";
 			    
 			    $configircddb['repeaterType1'] = "0";
+			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyS2";
-
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -2072,8 +2109,8 @@ $MYCALL=strtoupper($callsign);
 			    $configdstar['dvmegaVariant'] = "3";
 
 			    $configircddb['repeaterType1'] = "0";
+			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyS2";
-
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			}
@@ -3186,6 +3223,9 @@ $MYCALL=strtoupper($callsign);
 						<option<?php if ($configModem['Modem']['Hardware'] === 'mmdvmmdohat') {		echo ' selected="selected"';}?> value="mmdvmmdohat">MMDVM_HS_MDO Hat (BG3MDO) for Pi (GPIO)</option>
 						<option<?php if ($configModem['Modem']['Hardware'] === 'mmdvmvyehat') {		echo ' selected="selected"';}?> value="mmdvmvyehat">MMDVM_HS_NPi Hat (VR2VYE) for Nano Pi (GPIO)</option>
 						<option<?php if ($configModem['Modem']['Hardware'] === 'mmdvmvyehatdual') {	echo ' selected="selected"';}?> value="mmdvmvyehatdual">MMDVM_HS_Hat_Dual Hat (VR2VYE) for Pi (GPIO)</option>
+						<option<?php if ($configModem['Modem']['Hardware'] === 'lshshatgpio') {         echo ' selected="selected"';}?> value="lshshatgpio">LoneStar - MMDVM_HS_Hat for Pi (GPIO)</option>
+						<option<?php if ($configModem['Modem']['Hardware'] === 'lshsdualhatgpio') {     echo ' selected="selected"';}?> value="lshsdualhatgpio">LoneStar - MMDVM_HS_Dual_Hat for Pi (GPIO)</option>
+						<option<?php if ($configModem['Modem']['Hardware'] === 'lsusb') {               echo ' selected="selected"';}?> value="lsusb">LoneStar - USB Stick</option>
 	    					<option<?php if ($configModem['Modem']['Hardware'] === 'nanodv') {		echo ' selected="selected"';}?> value="nanodv">MMDVM_NANO_DV (BG4TGO) for NanoPi AIR (GPIO)</option>
 	    					<option<?php if ($configModem['Modem']['Hardware'] === 'nanodvusb') {		echo ' selected="selected"';}?> value="nanodvusb">MMDVM_NANO_DV (BG4TGO) for NanoPi AIR (USB)</option>
 						<option<?php if ($configModem['Modem']['Hardware'] === 'opengd77') {		echo ' selected="selected"';}?> value="opengd77">OpenGD77 DMR hotspot (USB)</option>
