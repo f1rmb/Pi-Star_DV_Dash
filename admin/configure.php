@@ -1,4 +1,11 @@
 <?php
+if (isset($_COOKIE['PHPSESSID']))
+{
+    session_id($_COOKIE['PHPSESSID']); 
+}
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_id('pistardashsess');
@@ -494,6 +501,42 @@ function saveConfigFileNoSection(&$configData, $configTemp, $configDest, $minCou
     return true;
 }
 
+//
+// Save content to configuration file (single string content)
+//
+function saveConfigFileSingleString(&$configContent, $configTemp, $configDest, $fguid, $fmode) {
+    if (!empty($configContent) && file_exists($configDest)) {
+	if (($configHandle = fopen($configTemp, 'w')) != FALSE) {
+	    if (!is_writable($configTemp)) {
+		echo "<br />\n";
+		echo "<table>\n";
+		echo "<tr><th>ERROR</th></tr>\n";
+		echo "<tr><td>Unable to write temporary configuration file \''.$configTemp.'\'...</td><tr>\n";
+		echo "<tr><td>Please wait a few seconds and retry...</td></tr>\n";
+		echo "</table>\n";
+		unset($_POST);
+		echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
+		die();
+	    }
+	    else {
+		if (($success = fwrite($configHandle, $configContent)) != FALSE) {
+		    exec('sudo mv '.$configTemp.' '.$configDest.'');
+		    exec('sudo chmod '.$fmode.' '.$configDest.'');
+		    exec('sudo chown '.$fguid.' '.$configDest.'');
+		    fclose($configHandle);
+		}
+		else {
+		    return false;
+		}
+	    }
+	}
+	else {
+	    return false;
+	}
+    }	
+    return true;
+}
+
 $progname = basename($_SERVER['SCRIPT_FILENAME'],".php");
 $rev=$version;
 $MYCALL=strtoupper($callsign);
@@ -596,8 +639,8 @@ $MYCALL=strtoupper($callsign);
 		    echo '<br />'."\n";
 		    
 		if (!empty($_POST)):
-			 // Make the root filesystem writable
-			 exec('sudo mount -o remount,rw /');
+		    // Make the root filesystem writable
+		    exec('sudo mount -o remount,rw /');
 		    
 		    if (isset($_POST['adminPasswordUpdate'])) {
 			echo "<table>\n";
@@ -607,21 +650,15 @@ $MYCALL=strtoupper($callsign);
 			
 			// Admin Password Change
 			if (empty($_POST['adminPassword']) != TRUE ) {
-			    $rollAdminPass0 = 'htpasswd -b /var/www/.htpasswd pi-star '.escapeshellcmd($_POST['adminPassword']);
+			    $rollAdminPass0 = 'htpasswd -b /var/www/.htpasswd pi-star \''.stripslashes(trim($_POST['adminPassword'])).'\'';
 			    exec($rollAdminPass0);
-			    $rollAdminPass2 = 'sudo echo -e "'.escapeshellcmd($_POST['adminPassword']).'\n'.escapeshellcmd($_POST['adminPassword']).'" | sudo passwd pi-star';
+			    $rollAdminPass2 = 'sudo echo -e \''.stripslashes(trim($_POST['adminPassword'])).'\n'.stripslashes(trim($_POST['adminPassword'])).'\' | sudo passwd pi-star';
 			    exec($rollAdminPass2);
 			    
 			    // File Manager password
-			    $fmAuth = '<?php'."\n".'$auth_users = array('."\n".'\'root\' => \''.password_hash(escapeshellcmd($_POST['adminPassword']), PASSWORD_DEFAULT).'\','."\n".'\'pi-star\' => \''.password_hash(escapeshellcmd($_POST['adminPassword']), PASSWORD_DEFAULT).'\''."\n".');'."\n".'?>'."\n";
-			    if (($fd = fopen('/etc/tinyfilemanager-auth.php', "w"))) {
-				@fwrite($fd, $fmAuth);
-				fclose($fd);
-			    }
-			    
-			    exec('sudo chown www-data:www-data '.$fmAuth.'');
-			    exec('sudo chmod 664 '.$fmAuth.'');
-			    
+			    $fmAuth = '<?php'."\n".'$auth_users = array('."\n".'\'root\' => \''.password_hash(stripslashes(trim($_POST['adminPassword'])), PASSWORD_DEFAULT).'\','."\n".'\'pi-star\' => \''.password_hash(stripslashes(trim($_POST['adminPassword'])), PASSWORD_DEFAULT).'\''."\n".');'."\n".'?>'."\n";
+			    saveConfigFileSingleString($fmAuth, "/tmp/uHyrXtmvc7M0zvF4.tmp", "/etc/tinyfilemanager-auth.php", "www-data:www-data", "664");
+  
 			    echo "<br />\n";
 			    echo "<table>\n";
 			    echo "<tr><th>Done</th></tr>\n";

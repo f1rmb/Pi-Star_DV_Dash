@@ -35,6 +35,14 @@ body, font {
     -ms-border-radius: 10px 10px 0px 0px;
  }
 
+.bannerext {
+    background : <?php echo $backgroundBanners; ?>;
+    text-decoration : none;
+    color : <?php echo $textBanners; ?>;
+    font-family : verdana, arial, sans-serif;
+    text-align : center;
+}
+
 .nav {
     display: none;
     float : left;

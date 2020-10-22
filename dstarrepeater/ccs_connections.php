@@ -1,4 +1,11 @@
 <?php
+if (isset($_COOKIE['PHPSESSID']))
+{
+    session_id($_COOKIE['PHPSESSID']); 
+}
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_id('pistardashsess');
@@ -76,5 +83,3 @@ if($stn_is_set > 0) {
     include_once $_SERVER['DOCUMENT_ROOT'].'/dstarrepeater/active_starnet_groups.php';
 }
 ?>
-
-	

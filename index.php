@@ -36,8 +36,10 @@ unset($_SESSION['NXDNGatewayConfigs']);
 unset($_SESSION['P25GatewayConfigs']);
 unset($_SESSION['DvModemFWVersion']);
 unset($_SESSION['DvModemTCXOFreq']);
+unset($_SESSION['CSSConfigs']);
 
 checkSessionValidity();
+exec('echo "RELOAD INDEX" >> /tmp/trace.txt');
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -75,6 +77,17 @@ checkSessionValidity();
 	    <div class="header">
 		<div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
 		<h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard_for']." ".$_SESSION['MYCALL']; ?></h1>
+		<?php
+		if (isset($piStarCssBannerH1)) {
+		    exec('echo piStarCssBannerH1 >> /tmp/trace.txt');
+		    echo "<h1>".$piStarCssBannerH1."</h1>\n";
+		}
+		
+		if (isset($piStarCssBannerExtTxt)) {
+		    exec('echo piStarCssBannerExtTxt >> /tmp/trace.txt');
+		    echo "<p class=\"bannerext\";\">".$piStarCssBannerExtTxt."</p>\n";
+		}
+		?>
 		
 		<p>
  		    <div class="navbar">
@@ -158,9 +171,9 @@ checkSessionValidity();
 		    if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 		// Admin Only Option
 			echo '<script type="text/javascript">'."\n";
 			echo 'function reloadrefLinks(){'."\n";
-			echo '  $("#refLinks").load("/dstarrepeater/active_reflector_links.php",function(){ setTimeout(reloadrefLinks,2500) });'."\n";
+			echo '  $("#refLinks").load("/dstarrepeater/active_reflector_links.php",function(){ setTimeout(reloadrefLinks,15000) });'."\n";
 			echo '}'."\n";
-			echo 'setTimeout(reloadrefLinks,2500);'."\n";
+			echo 'setTimeout(reloadrefLinks,15000);'."\n";
 			echo '$(window).trigger(\'resize\');'."\n";
 			echo '</script>'."\n";
 			echo '<div id="refLinks">'."\n";
@@ -187,9 +200,9 @@ checkSessionValidity();
 		if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 		// Admin Only Option
 		    echo '<script type="text/javascript">'."\n";
         	    echo 'function reloadbmConnections(){'."\n";
-        	    echo '  $("#bmConnects").load("/mmdvmhost/bm_links.php",function(){ setTimeout(reloadbmConnections,15000) });'."\n";
+        	    echo '  $("#bmConnects").load("/mmdvmhost/bm_links.php",function(){ setTimeout(reloadbmConnections,30000) });'."\n";
         	    echo '}'."\n";
-        	    echo 'setTimeout(reloadbmConnections,15000);'."\n";
+        	    echo 'setTimeout(reloadbmConnections,30000);'."\n";
 		    echo '$(window).trigger(\'resize\');'."\n";
         	    echo '</script>'."\n";
         	    echo '<div id="bmConnects">'."\n";
@@ -317,9 +330,9 @@ checkSessionValidity();
 		include 'dstarrepeater/gateway_software_config.php';		// dstarrepeater gateway config
 		echo '<script type="text/javascript">'."\n";
 		echo 'function reloadrefLinks(){'."\n";
-		echo '  $("#refLinks").load("/dstarrepeater/active_reflector_links.php",function(){ setTimeout(reloadrefLinks,2500) });'."\n";
+		echo '  $("#refLinks").load("/dstarrepeater/active_reflector_links.php",function(){ setTimeout(reloadrefLinks,15000) });'."\n";
 		echo '}'."\n";
-		echo 'setTimeout(reloadrefLinks,2500);'."\n";
+		echo 'setTimeout(reloadrefLinks,15000);'."\n";
 		echo '$(window).trigger(\'resize\');'."\n";
 		echo '</script>'."\n";
 		echo '<br />'."\n";

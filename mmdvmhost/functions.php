@@ -1,4 +1,11 @@
 <?php
+if (isset($_COOKIE['PHPSESSID']))
+{
+    session_id($_COOKIE['PHPSESSID']); 
+}
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_id('pistardashsess');
@@ -63,6 +70,30 @@ function checkSessionValidity() {
     }
     if (!isset($_SESSION['DvModemTCXOFreq']) || (count($_SESSION['DvModemTCXOFreq'], COUNT_RECURSIVE) < 1)) {
 	$_SESSION['DvModemTCXOFreq'] = getDVModemTCXOFreq();
+    }
+    loadSessionConfigFile('CSSConfigs', '/etc/pistar-css.ini');
+    if (isset($_SESSION['CSSConfigs']))
+    {
+	if (isset($_SESSION['CSSConfigs']['BannerH1']['Enabled']) && ($_SESSION['CSSConfigs']['BannerH1']['Enabled'] != "0")) {
+	    global $piStarCssBannerH1;
+            $piStarCssBannerH1 = $_SESSION['CSSConfigs']['BannerH1']['Text'];
+	}
+	else
+	{
+	    if (isset($piStarCssBannerH1)) {
+		unset($piStarCssBannerH1);
+	    }
+	}
+	if (isset($_SESSION['CSSConfigs']['BannerExtText']['Enabled']) && ($_SESSION['CSSConfigs']['BannerExtText']['Enabled'] != "0")) {
+	    global $piStarCssBannerExtTxt;
+            $piStarCssBannerExtTxt = $_SESSION['CSSConfigs']['BannerExtText']['Text'];
+	}
+	else
+	{
+	    if (isset($piStarCssBannerExtTxt)) {
+		unset($piStarCssBannerExtTxt);
+	    }
+	}
     }
 }
 

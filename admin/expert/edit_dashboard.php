@@ -1,4 +1,11 @@
 <?php
+if (isset($_COOKIE['PHPSESSID']))
+{
+    session_id($_COOKIE['PHPSESSID']); 
+}
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 if (!isset($_SESSION) || !is_array($_SESSION)) {
     session_id('pistardashsess');
@@ -128,8 +135,8 @@ require_once('../config/version.php');
 		    $fileContent .= "[Text]\nTableHeaderColor=#ffffff\nBannersColor=#ffffff\nBannersDropColor=#303030\nNavbarColor=#ffffff\nNavbarHoverColor=#ffffff\nDropdownColor=#000000\nDropdownHoverColor=#000000\nServiceCellActiveColor=#000000\nServiceCellInactiveColor=#000000\nModeCellDisabledColor=#b0b0b0\nModeCellActiveColor=#003300\nModeCellInactiveColor=#550000\n\n";
 		    $fileContent .= "[Tables]\nHeadDropColor=#8b0000\nBgEvenColor=#f7f7f7\nBgOddColor=#d0d0d0\n\n";
 		    $fileContent .= "[Content]\nTextColor=#000000\n\n";
-		    $fileContent .= "[BannerH2]\nEnabled=0\nText=Some Text\n\n";
-		    $fileContent .= "[BannerExtText]\nEnabled=0\nText=Some long text entry\n";
+		    $fileContent .= "[BannerH1]\nEnabled=0\nText=\"Some Text\"\n\n";
+		    $fileContent .= "[BannerExtText]\nEnabled=0\nText=\"Some long text entry\"\n";
 		    fwrite($outFile, $fileContent);
 		    fclose($outFile);
 		    
@@ -283,11 +290,16 @@ require_once('../config/version.php');
 		    foreach($data as $section=>$values) {
 			// UnBreak special cases
 			$section = str_replace("_", " ", $section);
+			$section = str_replace("BannerH2", "BannerH1", $section);
 			$content .= "[".$section."]\n";
 			//append the values
 			foreach($values as $key=>$value) {
 			    if ($value == '') {
 				$content .= $key."=none\n";
+			    }
+			    else if ($key == 'Text') {
+				$value = str_replace('"', "", $value);
+				$content .= $key."=\"".$value."\"\n";
 			    }
 			    else {
 				$content .= $key."=".$value."\n";
@@ -345,7 +357,7 @@ require_once('../config/version.php');
 		}
 		echo "</form>";
 		echo "<br /><br />\n";
-		echo 'If you took it all too far and now it makes you feel sick, click below to reset the values to default.'."\n";
+		echo 'if you took it all too far and now it makes you feel sick, click below to reset the changes made on this page.'."\n";
 		echo '<form id="cssUpload" action="" method="POST" enctype="multipart/form-data">'."\n";
 		echo '  <div><input id="fileid" name="cssFile" type="file" hidden/></div>'."\n";
 		echo '  <div><input type="hidden" name="cssUpload" value="1" /></div>'."\n";
