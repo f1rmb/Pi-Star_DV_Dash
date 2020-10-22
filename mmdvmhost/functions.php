@@ -7,7 +7,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-if (!isset($_SESSION) || !is_array($_SESSION)) {
+if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSIVE) < 10)) {
     session_id('pistardashsess');
     session_start();
 }
@@ -21,13 +21,19 @@ function loadSessionConfigFile($key, $configFile, $minEntries = 2) {
 }
 
 function checkSessionValidity() {
+    //$bt =  debug_backtrace();
+    //exec('echo "checkSessionValidity() caller: '.$bt[0]['file'].' line: '.$bt[0]['line'].'" >> /tmp/trace.txt');
+    
     if (!isset($_SESSION['MYCALL'])) {
 	global $callsign;
 	
 	if (empty($callsign)) {
-	    include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+	    include $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+	    $_SESSION['MYCALL'] = strtoupper($callsign);
 	}
-	$_SESSION['MYCALL'] = strtoupper($callsign);
+	else {
+	    $_SESSION['MYCALL'] = strtoupper($callsign);
+	}
     }
 
     if ((!isset($_SESSION['BMAPIKey']) || (count($_SESSION['BMAPIKey'], COUNT_RECURSIVE) < 1)) && file_exists('/etc/bmapi.key')) {
@@ -49,9 +55,13 @@ function checkSessionValidity() {
 	global $gatewayConfigPath;
 
 	if (empty($gatewayConfigPath)) {
-	    include_once $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+	    include $_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php';
+	    $_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
 	}
-	$_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
+	else {
+	    $_SESSION['ircDDBConfigs'] = getNoSectionsConfigContent($gatewayConfigPath);
+	}
+
     }
     loadSessionConfigFile('DStarRepeaterConfigs', '/etc/dstarrepeater');
     loadSessionConfigFile('DMRGatewayConfigs', '/etc/dmrgateway');

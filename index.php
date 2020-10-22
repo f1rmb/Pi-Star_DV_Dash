@@ -39,7 +39,6 @@ unset($_SESSION['DvModemTCXOFreq']);
 unset($_SESSION['CSSConfigs']);
 
 checkSessionValidity();
-exec('echo "RELOAD INDEX" >> /tmp/trace.txt');
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"

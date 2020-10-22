@@ -7,7 +7,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-if (!isset($_SESSION) || !is_array($_SESSION)) {
+if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSIVE) < 10)) {
     session_id('pistardashsess');
     session_start();
 }
