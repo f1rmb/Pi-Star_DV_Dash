@@ -270,21 +270,44 @@ if (isset($confignxdngateway['Mobile GPS'])) {
 }
 
 // GPSd
-if (!isset($configmmdvm['GPSD']) || !isset($configmmdvm['GPSD']['Enable']) || !isset($configmmdvm['GPSD']['Address']) ||!isset($configmmdvm['GPSD']['Port'])) {
-    $configmmdvm['GPSD']['Enable'] = 0;
-    $configmmdvm['GPSD']['Address'] = "127.0.0.1";
-    $configmmdvm['GPSD']['Port'] = "2947";
-}
+//if (!isset($configmmdvm['GPSD']) || !isset($configmmdvm['GPSD']['Enable']) || !isset($configmmdvm['GPSD']['Address']) ||!isset($configmmdvm['GPSD']['Port'])) {
+//    $configmmdvm['GPSD']['Enable'] = 0;
+//    $configmmdvm['GPSD']['Address'] = "127.0.0.1";
+//    $configmmdvm['GPSD']['Port'] = "2947";
+//}
+//
+//if ($configmmdvm['GPSD']['Enable'] == 1) {
+//    if (isset($configmmdvm['GPSD']['Address']) != TRUE) {
+//	$configmmdvm['GPSD']['Address'] = "127.0.0.1";
+//    }
+//    
+//    if (isset($configmmdvm['GPSD']['Port']) != TRUE) {
+//	$configmmdvm['GPSD']['Port'] = "2947";
+//    }
+//}
 
-if ($configmmdvm['GPSD']['Enable'] == 1) {
-    if (isset($configmmdvm['GPSD']['Address']) != TRUE) {
-	$configmmdvm['GPSD']['Address'] = "127.0.0.1";
+//
+// It has been removed from the current MMDVMHost software, get rid of it
+//
+if (isset($configmmdvm['GPSD'])) {
+    if (isset($configmmdvm['GPSD']['Enable'])) {
+	//$configysfgateway['GPSD']['Enable'] = $configmmdvm['GPSD']['Enable'];
+	unset($configmmdvm['GPSD']['Enable']);
     }
     
-    if (isset($configmmdvm['GPSD']['Port']) != TRUE) {
-	$configmmdvm['GPSD']['Port'] = "2947";
+    if (isset($configmmdvm['GPSD']['Address'])) {
+	//$configysfgateway['GPSD']['Address'] = $configmmdvm['GPSD']['Address'];
+	unset($configmmdvm['GPSD']['Address']);
     }
+    
+    if (isset($configmmdvm['GPSD']['Port'])) {
+	//$configysfgateway['GPSD']['Port'] = $configmmdvm['GPSD']['Port'];
+	unset($configmmdvm['GPSD']['Port']);
+    }
+    
+    unset($configmmdvm['GPSD']);
 }
+
 
 // Ensure ircDDBGateway file contains the new APRS configuration
 if (isset($configircddb['aprsHostname'])) {
@@ -840,24 +863,28 @@ $MYCALL=strtoupper($callsign);
 		    // Set GPSd
 		    if (empty($_POST['GPSD']) != TRUE ) {
 			$gpsdEnabled = (escapeshellcmd($_POST['GPSD']) == 'ON' ) ? "1" : "0";
-			$configmmdvm['GPSD']['Enable'] = $gpsdEnabled;
+			//$configmmdvm['GPSD']['Enable'] = $gpsdEnabled;
 			$configysfgateway['GPSD']['Enable'] = $gpsdEnabled;
 			$confignxdngateway['GPSD']['Enable'] = $gpsdEnabled;
 			
-			if (empty($_POST['gpsdPort']) != TRUE ) {
-			    $configmmdvm['GPSD']['Port'] = escapeshellcmd($_POST['gpsdPort']);
-			}
+			//if (empty($_POST['gpsdPort']) != TRUE ) {
+			//    $configmmdvm['GPSD']['Port'] = escapeshellcmd($_POST['gpsdPort']);
+			//}
 			
-			if (empty($_POST['gpsdServer']) != TRUE ) {
-			    $configmmdvm['GPSD']['Address'] = escapeshellcmd($_POST['gpsdServer']);
-			}
+			//if (empty($_POST['gpsdServer']) != TRUE ) {
+			//    $configmmdvm['GPSD']['Address'] = escapeshellcmd($_POST['gpsdServer']);
+			//}
 			
 			// Port and Address for YSF and NXDN gateways
-			$configysfgateway['GPSD']['Port'] = $configmmdvm['GPSD']['Port'];
-			$configysfgateway['GPSD']['Address'] = $configmmdvm['GPSD']['Address'];
-			
-			$confignxdngateway['GPSD']['Port'] = $configmmdvm['GPSD']['Port'];
-			$confignxdngateway['GPSD']['Address'] = $configmmdvm['GPSD']['Address'];
+			if (empty($_POST['gpsdPort']) != TRUE ) {
+			    $configysfgateway['GPSD']['Port'] = escapeshellcmd($_POST['gpsdPort']);
+			    $confignxdngateway['GPSD']['Port'] = escapeshellcmd($_POST['gpsdPort']);
+			}
+
+			if (empty($_POST['gpsdServer']) != TRUE ) {
+			    $configysfgateway['GPSD']['Address'] = escapeshellcmd($_POST['gpsdServer']);
+			    $confignxdngateway['GPSD']['Address'] = escapeshellcmd($_POST['gpsdServer']);
+			}
 		    }
 		    
 		    // Set the Town
@@ -2480,9 +2507,9 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configmmdvm['System Fusion']['TXHang'])) { $configmmdvm['System Fusion']['TXHang'] = "3"; }
 		    if (!isset($configmmdvm['Lock File']['Enable'])) { $configmmdvm['Lock File']['Enable'] = "0"; }
 		    if (!isset($configmmdvm['Lock File']['File'])) { $configmmdvm['Lock File']['File'] = "/tmp/MMDVMHost.lock"; }
-		    if (!isset($configmmdvm['GPSD']['Enable'])) { $configmmdvm['GPSD']['Enable'] = "0"; }
- 		    if (!isset($configmmdvm['GPSD']['Address'])) { $configmmdvm['GPSD']['Address'] = "127.0.0.1"; }
-		    if (!isset($configmmdvm['GPSD']['Port'])) { $configmmdvm['GPSD']['Port'] = "2947"; }
+		    //if (!isset($configmmdvm['GPSD']['Enable'])) { $configmmdvm['GPSD']['Enable'] = "0"; }
+ 		    //if (!isset($configmmdvm['GPSD']['Address'])) { $configmmdvm['GPSD']['Address'] = "127.0.0.1"; }
+		    //if (!isset($configmmdvm['GPSD']['Port'])) { $configmmdvm['GPSD']['Port'] = "2947"; }
 		    if (!isset($configmmdvm['OLED']['Rotate'])) { $configmmdvm['OLED']['Rotate'] = "0"; }
 		    if (!isset($configmmdvm['OLED']['Cast'])) { $configmmdvm['OLED']['Cast'] = "0"; }
 		    if (!isset($configmmdvm['OLED']['LogoScreensaver'])) { $configmmdvm['OLED']['LogoScreensaver'] = "0"; }
@@ -3200,7 +3227,7 @@ $MYCALL=strtoupper($callsign);
 					<td align="left" colspan="2">
 					    <?php
 					    // Enabled ??
-					    if ($configmmdvm['GPSD']['Enable'] == "1") { echo "<div class=\"switch\"><input id=\"toggle-GPSD\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"GPSD\" value=\"ON\" checked=\"checked\" /><label for=\"toggle-GPSD\"></label></div>\n"; }
+					    if ($configysfgateway['GPSD']['Enable'] == "1") { echo "<div class=\"switch\"><input id=\"toggle-GPSD\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"GPSD\" value=\"ON\" checked=\"checked\" /><label for=\"toggle-GPSD\"></label></div>\n"; }
 					    else { echo "<div class=\"switch\"><input id=\"toggle-GPSD\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"GPSD\" value=\"ON\" /><label for=\"toggle-GPSD\"></label></div>\n"; } ?>
 					</td>
 				    </tr>
@@ -4373,7 +4400,7 @@ $MYCALL=strtoupper($callsign);
 			<?php } ?>
 			
 			<!-- GPSd -->
-			<?php if ( $configmmdvm['GPSD']['Enable'] == 1 ) { ?>
+			<?php if ( $configysfgateway['GPSD']['Enable'] == 1 ) { ?>
 			    <h2><?php echo $lang['gpsd_config'];?></h2>
 			    <table>
 				<tr>
@@ -4382,11 +4409,11 @@ $MYCALL=strtoupper($callsign);
 				</tr>
 				<tr>
 				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['gpsd_port'];?>:<span><b>GPSd Server Port</b>Define the GPSd server port here</span></a></td>
-				    <td align="left"><input type="text" name="gpsdPort" size="13" maxlength="8" value="<?php echo $configmmdvm['GPSD']['Port'];?>" /></td>
+				    <td align="left"><input type="text" name="gpsdPort" size="13" maxlength="8" value="<?php echo $configysfgateway['GPSD']['Port'];?>" /></td>
 				</tr>
 				<tr>
 				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['gpsd_address'];?>:<span><b>GPSd Server Address</b>Set the GPSd server address here</span></a></td>
-				    <td align="left"><input type="text" name="gpsdAddress" size="13" maxlength="128" value="<?php echo $configmmdvm['GPSD']['Address'];?>" /></td>
+				    <td align="left"><input type="text" name="gpsdAddress" size="13" maxlength="128" value="<?php echo $configysfgateway['GPSD']['Address'];?>" /></td>
 				</tr>
 			    </table>
 			    <div><input type="button" value="<?php echo $lang['apply'];?>" onclick="submitform()" /><br /><br /></div>
