@@ -1293,11 +1293,14 @@ $MYCALL=strtoupper($callsign);
 		    }
 
 		    // Set P25 Static TG list
-		    if (empty($_POST['p25StaticTGList']) != TRUE ) {
-			$configp25gateway['Network']['Static'] = $_POST['p25StaticTGList'];
+		    $p25ModeEnabled = 0;
+		    if (empty($_POST['MMDVMModeP25']) != TRUE) {
+			if ((escapeshellcmd($_POST['MMDVMModeP25']) == 'ON') && ($configmmdvm['P25']['Enable'] = "1")) {
+			    $p25ModeEnabled = 1;
+			}
 		    }
-		    else {
-			unset($configp25gateway['Network']['Static']);
+		    if (($p25ModeEnabled == 1) && (isset($_POST['p25StaticTGList']))) {
+			$configp25gateway['Network']['Static'] = $_POST['p25StaticTGList'];
 		    }
 
 		    // Set the NXDN Startup Host
@@ -1322,11 +1325,14 @@ $MYCALL=strtoupper($callsign);
 		    }
 		    
 		    // Set NXDN Static TG list
-		    if (empty($_POST['nxdnStaticTGList']) != TRUE ) {
-			$confignxdngateway['Network']['Static'] = $_POST['nxdnStaticTGList'];
+		    $nxdnModeEnabled = 0;
+		    if (empty($_POST['MMDVMModeNXDN']) != TRUE) {
+			if ((escapeshellcmd($_POST['MMDVMModeNXDN']) == 'ON') && ($configmmdvm['NXDN']['Enable'] = "1")) {
+			    $nxdnModeEnabled = 1;
+			}
 		    }
-		    else {
-			unset($confignxdngateway['Network']['Static']);
+		    if (($nxdnModeEnabled == 1) && isset($_POST['nxdnStaticTGList'])) {
+			$confignxdngateway['Network']['Static'] = $_POST['nxdnStaticTGList'];
 		    }
 
 		    // Set the YSF Startup Host
@@ -1445,11 +1451,9 @@ $MYCALL=strtoupper($callsign);
 			$newYSF2P25StartupHost = strtoupper(escapeshellcmd($_POST['ysf2p25StartupDstId']));
 			
 			if ($newYSF2P25StartupHost === "NONE") {
-			    //unset($configp25gateway['Network']['Startup']);
 			    unset($configysf2p25['P25 Network']['StartupDstId']);
 			}
 			else {
-			    //$configp25gateway['Network']['Startup'] = $newYSF2P25StartupHost;
 			    $configysf2p25['P25 Network']['StartupDstId'] = $newYSF2P25StartupHost;
 			}
 		    }
@@ -2767,6 +2771,15 @@ $MYCALL=strtoupper($callsign);
 			unset($configModem['BrandMeister']);
 		    }
 		    //
+
+		    if (empty($configp25gateway['Network']['Static']))
+		    {
+			unset($configp25gateway['Network']['Static']);
+		    }
+		    if (empty($confignxdngateway['Network']['Static']))
+		    {
+			unset($confignxdngateway['Network']['Static']);
+		    }
 
 		    if (isset($configmmdvm['DMR Network']['Options'])) {
 			ensureOptionsIsQuoted($configmmdvm['DMR Network']['Options']);
