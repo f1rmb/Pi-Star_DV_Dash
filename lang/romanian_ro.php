@@ -91,11 +91,13 @@ $lang = array (
   // Config Page - YSF Configuration
   "ysf_startup_host"            =>  "lansare Detinator YSF",
   // Config Page - P25 Configuration
-  "p25_startup_host"            =>  "lansare Detinator P25",
+  "p25_hosts"                   =>  "P25 Hosts",
   "p25_nac"                     =>  "P25 NAC",
+  "p25_static"                  =>  "P25 Static",
   // Config Page - NXDN Configuration
-  "nxdn_startup_host"           =>  "lansare Detinator NXDN",
+  "nxdn_hosts"                  =>  "NXDN Hosts",
   "nxdn_ran"                    =>  "Lansare NXDN",
+  "nxdn_static"                 => "NXDN Static",
   // Config Page - GPSd Configuration
   "gpsd_enable"            =>  "Activare GPSD",
   "gpsd_port"              =>  "Port GPSD",

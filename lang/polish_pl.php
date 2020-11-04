@@ -93,11 +93,13 @@ $lang = array (
   // Config Page - YSF Configuration
   "ysf_startup_host"            =>  "Host startowy YSF",
   // Config Page - P25 Configuration
-  "p25_startup_host"            =>  "Host startowy P25",
+  "p25_hosts"                   =>  "Hosts P25",
   "p25_nac"                     =>  "P25 NAC",
+  "p25_static"                  =>  "P25 Static",
   // Config Page - NXDN Configuration
-  "nxdn_startup_host"            =>  "Host startowy NXDN",
+  "nxdn_hosts"                  =>  "Hosts NXDN",
   "nxdn_ran"                     =>  "NXDN RAN",
+  "nxdn_static"                 => "NXDN Static",
   // Config Page - GPSd Configuration
   "gpsd_enable"            =>  "GPSd Enable",
   "gpsd_port"              =>  "GPSd Port",

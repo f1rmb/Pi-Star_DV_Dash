@@ -401,13 +401,13 @@ function getP25GatewayLog() {
     $logLines2 = array();
     if (file_exists(P25GATEWAYLOGPATH."/".P25GATEWAYLOGPREFIX."-".gmdate("Y-m-d").".log")) {
 	$logPath1 = P25GATEWAYLOGPATH."/".P25GATEWAYLOGPREFIX."-".gmdate("Y-m-d").".log";
-	$logLines1 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|Starting" $logPath1 | cut -d" " -f2- | tail -1`);
+	$logLines1 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|itched|Starting" $logPath1 | cut -d" " -f2- | tail -1`);
     }
     $logLines1 = array_filter($logLines1);
     if (sizeof($logLines1) == 0) {
         if (file_exists(P25GATEWAYLOGPATH."/".P25GATEWAYLOGPREFIX."-".gmdate("Y-m-d", time() - 86340).".log")) {
             $logPath2 = P25GATEWAYLOGPATH."/".P25GATEWAYLOGPREFIX."-".gmdate("Y-m-d", time() - 86340).".log";
-	    $logLines2 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|Starting" $logPath2 | cut -d" " -f2- | tail -1`);
+	    $logLines2 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|itched|Starting" $logPath2 | cut -d" " -f2- | tail -1`);
         }
 	$logLines2 = array_filter($logLines2);
     }
@@ -417,6 +417,7 @@ function getP25GatewayLog() {
     else {
 	$logLines = $logLines1;
     }
+
     return array_filter($logLines);
 }
 
@@ -427,13 +428,13 @@ function getNXDNGatewayLog() {
     $logLines2 = array();
     if (file_exists("/var/log/pi-star/NXDNGateway-".gmdate("Y-m-d").".log")) {
 	$logPath1 = "/var/log/pi-star/NXDNGateway-".gmdate("Y-m-d").".log";
-	$logLines1 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|Starting" $logPath1 | cut -d" " -f2- | tail -1`);
+	$logLines1 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|itched|Starting" $logPath1 | cut -d" " -f2- | tail -1`);
     }
     $logLines1 = array_filter($logLines1);
     if (sizeof($logLines1) == 0) {
         if (file_exists("/var/log/pi-star/NXDNGateway-".gmdate("Y-m-d", time() - 86340).".log")) {
 	    $logPath2 = "/var/log/pi-star/NXDNGateway-".gmdate("Y-m-d", time() - 86340).".log";
-	    $logLines2 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|Starting" $logPath2 | cut -d" " -f2- | tail -1`);
+	    $logLines2 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|itched|Starting" $logPath2 | cut -d" " -f2- | tail -1`);
         }
 	$logLines2 = array_filter($logLines2);
     }
@@ -1130,7 +1131,7 @@ function getActualLink($logLines, $mode) {
 			    $to = str_replace(' ', '', str_replace('-', '', $to));
 			}
 		    }
-		    if (strpos($logLine,"Automatic (re-)connection to")) {
+		    else if (strpos($logLine,"Automatic (re-)connection to")) {
 			if (strpos($logLine,"Automatic (re-)connection to FCS")) {
 			    $to = substr($logLine, 56, 8);
 			}
@@ -1138,24 +1139,25 @@ function getActualLink($logLines, $mode) {
                   	    $to = substr($logLine, 56, 5);
 			}
 		    }
-		    if (strpos($logLine,"Connect to")) {
+		    else if (strpos($logLine,"Connect to")) {
 			$to = substr($logLine, 38, 5);
 		    }
-		    if (strpos($logLine,"Automatic connection to")) {
+		    else if (strpos($logLine,"Automatic connection to")) {
 			$to = substr($logLine, 51, 5);
 		    }
-		    if (strpos($logLine,"Disconnect via DTMF")) {
+		    else if (strpos($logLine,"Disconnect via DTMF")) {
 			$to = "Not Linked";
 		    }
-		    if (strpos($logLine,"Opening YSF network connection")) {
+		    else if (strpos($logLine,"Opening YSF network connection")) {
 			$to = "Not Linked";
 		    }
-		    if (strpos($logLine,"Link has failed")) {
+		    else if (strpos($logLine,"Link has failed")) {
 			$to = "Not Linked";
 		    }
-		    if (strpos($logLine,"DISCONNECT Reply")) {
+		    else if (strpos($logLine,"DISCONNECT Reply")) {
 			$to = "Not Linked";
 		    }
+
 		    if ($to !== "") {
 			return $to;
 		    }
@@ -1174,26 +1176,30 @@ function getActualLink($logLines, $mode) {
             // 2000-01-01 00:00:00.000 Unlinked from reflector 10100 by M1ABC
             // 2000-01-01 00:00:00.000 Linked to reflector 10200 by M1ABC
             // 2000-01-01 00:00:00.000 No response from 10200, unlinking
+	    // **
+	    // ** Latest NXDNGateway
+	    // **
+	    // 2020-11-04 08:47:48.297 Statically linked to reflector 65000
+	    // 2020-11-04 08:47:48.297 Switched to reflector 65000 due to network activity
+	    // 2020-11-04 08:47:48.297 Switched to reflector 65000 due to RF activity from M1ABC
+	    // 2020-11-04 08:47:48.297 Switched to reflector 65000 by remote command
+	    // 2020-11-04 08:47:48.297 Unlinking from reflector 65000 by M1ABC
+	    // 2020-11-04 08:47:48.297 Unlinking from 65000 due to inactivity
+	    // 2020-11-04 08:47:48.297 Unlinked from reflector 65000 by remote command
             if (isProcessRunning("NXDNGateway")) {
 		foreach($logLines as $logLine) {
 		    $to = "";
-		    if (strpos($logLine,"Linked to")) {
-			$to = preg_replace('/[^0-9]/', '', substr($logLine, 44, 5));
-			$to = preg_replace('/[^0-9]/', '', $to);
-			return "Linked to TG".$to;
-		    }
-		    if (strpos($logLine,"Linked at start")) {
+		    if (strpos($logLine, "Statically linked to")) {
 			$to = preg_replace('/[^0-9]/', '', substr($logLine, 55, 5));
 			$to = preg_replace('/[^0-9]/', '', $to);
 			return "Linked to TG".$to;
 		    }
-		    if (strpos($logLine,"Starting NXDNGateway")) {
-			return "Not Linked";
+		    else if (strpos($logLine,"Switched to reflector")) {
+			$to = preg_replace('/[^0-9]/', '', substr($logLine, 46, 5));
+			$to = preg_replace('/[^0-9]/', '', $to);
+			return "Linked to TG".$to;
 		    }
-		    if (strpos($logLine,"unlinking")) {
-			return "Not Linked";
-		    }
-		    if (strpos($logLine,"Unlinked from")) {
+		    else if (strpos($logLine,"Starting NXDNGateway") || strpos($logLine,"Unlinking") || strpos($logLine,"Unlinked")) {
 			return "Not Linked";
 		    }
 		}
@@ -1206,30 +1212,37 @@ function getActualLink($logLines, $mode) {
 	case "P25":
 	    // 00000000001111111111222222222233333333334444444444555555555566666666667777777777888888888899999999990000000000111111111122
 	    // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901
+	    // **
+	    // ** out of date, not supported anymore by the gateway
+	    // **
 	    // 2000-01-01 00:00:00.000 Linked at startup to reflector 10100
 	    // 2000-01-01 00:00:00.000 Unlinked from reflector 10100 by M1ABC
 	    // 2000-01-01 00:00:00.000 Linked to reflector 10200 by M1ABC
 	    // 2000-01-01 00:00:00.000 No response from 10200, unlinking
+	    // **
+	    // ** Latest P25Gateway
+	    // **
+	    // 2020-11-04 08:40:35.499 Statically linked to reflector 10100
+	    // 2020-11-04 08:40:35.499 Switched to reflector 10100 due to network activity
+	    // 2020-11-04 08:40:35.499 Switched to reflector 10100 due to RF activity from M1ABC
+	    // 2020-11-04 08:40:35.499 Switched to reflector 10100 by remote command
+	    // 2020-11-04 08:40:35.499 Unlinking from 10100 due to inactivity
+	    // 2020-11-04 08:40:35.499 Unlinking from reflector 10100 by M1ABC
+	    // 2020-11-04 08:40:35.499 Unlinked from reflector 10100 by remote command
 	    if (isProcessRunning("P25Gateway")) {
 		foreach($logLines as $logLine) {
 		    $to = "";
-		    if (strpos($logLine,"Linked to")) {
-			$to = preg_replace('/[^0-9]/', '', substr($logLine, 44, 5));
-			$to = preg_replace('/[^0-9]/', '', $to);
-			return "Linked to TG".$to;
-		    }
-		    if (strpos($logLine,"Linked at startup to")) {
+		    if (strpos($logLine, "Statically linked to")) {
 			$to = preg_replace('/[^0-9]/', '', substr($logLine, 55, 5));
 			$to = preg_replace('/[^0-9]/', '', $to);
 			return "Linked to TG".$to;
 		    }
-		    if (strpos($logLine,"Starting P25Gateway")) {
-			return "Not Linked";
+		    if (strpos($logLine,"Switched to reflector")) {
+			$to = preg_replace('/[^0-9]/', '', substr($logLine, 46, 5));
+			$to = preg_replace('/[^0-9]/', '', $to);
+			return "Linked to TG".$to;
 		    }
-		    if (strpos($logLine,"unlinking")) {
-			return "Not Linked";
-		    }
-		    if (strpos($logLine,"Unlinked")) {
+		    if (strpos($logLine,"Starting P25Gateway") || strpos($logLine,"Unlinking") || strpos($logLine,"Unlinked")) {
 			return "Not Linked";
 		    }
 		}
@@ -1323,9 +1336,11 @@ if (!in_array($_SERVER["PHP_SELF"],array('/mmdvmhost/bm_links.php','/mmdvmhost/b
 	$logLinesYSFGateway = getYSFGatewayLog();
 	$reverseLogLinesYSFGateway = $logLinesYSFGateway;
 	array_multisort($reverseLogLinesYSFGateway,SORT_DESC);
+
 	//$P25Gatewayconfigs = getP25GatewayConfig();
 	$logLinesP25Gateway = getP25GatewayLog();
 	//$reverseLogLinesP25Gateway = array_reverse(getP25GatewayLog());
+
 	//$NXDNGatewayconfigs = getNXDNGatewayConfig();
 	$logLinesNXDNGateway = getNXDNGatewayLog();
 	//$reverseLogLinesNXDNGateway = array_reverse(getNXDNGatewayLog());

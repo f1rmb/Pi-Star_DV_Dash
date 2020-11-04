@@ -146,7 +146,13 @@ if (file_exists('/etc/p25gateway')) {
     if (!isset($configp25gateway['Voice']['Directory'])) { $configp25gateway['Voice']['Directory'] = "/usr/local/etc/P25_Audio"; }
     if (!isset($configp25gateway['Network']['P252DMRAddress'])) { $configp25gateway['Network']['P252DMRAddress'] = "127.0.0.1"; }
     if (!isset($configp25gateway['Network']['P252DMRPort'])) { $configp25gateway['Network']['P252DMRPort'] = "42012"; }
-    if (!isset($configp25gateway['Network']['InactivityTimeout'])) { $configp25gateway['Network']['InactivityTimeout'] = "10"; }
+    if (isset($configp25gateway['Network']['InactivityTimeout'])) { unset($configp25gateway['Network']['InactivityTimeout']); }
+    if (!isset($configp25gateway['Network']['RFHangTime'])) { $configp25gateway['Network']['RFHangTime'] = "120"; }
+    if (!isset($configp25gateway['Network']['NetHangTime'])) { $configp25gateway['Network']['NetHangTime'] = "60"; }
+    if (isset($configp25gateway['Network']['Startup'])) {
+	$configp25gateway['Network']['Static'] = $configp25gateway['Network']['Startup'];
+	unset($configp25gateway['Network']['Startup']);
+    }
     if (!isset($configp25gateway['Remote Commands'])) {
 	$configp25gateway['Remote Commands']['Enable'] = "1";
 	$configp25gateway['Remote Commands']['Port'] = "6074";
@@ -177,8 +183,12 @@ if (file_exists('/etc/nxdngateway')) {
 	    exec('sudo mount -o remount,ro /');
 	}
     }
-    if (!isset($confignxdngateway['Network']['InactivityTimeout'])) {
-	$confignxdngateway['Network']['InactivityTimeout'] = "10";
+    if (isset($confignxdngateway['Network']['InactivityTimeout'])) { unset($confignxdngateway['Network']['InactivityTimeout']); }
+    if (!isset($confignxdngateway['Network']['RFHangTime'])) { $confignxdngateway['Network']['RFHangTime'] = "120"; }
+    if (!isset($confignxdngateway['Network']['NetHangTime'])) { $confignxdngateway['Network']['NetHangTime'] = "60"; }
+    if (isset($confignxdngateway['Network']['Startup'])) {
+	$confignxdngateway['Network']['Static'] = $confignxdngateway['Network']['Startup'];
+	unset($confignxdngateway['Network']['Startup']);
     }
     if (!isset($confignxdngateway['Remote Commands'])) {
 	$confignxdngateway['Remote Commands']['Enable'] = "1";
@@ -1264,18 +1274,16 @@ $MYCALL=strtoupper($callsign);
 			exec($rollSTARNETSERVERirc);
 		    }
 		    
-		    // Set the P25 Startup Host
+		    // Set the P25 Startup host
 		    if (empty($_POST['p25StartupHost']) != TRUE ) {
 			$newP25StartupHost = strtoupper(escapeshellcmd($_POST['p25StartupHost']));
 			if ($newP25StartupHost === "NONE") {
-			    unset($configp25gateway['Network']['Startup']);
 			    unset($configysf2p25['P25 Network']['StartupDstId']);
 			} else {
-			    $configp25gateway['Network']['Startup'] = $newP25StartupHost;
 			    $configysf2p25['P25 Network']['StartupDstId'] = $newP25StartupHost;
 			}
 		    }
-		    
+
 		    // Set P25 NAC
 		    if (empty($_POST['p25nac']) != TRUE ) {
 			$p25nacNew = strtolower(escapeshellcmd($_POST['p25nac']));
@@ -1283,17 +1291,19 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['P25']['NAC'] = $p25nacNew;
 			}
 		    }
-		    
+
+		    // Set P25 Static TG list
+		    if (empty($_POST['p25StaticTGList']) != TRUE ) {
+			$configp25gateway['Network']['Static'] = $_POST['p25StaticTGList'];
+		    }
+		    else {
+			unset($configp25gateway['Network']['Static']);
+		    }
+
 		    // Set the NXDN Startup Host
 		    if (empty($_POST['nxdnStartupHost']) != TRUE ) {
 			$newNXDNStartupHost = strtoupper(escapeshellcmd($_POST['nxdnStartupHost']));
 			if (file_exists('/etc/nxdngateway')) {
-			    if ($newNXDNStartupHost === "NONE") {
-				unset($confignxdngateway['Network']['Startup']);
-			    } 
-			    else {
-				$confignxdngateway['Network']['Startup'] = $newNXDNStartupHost;
-	  		    }
 			} 
 			else {
 			    $configmmdvm['NXDN Network']['GatewayAddress'] = $newNXDNStartupHost;
@@ -1311,6 +1321,14 @@ $MYCALL=strtoupper($callsign);
 			}
 		    }
 		    
+		    // Set NXDN Static TG list
+		    if (empty($_POST['nxdnStaticTGList']) != TRUE ) {
+			$confignxdngateway['Network']['Static'] = $_POST['nxdnStaticTGList'];
+		    }
+		    else {
+			unset($confignxdngateway['Network']['Static']);
+		    }
+
 		    // Set the YSF Startup Host
 		    if (empty($_POST['ysfStartupHost']) != TRUE ) {
 			$newYSFStartupHostArr = explode(',', escapeshellcmd($_POST['ysfStartupHost']));
@@ -1409,10 +1427,10 @@ $MYCALL=strtoupper($callsign);
 			$configysf2nxdn['NXDN Network']['StartupDstId'] = escapeshellcmd($_POST['ysf2nxdnStartupDstId']);
 			if (file_exists('/etc/nxdngateway')) {
 			    if (escapeshellcmd($_POST['ysf2nxdnStartupDstId']) === "none") {
-				unset($confignxdngateway['Network']['Startup']);
+				//unset($confignxdngateway['Network']['Startup']);
 			    }
 			    else {
-				$confignxdngateway['Network']['Startup'] = escapeshellcmd($_POST['ysf2nxdnStartupDstId']);
+				$confignxdngateway['Network']['Static'] = escapeshellcmd($_POST['ysf2nxdnStartupDstId']);
 			    }
 			}
 		    }
@@ -1427,11 +1445,11 @@ $MYCALL=strtoupper($callsign);
 			$newYSF2P25StartupHost = strtoupper(escapeshellcmd($_POST['ysf2p25StartupDstId']));
 			
 			if ($newYSF2P25StartupHost === "NONE") {
-			    unset($configp25gateway['Network']['Startup']);
+			    //unset($configp25gateway['Network']['Startup']);
 			    unset($configysf2p25['P25 Network']['StartupDstId']);
 			}
 			else {
-			    $configp25gateway['Network']['Startup'] = $newYSF2P25StartupHost;
+			    //$configp25gateway['Network']['Startup'] = $newYSF2P25StartupHost;
 			    $configysf2p25['P25 Network']['StartupDstId'] = $newYSF2P25StartupHost;
 			}
 		    }
@@ -2661,10 +2679,14 @@ $MYCALL=strtoupper($callsign);
 		    // Add missing P25Gateway Options
 		    if (!isset($configp25gateway['Remote Commands']['Enable'])) { $configp25gateway['Remote Commands']['Enable'] = "1"; }
 		    if (!isset($configp25gateway['Remote Commands']['Port'])) { $configp25gateway['Remote Commands']['Port'] = "6074"; }
+		    if (!isset($configp25gateway['Network']['RFHangTime'])) { $configp25gateway['Network']['RFHangTime'] = "120"; }
+		    if (!isset($configp25gateway['Network']['NetHangTime'])) { $configp25gateway['Network']['NetHangTime'] = "60"; }
 
-		    // Add NXDNGateway Options
+		    // Add missing NXDNGateway Options
 		    if (!isset($confignxdngateway['Remote Commands']['Enable'])) { $confignxdngateway['Remote Commands']['Enable'] = "1"; }
 		    if (!isset($confignxdngateway['Remote Commands']['Port'])) { $confignxdngateway['Remote Commands']['Port'] = "6075"; }
+		    if (!isset($confignxdngateway['Network']['RFHangTime'])) { $confignxdngateway['Network']['RFHangTime'] = "120"; }
+		    if (!isset($confignxdngateway['Network']['NetHangTime'])) { $confignxdngateway['Network']['NetHangTime'] = "60"; }
 		    
 
 		    if (isset($configysfgateway['Network']['Startup'])) { $ysfTmpStartup = $configysfgateway['Network']['Startup']; }
@@ -4133,7 +4155,7 @@ $MYCALL=strtoupper($callsign);
 					<td align="left" colspan="2"><input type="text" name="ysf2nxdnId" size="13" maxlength="5" value="<?php if (isset($configysf2nxdn['NXDN Network']['Id'])) { echo $configysf2nxdn['NXDN Network']['Id']; } ?>" /></td>
 				    </tr>
 				    <tr>
-					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['nxdn_startup_host'];?>:<span><b>NXDN Host</b>Set your prefered NXDN Host here</span></a></td>
+					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['nxdn_hosts'];?>:<span><b>NXDN Host</b>Set your prefered NXDN Host here</span></a></td>
 					<td colspan="2" style="text-align: left;"><select name="ysf2nxdnStartupDstId">
 					    <?php
 					    $nxdnHosts = fopen("/usr/local/etc/NXDNHosts.txt", "r");
@@ -4189,7 +4211,7 @@ $MYCALL=strtoupper($callsign);
 					<td align="left" colspan="2"><input type="text" name="ysf2p25Id" size="13" maxlength="7" value="<?php if (isset($configysf2p25['P25 Network']['Id'])) { echo $configysf2p25['P25 Network']['Id']; } ?>" /></td>
 				    </tr>
 				    <tr>
-					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['p25_startup_host'];?>:<span><b>P25 Host</b>Set your prefered P25 Host here</span></a></td>
+					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['p25_hosts'];?>:<span><b>P25 Host</b>Set your prefered P25 Host here</span></a></td>
 					<td colspan="2" style="text-align: left;"><select name="ysf2p25StartupDstId">
 					    <?php
 					    $p25Hosts = fopen("/usr/local/etc/P25Hosts.txt", "r");
@@ -4257,32 +4279,16 @@ $MYCALL=strtoupper($callsign);
 				    <th colspan="2"><a class="tooltip" href="#"><?php echo $lang['value'];?><span><b>Value</b>The current value from the<br />configuration files</span></a></th>
 				</tr>
 				<tr>
-				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['p25_startup_host'];?>:<span><b>P25 Host</b>Set your prefered P25 Host here</span></a></td>
+				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['p25_hosts'];?>:<span><b>P25 Hosts</b>List of available P25 hosts</span></a></td>
 				    <td style="text-align: left;"><select name="p25StartupHost">
 					<?php
-					if (isset($configp25gateway['Network']['Startup'])) { $testP25Host = $configp25gateway['Network']['Startup']; } else { $testP25Host = "none"; }
-					if ($testP25Host == "") {
-					    echo "      <option value=\"none\" selected=\"selected\">None</option>\n";
-					}
-					else {
-					    echo "      <option value=\"none\">None</option>\n";
-					}
-					if ($testP25Host == "10") {
-					    echo "      <option value=\"10\" selected=\"selected\">10 - Parrot</option>\n";
-					}
-					else {
-					    echo "      <option value=\"10\">10 - Parrot</option>\n";
-					}
+					echo "      <option value=\"none\">None</option>\n";
+					echo "      <option value=\"10\">10 - Parrot</option>\n";
 					while (!feof($p25Hosts)) {
 					    $p25HostsLine = fgets($p25Hosts);
 					    $p25Host = preg_split('/\s+/', $p25HostsLine);
 					    if ((strpos($p25Host[0], '#') === FALSE ) && ($p25Host[0] != '')) {
-						if ($testP25Host == $p25Host[0]) {
-						    echo "      <option value=\"$p25Host[0]\" selected=\"selected\">$p25Host[0] - $p25Host[1]</option>\n";
-						}
-						else {
-						    echo "      <option value=\"$p25Host[0]\">$p25Host[0] - $p25Host[1]</option>\n";
-						}
+						echo "      <option value=\"$p25Host[0]\">$p25Host[0] - $p25Host[1]</option>\n";
 					    }
 					}
 					fclose($p25Hosts);
@@ -4292,12 +4298,7 @@ $MYCALL=strtoupper($callsign);
                 				$p25HostsLine2 = fgets($p25Hosts2);
                 				$p25Host2 = preg_split('/\s+/', $p25HostsLine2);
                 				if ((strpos($p25Host2[0], '#') === FALSE ) && ($p25Host2[0] != '')) {
-                        			    if ($testP25Host == $p25Host2[0]) {
-							echo "      <option value=\"$p25Host2[0]\" selected=\"selected\">$p25Host2[0] - $p25Host2[1]</option>\n";
-						    }
-                        			    else {
-							echo "      <option value=\"$p25Host2[0]\">$p25Host2[0] - $p25Host2[1]</option>\n";
-						    }
+						    echo "      <option value=\"$p25Host2[0]\">$p25Host2[0] - $p25Host2[1]</option>\n";
                 				}
 					    }
 					    fclose($p25Hosts2);
@@ -4311,6 +4312,10 @@ $MYCALL=strtoupper($callsign);
 					<td align="left"><input type="text" name="p25nac" size="13" maxlength="3" value="<?php echo $configmmdvm['P25']['NAC'];?>" /></td>
 				    </tr>
 				<?php } ?>
+ 				<tr>
+				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['p25_static'];?>:<span><b>Static TGs</b>Static TG list (comma separated)</span></a></td>
+				    <td align="left"><input type="text" name="p25StaticTGList" size="40" maxlength="100" value="<?php if (isset($configp25gateway['Network']['Static'])) { echo $configp25gateway['Network']['Static']; }?>" /></td>
+				</tr>
 			    </table>
 			    <div><input type="button" value="<?php echo $lang['apply'];?>" onclick="submitform()" /><br /><br /></div>
 			<?php } ?>
@@ -4323,39 +4328,18 @@ $MYCALL=strtoupper($callsign);
 				    <th colspan="2"><a class="tooltip" href="#"><?php echo $lang['value'];?><span><b>Value</b>The current value from the<br />configuration files</span></a></th>
 				</tr>
 				<tr>
-				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['nxdn_startup_host'];?>:<span><b>NXDN Host</b>Set your prefered NXDN Host here</span></a></td>
+				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['nxdn_hosts'];?>:<span><b>NXDN Host</b>Set your prefered NXDN Host here</span></a></td>
 				    <td style="text-align: left;"><select name="nxdnStartupHost">
 					<?php
 					if (file_exists('/etc/nxdngateway')) {
 					    $nxdnHosts = fopen("/usr/local/etc/NXDNHosts.txt", "r");
-					    if (isset($confignxdngateway['Network']['Startup'])) {
-						$testNXDNHost = $confignxdngateway['Network']['Startup'];
-					    } 
-					    else {
-						$testNXDNHost = "";
-					    }
-					    if ($testNXDNHost == "") {
-						echo "      <option value=\"none\" selected=\"selected\">None</option>\n";
-					    }
-					    else {
-						echo "      <option value=\"none\">None</option>\n";
-					    }
-					    if ($testNXDNHost == "10") {
-						echo "      <option value=\"10\" selected=\"selected\">10 - Parrot</option>\n";
-					    }
-					    else {
-						echo "      <option value=\"10\">10 - Parrot</option>\n";
-					    }
+					    echo "      <option value=\"none\" selected=\"selected\">None</option>\n";
+					    echo "      <option value=\"10\">10 - Parrot</option>\n";
 					    while (!feof($nxdnHosts)) {
 						$nxdnHostsLine = fgets($nxdnHosts);
 						$nxdnHost = preg_split('/\s+/', $nxdnHostsLine);
 						if ((strpos($nxdnHost[0], '#') === FALSE ) && ($nxdnHost[0] != '')) {
-						    if ($testNXDNHost == $nxdnHost[0]) {
-							echo "      <option value=\"$nxdnHost[0]\" selected=\"selected\">$nxdnHost[0] - $nxdnHost[1]</option>\n";
-						    }
-						    else {
-							echo "      <option value=\"$nxdnHost[0]\">$nxdnHost[0] - $nxdnHost[1]</option>\n";
-						    }
+						    echo "      <option value=\"$nxdnHost[0]\">$nxdnHost[0] - $nxdnHost[1]</option>\n";
 						}
 					    }
 					    fclose($nxdnHosts);
@@ -4365,12 +4349,7 @@ $MYCALL=strtoupper($callsign);
                 				    $nxdnHostsLine2 = fgets($nxdnHosts2);
                 				    $nxdnHost2 = preg_split('/\s+/', $nxdnHostsLine2);
                 				    if ((strpos($nxdnHost2[0], '#') === FALSE ) && ($nxdnHost2[0] != '')) {
-                	        			if ($testNXDNHost == $nxdnHost2[0]) {
-							    echo "      <option value=\"$nxdnHost2[0]\" selected=\"selected\">$nxdnHost2[0] - $nxdnHost2[1]</option>\n";
-							}
-                	        			else {
-							    echo "      <option value=\"$nxdnHost2[0]\">$nxdnHost2[0] - $nxdnHost2[1]</option>\n";
-							}
+							echo "      <option value=\"$nxdnHost2[0]\">$nxdnHost2[0] - $nxdnHost2[1]</option>\n";
                 				    }
 						}
 						fclose($nxdnHosts2);
@@ -4388,6 +4367,10 @@ $MYCALL=strtoupper($callsign);
 					<td align="left"><input type="text" name="nxdnran" size="13" maxlength="2" value="<?php echo $configmmdvm['NXDN']['RAN'];?>" /></td>
 				    </tr>
 				<?php } ?>
+ 				<tr>
+				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['nxdn_static'];?>:<span><b>Static TGs</b>Static TG list (comma separated)</span></a></td>
+				    <td align="left"><input type="text" name="nxdnStaticTGList" size="40" maxlength="100" value="<?php if (isset($confignxdngateway['Network']['Static'])) { echo $confignxdngateway['Network']['Static']; }?>" /></td>
+				</tr>
 			    </table>
 			    <div><input type="button" value="<?php echo $lang['apply'];?>" onclick="submitform()" /><br /><br /></div>
 			<?php } ?>
