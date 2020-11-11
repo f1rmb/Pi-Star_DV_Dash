@@ -683,6 +683,9 @@ function getHeardList($logLines) {
 	else if(strpos($logLine,"invalid access")) {
 	    continue;
 	}
+	else if(strpos($logLine,"packet received from an invalid source")) {
+	    continue;
+	}
 	else if(strpos($logLine,"received RF header for wrong repeater")) {
 	    continue;
 	}
