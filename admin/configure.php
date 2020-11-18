@@ -400,6 +400,17 @@ else if (file_exists('/etc/dstar-radio.mmdvmhost')) {
     if (fopen($modemConfigFileMMDVMHost,'r')) { $configModem = parse_ini_file($modemConfigFileMMDVMHost, true); }
 }
 
+
+// Check for new MMDVMHost, which doesn't access any DMR Master directly, other than DMRGateway or DMR2*
+if ((($configmmdvm['DMR Network']['Address'] == "127.0.0.1") || ($configmmdvm['DMR Network']['Address'] == "127.0.0.2") || ($configmmdvm['DMR Network']['Address'] == "127.0.0.3")) === FALSE) {
+    // Convert DMR Network section to use DMRGateway instead of direct access
+    $configmmdvm['DMR Network']['Address'] = "127.0.0.1";
+    $configmmdvm['DMR Network']['Port'] = "62031";
+    $configmmdvm['DMR Network']['Local'] = "62032";
+    $configmmdvm['DMR Network']['Password'] = "none";
+    $configdmrgateway['DMR Network 1']['Enabled'] = "1";
+}
+
 //
 // Build APRS password from callsign
 //
@@ -3416,10 +3427,15 @@ $MYCALL=strtoupper($callsign);
 					<?php
 					$testMMDVMdmrMaster = $configmmdvm['DMR Network']['Address'];
 					$testMMDVMdmrMasterPort = $configmmdvm['DMR Network']['Port'];
+					$dmrMasterNow = "";
+					
 					while (!feof($dmrMasterFile)) {
 					    $dmrMasterLine = fgets($dmrMasterFile);
 					    $dmrMasterHost = preg_split('/\s+/', $dmrMasterLine);
-					    if ((strpos($dmrMasterHost[0], '#') === FALSE ) && (substr($dmrMasterHost[0], 0, 3) != "XLX") && ($dmrMasterHost[0] != '')) {
+					    if ((strpos($dmrMasterHost[0], '#') === FALSE ) &&
+						((substr($dmrMasterHost[0], 0, 10) == "DMRGateway") ||
+						 (substr($dmrMasterHost[0], 0, 8) == "DMR2NXDN") ||
+						 (substr($dmrMasterHost[0], 0, 7) == "DMR2YSF")) && ($dmrMasterHost[0] != '')) {
 						if (($testMMDVMdmrMaster == $dmrMasterHost[2]) && ($testMMDVMdmrMasterPort == $dmrMasterHost[4])) {
 						    echo "      <option value=\"$dmrMasterHost[2],$dmrMasterHost[3],$dmrMasterHost[4],$dmrMasterHost[0]\" selected=\"selected\">$dmrMasterHost[0]</option>\n"; $dmrMasterNow = $dmrMasterHost[0]; }
 						else {
