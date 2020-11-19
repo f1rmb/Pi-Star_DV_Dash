@@ -1285,6 +1285,16 @@ $MYCALL=strtoupper($callsign);
 			exec($rollSTARNETSERVERirc);
 		    }
 		    
+		    // Set the ircDDB Callsign routing option
+		    if (empty($_POST['confircddbEnabled']) != TRUE ) {
+			if (escapeshellcmd($_POST['confircddbEnabled']) == 'ON' ) {
+			    $configircddb['ircddbEnabled'] = "1";
+			}
+			if (escapeshellcmd($_POST['confircddbEnabled']) == 'OFF' ) {
+			    $configircddb['ircddbEnabled'] = "0";
+			}
+		    }
+
 		    // Set the P25 Startup host
 		    if (empty($_POST['p25StartupHost']) != TRUE ) {
 			$newP25StartupHost = strtoupper(escapeshellcmd($_POST['p25StartupHost']));
@@ -3815,6 +3825,7 @@ $MYCALL=strtoupper($callsign);
 			<?php if (file_exists('/etc/dstar-radio.dstarrepeater') || $configmmdvm['D-Star']['Enable'] == 1) { ?>
 			    <h2><?php echo $lang['dstar_config'];?></h2>
 			    <input type="hidden" name="confTimeAnnounce" value="OFF" />
+			    <input type="hidden" name="confircddbEnabled" value="OFF" />
 			    <input type="hidden" name="confHostFilesNoDExtra" value="OFF" />
 			    <table>
 				<tr>
@@ -3972,6 +3983,18 @@ $MYCALL=strtoupper($callsign);
 					echo "<td align=\"left\" colspan=\"2\"><div class=\"switch\"><input id=\"toggle-timeAnnounce\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"confTimeAnnounce\" value=\"ON\" /><label for=\"toggle-timeAnnounce\"></label></div></td>\n";
 				    }
 				    ?>
+				</tr>
+				<tr>
+				    <td align="left"><a class="tooltip2" href="#">Callsign Routing:<span><b>Callsign Routing</b>Do you want callsign routing for D-Star</span></a></td>
+				    <?php
+				    if ( isset($configircddb['ircddbEnabled']) && $configircddb['ircddbEnabled'] == "1" ) {
+					echo "<td align=\"left\"><div class=\"switch\"><input id=\"toggle-ircddbEnabled\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"confircddbEnabled\" value=\"ON\" checked=\"checked\" /><label for=\"toggle-ircddbEnabled\"></label></div></td>\n";
+				    }
+				    else {
+					echo "<td align=\"left\"><div class=\"switch\"><input id=\"toggle-ircddbEnabled\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"confircddbEnabled\" value=\"ON\" /><label for=\"toggle-ircddbEnabled\"></label></div></td>\n";
+				    }
+				    ?>
+				    <td>Connect ircDDB for call routing</td>
 				</tr>
 				<tr>
 				    <td align="left"><a class="tooltip2" href="#">Use DPlus for XRF:<span><b>No DExtra</b>Should host files use DPlus Protocol for XRFs</span></a></td>
