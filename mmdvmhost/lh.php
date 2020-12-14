@@ -115,7 +115,7 @@ for ($i = 0; $i < $maxCount; $i++) {
             $duration_string = $duration<999 ? "&asymp; " . round($duration) . "s" : "&infin;";
             echo "<td colspan =\"3\" style=\"background:#f33;\">TX " . $duration_string . "</td>";
 	}
-	else if ($listElem[6] == "SMS") {
+	else if ($listElem[6] == "DMR Data") {
 	    echo "<td colspan =\"3\" style=\"background:#1d1;\">SMS</td>";
 	}
 	else {

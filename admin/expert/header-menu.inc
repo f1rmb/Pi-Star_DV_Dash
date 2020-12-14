@@ -125,6 +125,13 @@
 				<li class="subs"><a href="services.php?action=killmmdvmhost">Kill MMDVMHost</a></li>
 			    </ul>
 			</li>
+			<li class="subs has-subs"><a href="#">Jitter Tests</a>
+			    <ul class="dropdown">
+				<li class="subs"><a href="jitter_test.php?group=brandmeister">Brandmeister</a></li>
+				<li class="subs"><a href="jitter_test.php?group=dmrplus">DMR&#43;</a></li>
+				<li class="subs"><a href="jitter_test.php?group=hblink">HBLink</a></li>
+			    </ul>
+			</li>
 			<li class="subs"><a href="security_upgrades.php">Security Upgrades</a></li>
 			<li class="subs"><a href="filemanager.php">File Manager</a></li>
 			<li class="subs"><a href="edit_dashboard.php">CSS Tool</a></li>
