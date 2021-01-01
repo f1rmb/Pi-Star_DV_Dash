@@ -116,7 +116,7 @@ for ($i = 0; $i < $maxCount; $i++) {
             echo "<td colspan =\"3\" style=\"background:#f33;\">TX " . $duration_string . "</td>";
 	}
 	else if ($listElem[6] == "DMR Data") {
-	    echo "<td colspan =\"3\" style=\"background:#1d1;\">SMS</td>";
+	    echo "<td colspan =\"3\" style=\"background:#1d1;\">DMR Data</td>";
 	}
 	else {
 	    echo "<td>$listElem[6]</td>";
