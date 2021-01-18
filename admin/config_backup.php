@@ -208,7 +208,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				
 				// Overwrite the configs
 				$output .= "Writing new Config\n";
-				$output .= shell_exec("sudo rm -f /etc/dstar-radio.* 2>&1")."\n";
+				$output .= shell_exec("sudo rm -f /etc/dstar-radio.* /etc/bmapi.key /etc/dapnetapi.key 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/RSSI.dat /usr/local/etc/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/gpsd /etc/default/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/ircddblocal.php /var/www/dashboard/config/ 2>&1")."\n";
