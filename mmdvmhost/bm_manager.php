@@ -63,7 +63,7 @@ if ( $testMMDVModeDMR == 1 ) {
 	
 	// If there is a BM API Key
 	$bmAPIurl = 'https://api.brandmeister.network/v1.0/repeater/';
-	if ( !empty($_POST) && ( isset($_POST["dropDyn"]) || isset($_POST["dropQso"]) || isset($_POST["refSubmit"]) || isset($_POST["tgSubmit"]))) {  // Data has been posted for this page
+	if ( !empty($_POST) && ( isset($_POST["dropDyn"]) || isset($_POST["dropQso"]) || isset($_POST["tgSubmit"]))) {  // Data has been posted for this page
 	    // Are we a repeater
 	    if ( getConfigItem("DMR Network", "Slot1", $_SESSION['MMDVMHostConfigs']) == "0" ) {
 		unset($_POST["TS"]);
@@ -75,12 +75,9 @@ if ( $testMMDVModeDMR == 1 ) {
 	    // Figure out what has been posted
 	    if (isset($_POST["dropDyn"])) { $bmAPIurl = $bmAPIurl."setRepeaterTarantool.php?action=dropDynamicGroups&slot=".$targetSlot."&q=".$dmrID; }
 	    if (isset($_POST["dropQso"])) { $bmAPIurl = $bmAPIurl."setRepeaterDbus.php?action=dropCallRoute&slot=".$targetSlot."&q=".$dmrID; }
-	    if ( ($_POST["TGmgr"] == "ADD") && (isset($_POST["tgSubmit"])) ) { $bmAPIurl = $bmAPIurl."talkgroup/?action=ADD&id=".$dmrID; }
-	    if ( ($_POST["TGmgr"] == "DEL") && (isset($_POST["tgSubmit"])) ) { $bmAPIurl = $bmAPIurl."talkgroup/?action=DEL&id=".$dmrID; }
-	    if ( ($_POST["REFmgr"] == "LINK") && (isset($_POST["refSubmit"])) ) { $bmAPIurl = $bmAPIurl."reflector/setActiveReflector.php?id=".$dmrID; }
-	    if ( ($_POST["REFmgr"] == "UNLINK") && (isset($_POST["refSubmit"])) ) { $bmAPIurl = $bmAPIurl."reflector/setActiveReflector.php?id=".$dmrID; $targetREF = "4000"; }
+	    if ( (isset($_POST["TGmgr"])) && ($_POST["TGmgr"] == "ADD") && (isset($_POST["tgSubmit"])) ) { $bmAPIurl = $bmAPIurl."talkgroup/?action=ADD&id=".$dmrID; }
+	    if ( (isset($_POST["TGmgr"])) && ($_POST["TGmgr"] == "DEL") && (isset($_POST["tgSubmit"])) ) { $bmAPIurl = $bmAPIurl."talkgroup/?action=DEL&id=".$dmrID; }
 	    if ( (isset($_POST["tgNr"])) && (isset($_POST["tgSubmit"])) ) { $targetTG = preg_replace("/[^0-9]/", "", $_POST["tgNr"]); }
-	    if ( (isset($_POST["reflectorNr"])) && (isset($_POST["refSubmit"])) && ($_POST["REFmgr"] == "LINK")) { $targetREF = preg_replace("/[^0-9]/", "", $_POST["reflectorNr"]); }
 	    // Build the Data
 	    if ( (!isset($_POST["dropDyn"])) && (!isset($_POST["dropQso"])) ) {
 		if (isset($_POST["tgSubmit"])) {
@@ -89,16 +86,9 @@ if ( $testMMDVModeDMR == 1 ) {
 			'timeslot' => $targetSlot,
 		    );
 		}
-		
-		if (isset($_POST["refSubmit"])) {
-		    $postDataREF = array(
-			'reflector' => $targetREF,
-		    );
-		}
 	    }
 	    // Build the Query
 	    $postData = '';
-	    if (isset($_POST["refSubmit"])) { $postData = http_build_query($postDataREF); }
 	    if (isset($_POST["tgSubmit"])) { $postData = http_build_query($postDataTG); }
 	    $postHeaders = array(
 		'Content-Type: application/x-www-form-urlencoded',
@@ -137,28 +127,10 @@ if ( $testMMDVModeDMR == 1 ) {
 		echo '<form action="'.htmlentities($_SERVER['PHP_SELF']).'" method="post">'."\n";
 		echo '<table>
       <tr>
-        <th><a class=tooltip href="#">Tools<span><b>Tools</b></span></a></th>
-        <th><a class=tooltip href="#">Active Ref<span><b>Active Reflector</b></span></a></th>
-        <th><a class=tooltip href="#">Link / Unlink<span><b>Link or unlink</b></span></a></th>
-        <th><a class=tooltip href="#">Action<span><b>Take Action</b></span></a></th>
+        <th colspan="4"><a class=tooltip href="#">Tools<span><b>Tools</b></span></a></th>
       </tr>'."\n";
 		echo '    <tr>';
-		echo '<td><input type="submit" value="Drop QSO" title="Drop current QSO" name="dropQso" /><input type="submit" value="Drop All Dyn." title="Drop all dynamic groups" name="dropDyn" /></td>';
-		echo '<td><select name="reflectorNr">'."\n";
-		if ( $bmReflectorActive == "None" || $bmReflectorActive == "REF0" ) {
-		    echo '        <option selected="selected" value="0">None</option>'."\n";
-		}
-		else {
-		    echo '        <option value="0">None</option>'."\n";
-		}
-		for ($refNrBase = 1; $refNrBase <= 999; $refNrBase++) {
-		    $refNr = 4000 + $refNrBase;
-		    if ( "REF".$refNr == $bmReflectorActive ) { echo '        <option selected="selected" value="'.$refNr.'">REF'.$refNr.'</option>'."\n"; }
-		    else { echo '        <option value="'.$refNr.'">REF'.$refNr.'</option>'."\n"; }
-		}
-		echo '        </td>'."\n";
-		echo '      <td><input type="radio" name="REFmgr" value="LINK" />Link <input type="radio" name="REFmgr" value="UNLINK" checked="checked" />UnLink</td>';
-		echo '<td><input type="submit" value="Modify Reflector" name="refSubmit" /></td>';
+		echo '<td colspan="4"><input style="width: 180px; margin-right: 20px; padding: 0px;" type="submit" value="Drop QSO" title="Drop current QSO" name="dropQso" /><input style="width: 180px; margin-left: 20px; padding: 0px;" type="submit" value="Drop All Dyn." title="Drop all dynamic groups" name="dropDyn" /></td>';
 		echo '</tr>'."\n";
 		echo '<tr>
         <th><a class=tooltip href="#">Static Talkgroup<span><b>Enter the Talkgroup number</b></span></a></th>
