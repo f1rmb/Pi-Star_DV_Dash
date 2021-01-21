@@ -129,7 +129,8 @@ if ($_SERVER["PHP_SELF"] == "/admin/index.php") { // Stop this working outside o
 	}
     }
     
-    if ( $dmrID ) {
+    if (empty($dmrID) == false)
+    {
 	// Work out if the data has been posted or not
 	if ( !empty($_POST) && isset($_POST["tgifSubmit"]) ) { // Data has been posted for this page
 	    // Are we a repeater

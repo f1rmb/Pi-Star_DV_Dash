@@ -235,9 +235,15 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	    if (getConfigItem("DMR Network", "Slot1", $_SESSION['MMDVMHostConfigs']) == 1) {
 		echo "<td class=\"active-mode-cell\">enabled</td></tr>\n";
 	    }
+	    else {
+		echo "<td class=\"inactive-mode-cell\">disabled</td></tr>\n";
+	    }
 	    echo "<tr><th>TS2</th>";
 	    if (getConfigItem("DMR Network", "Slot2", $_SESSION['MMDVMHostConfigs']) == 1) {
 		echo "<td class=\"active-mode-cell\">enabled</td></tr>\n";
+	    }
+	    else {
+		echo "<td class=\"inactive-mode-cell\">disabled</td></tr>\n";
 	    }
 	    echo "<tr><th colspan=\"2\">".$lang['dmr_master']."</th></tr>\n";
 	    if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {

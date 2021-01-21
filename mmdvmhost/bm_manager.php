@@ -58,7 +58,7 @@ if ( $testMMDVModeDMR == 1 ) {
 	fclose($dmrMasterFile);
     }
     
-    if ((substr($dmrMasterHost, 0, 2) == "BM") && ($bmEnabled == true)) {
+    if ((substr($dmrMasterHost, 0, 3) == "BM ") && ($bmEnabled == true)) {
 	// OK this is Brandmeister, get some config and output the HTML
 	
 	// If there is a BM API Key
