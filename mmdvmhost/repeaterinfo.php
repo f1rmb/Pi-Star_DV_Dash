@@ -166,7 +166,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 			if ((strpos($dmrMasterHostF[0], 'XLX_') === 0) && ($xlxMasterHost1 == $dmrMasterHostF[2])) {
 			    $xlxMasterHost1 = str_replace('_', ' ', $dmrMasterHostF[0]);
 			}
-			if ((strpos($dmrMasterHostF[0], 'BM_') === 0) && ($dmrMasterHost1 == $dmrMasterHostF[2])) {
+			if (preg_match('/^BM.?\_/', $dmrMasterHostF[0]) && ($dmrMasterHost1 == $dmrMasterHostF[2])) {
 			    $dmrMasterHost1 = str_replace('_', ' ', $dmrMasterHostF[0]);
 			}
 			if ((strpos($dmrMasterHostF[0], 'DMR+_') === 0) && ($dmrMasterHost2 == $dmrMasterHostF[2])) {
