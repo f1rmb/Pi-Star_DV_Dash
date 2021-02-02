@@ -40,7 +40,7 @@ $configdstar = getNoSectionsConfigContent('/etc/dstarrepeater');
 // Load the ircDDBGateway config file
 $configircddb = getNoSectionsConfigContent($gatewayConfigPath);
 if (!isset($configircddb['url'])) {
-    $configircddb['url'] = "http://www.qrz.com/db/";
+    $configircddb['url'] = "https://www.qrz.com/db/";
 }
 
 // Load the mmdvmhost config file
@@ -341,7 +341,7 @@ if (isset($configircddb['aprsHostname'])) {
 	fclose($configfile);
     }
     if (!isset($configircddb['url'])) {
-	$configircddb['url'] = "http://www.qrz.com/db/";
+	$configircddb['url'] = "https://www.qrz.com/db/";
     }
 }
 
@@ -622,6 +622,10 @@ $MYCALL=strtoupper($callsign);
 	     disablesubmitbuttons();
 	     document.getElementById("adminPassForm").submit();
 	 }
+	 function submitPskform() {
+	     disablesubmitbuttons();
+	     document.getElementById("autoApPassForm").submit();
+	 }
 	 function factoryReset() {
 	     if (confirm('WARNING: This will set all your settings back to factory defaults. WiFi setup will be retained to maintain network access to this Pi.\n\nAre you SURE you want to do this?\n\nPress OK to restore the factory configuration\nPress Cancel to go back.')) {
 		 document.getElementById("factoryReset").submit();
@@ -641,7 +645,7 @@ $MYCALL=strtoupper($callsign);
 	     document.getElementById("confLongitude").value = position.coords.longitude.toFixed(5);
 	 }
 	</script>
-	<script type="text/javascript" src="/functions.js?version=1.706"></script>
+	<script type="text/javascript" src="/functions.js?version=1.710"></script>
     </head>
     <body onload="checkFrequency(); return false;">
 	<div class="container">
@@ -708,6 +712,19 @@ $MYCALL=strtoupper($callsign);
 			    unset($_POST);
 			}
 			
+			// AutoAP PSK Change
+			if (empty($_POST['autoapPsk']) != TRUE ) {
+			    $rollAutoApPsk = 'sudo sed -i "/wpa_passphrase=/c\\wpa_passphrase='.$_POST['autoapPsk'].'" /etc/hostapd/hostapd.conf';
+			    system($rollAutoApPsk);
+
+			    echo "<br />\n";
+			    echo "<table>\n";
+			    echo "<tr><th>Done</th></tr>\n";
+			    echo "<tr><td>WiFi Password Updated...</td><tr>\n";
+			    echo "</table>\n";
+			    unset($_POST);
+			}
+
 			// Make the root filesystem writable
 			exec('sudo mount -o remount,ro /');
 			
@@ -715,6 +732,7 @@ $MYCALL=strtoupper($callsign);
 			die();
 		    }
 		    
+
 		    // Stop Cron (occasionally remounts root as RO - would be bad if it did this at the wrong time....)
 		    exec('sudo systemctl stop cron.service > /dev/null 2>/dev/null &');			//Cron
 		    
@@ -931,7 +949,7 @@ $MYCALL=strtoupper($callsign);
 			$newConfURL = strtolower(preg_replace('/[^A-Za-z0-9\.\?\#\+\=\%\&\_\,\-\/\:]/', '', $_POST['confURL']));
 			
 			if (escapeshellcmd($_POST['urlAuto']) == 'auto') {
-			    $txtURL = "http://www.qrz.com/db/".strtoupper(escapeshellcmd($_POST['confCallsign']));
+			    $txtURL = "https://www.qrz.com/db/".strtoupper(escapeshellcmd($_POST['confCallsign']));
 			    $configircddb['url'] = $txtURL;
 			}
 			
@@ -1609,8 +1627,8 @@ $MYCALL=strtoupper($callsign);
 			    }
 			}
 			
-			// Set the DMR+ Options= line
-			if (substr($dmrMasterHostArr[3], 0, 4) == "DMR+") {
+			// Set the DMR+ / HBLink Options= line
+			if ((substr($dmrMasterHostArr[3], 0, 4) == "DMR+") || (substr($dmrMasterHostArr[3], 0, 3) == "HB_")) {
 			    unset ($configmmdvm['DMR Network']['Local']);
 			    unset ($configysf2dmr['DMR Network']['Local']);
 			    if (empty($_POST['dmrNetworkOptions']) != TRUE ) {
@@ -3676,12 +3694,18 @@ $MYCALL=strtoupper($callsign);
 					    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['xlx_startup_module'];?>:<span><b>XLX Startup Module override</b>Default will use the host file option, or override it here.</span></a></td>
 					    <td align="left"><select name="dmrMasterHost3StartupModule">
 						<?php
-						if (isset($configdmrgateway['XLX Network']['Module'])) {
+						if ((isset($configdmrgateway['XLX Network']['Module'])) && ($configdmrgateway['XLX Network']['Module'] != "")) {
 						    echo '        <option value="'.$configdmrgateway['XLX Network']['Module'].'" selected="selected">'.$configdmrgateway['XLX Network']['Module'].'</option>'."\n";
 						    echo '        <option value="Default">Default</option>'."\n";
+						    echo '        <option value=" ">None</option>'."\n";
+						}
+						elseif ((isset($configdmrgateway['XLX Network']['Module'])) && ($configdmrgateway['XLX Network']['Module'] == "")) {
+						    echo '        <option value="Default">Default</option>'."\n";
+						    echo '        <option value=" " selected="selected">None</option>'."\n";
 						} 
 						else {
 						    echo '        <option value="Default" selected="selected">Default</option>'."\n";
+						    echo '        <option value=" ">None</option>'."\n";
 						}
 						?>
 						<option value="A">A</option>
@@ -3737,8 +3761,9 @@ $MYCALL=strtoupper($callsign);
 				    };
 				    echo '"></input></td></tr><tr><td align="left"><a class="tooltip2" href="#">'.$lang['bm_network'].':<span><b>BrandMeister Dashboards</b>Direct links to your BrandMeister Dashboards</span></a></td><td><a href="https://brandmeister.network/?page=hotspot&amp;id='.$configmmdvm['General']['Id'].'" target="_new" style="color: #000;">Repeater Information</a> | <a href="https://brandmeister.network/?page=hotspot-edit&amp;id='.$configmmdvm['General']['Id'].'" target="_new" style="color: #000;">Edit Repeater (BrandMeister Selfcare)</a></td></tr>'."\n";
 				}
-				if (substr($dmrMasterNow, 0, 4) == "DMR+") {
-				    echo '    <tr><td align="left"><a class="tooltip2" href="#">'.$lang['dmr_plus_network'].':<span><b>DMR+ Network</b>Set your options= for DMR+ here</span></a></td><td align="left">Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="100" value="';
+				if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_")) {
+				    echo '    <tr><td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR+ Network</b>Set your options= for here</span></a></td><td align="left">Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="100" value="';
+
 				    if (isset($configmmdvm['DMR Network']['Options'])) {
 					echo $configmmdvm['DMR Network']['Options'];
 				    }
@@ -4061,7 +4086,8 @@ $MYCALL=strtoupper($callsign);
 					    $ysfHostsLine = fgets($ysfHosts);
 					    $ysfHost = preg_split('/;/', $ysfHostsLine);
 					    if ((strpos($ysfHost[0], '#') === FALSE ) && ($ysfHost[0] != '')) {
-						if ( ($testYSFHost == $ysfHost[0]) || ($testYSFHost == $ysfHost[1]) ) {
+
+						if ($testYSFHost == $ysfHost[1]) {
 						    echo "      <option value=\"$ysfHost[0],$ysfHost[1]\" selected=\"selected\">YSF$ysfHost[0] - ".htmlspecialchars($ysfHost[1])." - ".htmlspecialchars($ysfHost[2])."</option>\n";
 						}
 						else {
@@ -4076,7 +4102,8 @@ $MYCALL=strtoupper($callsign);
 						$ysfHostsLine = fgets($fcsHosts);
 						$ysfHost = preg_split('/;/', $ysfHostsLine);
 						if (substr($ysfHost[0], 0, 3) == "FCS") {
-						    if ( ($testYSFHost == $ysfHost[0]) || ($testYSFHost == $ysfHost[1]) ) { 
+
+						    if ($testYSFHost == $ysfHost[0]) {
 							echo "      <option value=\"$ysfHost[0],$ysfHost[0]\" selected=\"selected\">$ysfHost[0] - ".htmlspecialchars($ysfHost[1])."</option>\n";
 						    }
 						    else {
@@ -4579,21 +4606,8 @@ $MYCALL=strtoupper($callsign);
 		    </form>
 		    
 		    <?php
-		    //	exec('ifconfig wlan0',$return);
-		    //	exec('iwconfig wlan0',$return);
-		    //	$strWlan0 = implode(" ",$return);
-		    //	$strWlan0 = preg_replace('/\s\s+/', ' ', $strWlan0);
-		    //	if (strpos($strWlan0,'HWaddr') !== false) {
-		    //		preg_match('/HWaddr ([0-9a-f:]+)/i',$strWlan0,$result);
-		    //	}
-		    //	elseif (strpos($strWlan0,'ether') !== false) {
-		    //		preg_match('/ether ([0-9a-f:]+)/i',$strWlan0,$result);
-		    //	}
-		    //	$strHWAddress = $result['1'];
-		    //
-		    //	if ( isset($strHWAddress) ) {
 		    if ( file_exists('/sys/class/net/wlan0') || file_exists('/sys/class/net/wlan1') || file_exists('/sys/class/net/wlan0_ap') ) {
-			echo '<br /><h2>'.$lang['wifi_config'].'</h2><table><tr><td><iframe frameborder="0" scrolling="auto" name="wifi" src="wifi.php?page=wlan0_info" width="100%" onload="javascript:resizeIframe(this);">If you can see this message, your browser does not support iFrames, however if you would like to see the content please click <a href="wifi.php?page=wlan0_info">here</a>.</iframe></td></tr></table>'; 
+			echo '<br /><h2>'.$lang['wifi_config'].'</h2><table><tr><td><iframe frameborder="0" scrolling="auto" name="wifi" src="wifi.php?page=wlan0_info" width="100%" onload="javascript:resizeIframe(this);">If you can see this message, your browser does not support iFrames, however if you would like to see the content please click <a href="wifi.php?page=wlan0_info">here</a>.</iframe></td></tr></table><br /><form id="autoApPassForm" action="'.htmlspecialchars($_SERVER["PHP_SELF"]).'" method="post"><table><tr><th width="200">Auto AP SSID</th><th colspan="3">PSK</th></tr><tr><td align="left"><b>'.php_uname('n').'</b></td><td align="left"><label for="psk1">PSK:</label><input type="password" name="autoapPsk" id="psk1" onkeyup="checkPsk(); return false;" size="20" /><label for="psk2">Confirm PSK:</label><input type="password" name="autoapPsk" id="psk2" onkeyup="checkPskMatch(); return false;" /><br /><span id="confirmMessage" class="confirmMessage"></span></td><td align="right"><input type="button" id="submitpsk" value="Set PSK" onclick="submitPskform()" disabled="disabled" /></td></tr></table></form>';
 		    }
 		    ?>
 		    

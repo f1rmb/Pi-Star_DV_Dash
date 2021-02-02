@@ -340,12 +340,10 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
                 }
 		
 		if ($ysfLinkedToTxt != "null") {
-		    //$ysfLinkedToTxt = "Room: ".$ysfLinkedToTxt;
 		    $ysfLinkState = ' [Room]';
 		    $ysfLinkStateTooltip = 'Room: ';
 		}
 		else {
-		    //$ysfLinkedToTxt = "Linked to: ".$ysfLinkedTo;
 		    $ysfLinkedToTxt = $ysfLinkedTo;
 		    $ysfLinkState = ' [Lnkd]';
 		    $ysfLinkStateTooltip = 'Linked to ';
@@ -433,7 +431,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\">".getActualLink($logLinesNXDNGateway, "NXDN")."</td></tr>\n";
 	    }
 	    else {
-		echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\">Linked to TG65000</td></tr>\n";
+		echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\">TG65000</td></tr>\n";
 	    }
 	    echo "</table>\n";
 	}
