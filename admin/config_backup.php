@@ -80,6 +80,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				$output .= shell_exec("sudo cp /etc/dhcpcd.conf $backupDir 2>&1")."\n";
 			    }
 			    $output .= shell_exec("sudo cp /etc/wpa_supplicant/wpa_supplicant.conf $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /etc/hostapd/hostapd.conf $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/pistar-css.ini $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/aprsgateway $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/ircddbgateway $backupDir 2>&1")."\n";
@@ -215,6 +216,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/config.php /var/www/dashboard/config/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/language.php /var/www/dashboard/config/ 2>&1")."\n";
 				$output .= shell_exec('sudo find /tmp/config_restore/ -maxdepth 1 -name "*Hosts.txt" -exec mv -fv {} /root \; 2>&1')."\n";
+				$output .= shell_exec("sudo mv -fv /tmp/config_restore/hostapd.conf /etc/hostapd/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/wpa_supplicant.conf /etc/wpa_supplicant/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/* /etc/ 2>&1")."\n";
 				
