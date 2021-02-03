@@ -4619,7 +4619,7 @@ $MYCALL=strtoupper($callsign);
 		    
 		    <?php
 		    if ( file_exists('/sys/class/net/wlan0') || file_exists('/sys/class/net/wlan1') || file_exists('/sys/class/net/wlan0_ap') ) {
-			echo '<br /><h2>'.$lang['wifi_config'].'</h2><table><tr><td><iframe frameborder="0" scrolling="auto" name="wifi" src="wifi.php?page=wlan0_info" width="100%" onload="javascript:resizeIframe(this);">If you can see this message, your browser does not support iFrames, however if you would like to see the content please click <a href="wifi.php?page=wlan0_info">here</a>.</iframe></td></tr></table><br /><form id="autoApPassForm" action="'.htmlspecialchars($_SERVER["PHP_SELF"]).'" method="post"><table><tr><th width="200">Auto AP SSID</th><th colspan="3">PSK</th></tr><tr><td align="left"><b>'.php_uname('n').'</b></td><td align="left"><label for="psk1">PSK:</label><input type="password" name="autoapPsk" id="psk1" onkeyup="checkPsk(); return false;" size="20" /><label for="psk2">Confirm PSK:</label><input type="password" name="autoapPsk" id="psk2" onkeyup="checkPskMatch(); return false;" /><br /><span id="confirmMessage" class="confirmMessage"></span></td><td align="right"><input type="hidden" name="pskPasswordUpdate" value="1" /><input type="button" id="submitpsk" value="Set PSK" onclick="submitPskform()" disabled="disabled" /></td></tr></table></form>';
+			echo '<br /><h2>'.$lang['wifi_config'].'</h2><table><tr><td><iframe frameborder="0" scrolling="auto" name="wifi" src="wifi.php?page=wlan0_info" width="100%" onload="javascript:resizeIframe(this);">If you can see this message, your browser does not support iFrames, however if you would like to see the content please click <a href="wifi.php?page=wlan0_info">here</a>.</iframe></td></tr></table><br /><form id="autoApPassForm" action="'.htmlspecialchars($_SERVER["PHP_SELF"]).'" method="post"><table><tr><th width="200">Auto AP SSID</th><th colspan="3">PSK</th></tr><tr><td align="left"><b>'.php_uname('n').'</b></td><td align="left"><label for="psk1">PSK:</label><input type="password" name="autoapPsk" id="psk1" onkeyup="checkPsk(); return false;" size="15" /><label for="psk2">Confirm:</label><input type="password" name="autoapPsk" id="psk2" onkeyup="checkPsk(); return false;" size="15" /><br /><span id="confirmMessage" class="confirmMessage"></span></td><td align="right"><input type="hidden" name="pskPasswordUpdate" value="1" /><input type="button" id="submitpsk" value="Set PSK" onclick="submitPskform()" disabled="disabled" /></td></tr></table></form>';
 		    }
 		    ?>
 		    
@@ -4631,7 +4631,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><b>pi-star</b></td>
 				<td align="left"><label for="pass1">Password:</label><input type="password" name="adminPassword" id="pass1" onkeyup="checkPass(); return false;" size="15" />
-				    <label for="pass2">Confirm:</label><input type="password" name="adminPassword" id="pass2" onkeyup="checkPass(); return false;" />
+				    <label for="pass2">Confirm:</label><input type="password" name="adminPassword" id="pass2" onkeyup="checkPass(); return false;" size="15" />
 				    <br /><span id="confirmMessage" class="confirmMessage"></span></td>
 				<td align="right"><input type="hidden" name="adminPasswordUpdate" value="1" /><input type="button" id="submitpwd" value="<?php echo $lang['set_password'];?>" onclick="submitPassform()" disabled="disabled" /></td>
 			    </tr>

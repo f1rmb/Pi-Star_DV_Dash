@@ -6,17 +6,24 @@ function toggleField(hideObj,showObj) {
   showObj.focus();
 }
 function checkPass(){                   //used in confirm matching password entries
-  var pass1 = document.getElementById('pass1');
-  var pass2 = document.getElementById('pass2');
-  var goodColor = "#66cc66";
-  var badColor = "#ff6666";
-  if((pass1.value != '') && (pass1.value == pass2.value)){
-    pass2.style.backgroundColor = goodColor;
-    document.getElementById('submitpwd').removeAttribute("disabled");
-  }else{
-    pass2.style.backgroundColor = badColor;
-    document.getElementById('submitpwd').setAttribute("disabled","disabled");
-  }
+    var pass1 = document.getElementById('pass1');
+    var pass2 = document.getElementById('pass2');
+    var goodColor = "#66cc66";
+    var badColor = "#ff6666";
+    if((pass1.value.length > 0) && (pass1.value == pass2.value)) {
+	pass1.style.backgroundColor = goodColor;
+	pass2.style.backgroundColor = goodColor;
+	document.getElementById('submitpwd').removeAttribute("disabled");
+    } else {
+	if((pass1.value.length > 0) && (pass2.value.length > 0)) {
+	    pass1.style.backgroundColor = badColor;
+	    pass2.style.backgroundColor = badColor;
+	} else {
+	    pass1.style.backgroundColor = "";
+	    pass2.style.backgroundColor = "";
+	}
+	document.getElementById('submitpwd').setAttribute("disabled","disabled");
+    }
 }
 function enableOnNonEmpty() {
     if (arguments.length >= 2)
@@ -35,22 +42,22 @@ function enableOnNonEmpty() {
     }
 }
 function checkPsk() {
-    if(psk1.value.length > 0 && psk1.value.length < 8) {
-	psk1.style.background='#ff6666';
-    } else {
-	psk1.style.background='#66cc66';
-    }
-}
-function checkPskMatch(){                   //used in confirm matching psk entries
     var psk1 = document.getElementById('psk1');
     var psk2 = document.getElementById('psk2');
     var goodColor = "#66cc66";
     var badColor = "#ff6666";
-    if((psk1.value != '') && (psk1.value == psk2.value)){
+    if((psk1.value.length > 0) && (psk1.value == psk2.value)) {
+	psk1.style.backgroundColor = goodColor;
 	psk2.style.backgroundColor = goodColor;
 	document.getElementById('submitpsk').removeAttribute("disabled");
-    }else{
-	psk2.style.backgroundColor = badColor;
+    } else {
+	if((psk1.value.length > 0) && (psk2.value.length > 0)) {
+	    psk1.style.backgroundColor = badColor;
+	    psk2.style.backgroundColor = badColor;
+	} else {
+	    psk1.style.backgroundColor = "";
+	    psk2.style.backgroundColor = "";
+	}
 	document.getElementById('submitpsk').setAttribute("disabled","disabled");
     }
 }
