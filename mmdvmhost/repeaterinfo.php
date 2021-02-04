@@ -157,15 +157,17 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	    $dmrMasterFile = fopen("/usr/local/etc/DMR_Hosts.txt", "r");
 	    $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
 	    $dmrMasterPort = getConfigItem("DMR Network", "Port", $_SESSION['MMDVMHostConfigs']);
+	    $xlxMasterIP = 'x.x.x.x';
+
 	    if ($dmrMasterHost == '127.0.0.1') {
-		if (isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Address'])) {
-		    $xlxMasterHost1 = $_SESSION['DMRGatewayConfigs']['XLX Network 1']['Address'];
+		if (isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Startup'])) {
+		    $xlxMasterHost1 = 'XLX_'.$_SESSION['DMRGatewayConfigs']['XLX Network']['Startup'];
 		}
 		else {
-		    $xlxMasterHost1 = "";
+		    $xlxMasterHost1 = "XLX Unknown";
 		}
-		$dmrMasterHost1 = $_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'];
-		$dmrMasterHost2 = $_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'];
+		$dmrMasterHost1 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 1']['Name']);
+		$dmrMasterHost2 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 2']['Name']);
 		$dmrMasterHost3 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 3']['Name']);
 		if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Name'])) {
 		    $dmrMasterHost4 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 4']['Name']);
@@ -173,31 +175,30 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name'])) {
 		    $dmrMasterHost5 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name']);
 		}
-		while (!feof($dmrMasterFile)) {
-		    $dmrMasterLine = fgets($dmrMasterFile);
-		    $dmrMasterHostF = preg_split('/\s+/', $dmrMasterLine);
-		    if ((count($dmrMasterHostF) >= 2) && (strpos($dmrMasterHostF[0], '#') === FALSE) && ($dmrMasterHostF[0] != '')) {
-			if ((strpos($dmrMasterHostF[0], 'XLX_') === 0) && ($xlxMasterHost1 == $dmrMasterHostF[2])) {
-			    $xlxMasterHost1 = str_replace('_', ' ', $dmrMasterHostF[0]);
-			}
-			if (preg_match('/^BM.?\_/', $dmrMasterHostF[0]) && ($dmrMasterHost1 == $dmrMasterHostF[2])) {
-			    $dmrMasterHost1 = str_replace('_', ' ', $dmrMasterHostF[0]);
-			}
-			if ((strpos($dmrMasterHostF[0], 'DMR+_') === 0) && ($dmrMasterHost2 == $dmrMasterHostF[2])) {
-			    $dmrMasterHost2 = str_replace('_', ' ', $dmrMasterHostF[0]);
-			}
+
+		if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1)) {
+		    while (!feof($dmrMasterFile)) {
+			$dmrMasterLine = fgets($dmrMasterFile);
+			$dmrMasterHostF = preg_split('/\s+/', $dmrMasterLine);
+		    	if ((count($dmrMasterHostF) >= 2) && (strpos($dmrMasterHostF[0], '#') === FALSE) && ($dmrMasterHostF[0] != '')) {
+			    if ((strpos($dmrMasterHostF[0], 'XLX_') === 0) && ($xlxMasterHost1 == $dmrMasterHostF[0])) {
+				$xlxMasterHost1 = str_replace('_', '', $dmrMasterHostF[0]); // Next server name, grabbed from log, won't have underscore sep.
+			    	$xlxMasterIP = $dmrMasterHostF[2];
+			    	break;
+			    }
+		        }
 		    }
 		}
 		
-		$xlxMasterHost1Tooltip = $xlxMasterHost1;
-		$dmrMasterHost1Tooltip = $dmrMasterHost1;
-		$dmrMasterHost2Tooltip = $dmrMasterHost2;
-		$dmrMasterHost3Tooltip = $dmrMasterHost3;
+		$xlxMasterHost1Tooltip = $xlxMasterHost1.' ('.$xlxMasterIP.')';
+		$dmrMasterHost1Tooltip = $dmrMasterHost1.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'].')';
+		$dmrMasterHost2Tooltip = $dmrMasterHost2.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'].')';
+		$dmrMasterHost3Tooltip = $dmrMasterHost3.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 3']['Address'].')';
 		if (isset($dmrMasterHost4)) {
-		    $dmrMasterHost4Tooltip = $dmrMasterHost4;
+		    $dmrMasterHost4Tooltip = $dmrMasterHost4.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 4']['Address'].')';;
 		}
 		if (isset($dmrMasterHost5)) {
-		    $dmrMasterHost5Tooltip = $dmrMasterHost5;
+		    $dmrMasterHost5Tooltip = $dmrMasterHost5.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 5']['Address'].')';;
 		}
 		if (strlen($xlxMasterHost1) > 19) {
 		    $xlxMasterHost1 = substr($xlxMasterHost1, 0, 17) . '..';
@@ -229,6 +230,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		    if ((count($dmrMasterHostF) >= 4) && (strpos($dmrMasterHostF[0], '#') === FALSE) && ($dmrMasterHostF[0] != '')) {
 			if (($dmrMasterHost == $dmrMasterHostF[2]) && ($dmrMasterPort == $dmrMasterHostF[4])) {
 			    $dmrMasterHost = str_replace('_', ' ', $dmrMasterHostF[0]);
+			    break;
 			}
 		    }
 		}
@@ -262,10 +264,10 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	    echo "<tr><th colspan=\"2\">".$lang['dmr_master']."</th></tr>\n";
 	    if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {
 		if ($dmrMasterHost == '127.0.0.1') {
-		    if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled'] == 1)) {
+		    if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1)) {
 			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
 		    }
-                    if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
+                    if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
 			if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
 			    $xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
 			}
@@ -279,7 +281,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 			else if ( strpos($xlxMasterHost1, 'Unlinking') !== false ) {
 			    $xlxMasterHost1 = "XLX Not Linked";
 			}
-			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$xlxMasterHost1."\">".$xlxMasterHost1."</td></tr>\n";
+			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
                     }
 		    if ($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Enabled'] == 1) {
 			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost1Tooltip."\">".$dmrMasterHost1."</td></tr>\n";
@@ -376,6 +378,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
                 if ((count($dmrMasterHostF) >= 2) && (strpos($dmrMasterHostF[0], '#') === FALSE) && ($dmrMasterHostF[0] != '')) {
                     if ($dmrMasterHost == $dmrMasterHostF[2]) {
 			$dmrMasterHost = str_replace('_', ' ', $dmrMasterHostF[0]);
+			break;
 		    }
                 }
             }
