@@ -1202,6 +1202,7 @@ function getActualLink($logLines, $mode) {
 			return "Not Linked";
 		    }
 		}
+		return "Not Linked";
             } 
 	    else {
 		return "Service Not Started";
@@ -1245,6 +1246,7 @@ function getActualLink($logLines, $mode) {
 			return "Not Linked";
 		    }
 		}
+		return "Not Linked";
 	    } 
 	    else {
 		return "Service Not Started";
