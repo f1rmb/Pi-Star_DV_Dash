@@ -635,15 +635,6 @@ $MYCALL=strtoupper($callsign);
 	     var numpix = parseInt(obj.contentWindow.document.body.scrollHeight, 10);
 	     obj.style.height = numpix + 'px';
 	 }
-	 function getLocation() {
-	     if (navigator.geolocation) {
-		 navigator.geolocation.getCurrentPosition(showPosition);
-	     }
-	 }
-	 function showPosition(position) {
-	     document.getElementById("confLatitude").value = position.coords.latitude.toFixed(5);
-	     document.getElementById("confLongitude").value = position.coords.longitude.toFixed(5);
-	 }
 	</script>
 	<script type="text/javascript" src="/functions.js?version=1.710"></script>
     </head>
@@ -3305,11 +3296,11 @@ $MYCALL=strtoupper($callsign);
 				    }
 				    ?>
 				    <tr>
-					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['lattitude'];  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') { echo '<button type="button" onclick="getLocation()">Get</button>'; } ?>:<span><b>Gateway Latitude</b>This is the latitude where the gateway is located (positive number for North, negative number for South)</span></a></td>
+					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['lattitude'];?>:<span><b>Gateway Latitude</b>This is the latitude where the gateway is located (positive number for North, negative number for South)</span></a></td>
 					<td align="left" colspan="2"><input type="text" id="confLatitude" name="confLatitude" size="13" maxlength="9" value="<?php echo $configircddb['latitude'] ?>" />degrees (positive value for North, negative for South)</td>
 				    </tr>
 				    <tr>
-					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['longitude']; if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') { echo '<button type="button" onclick="getLocation()">Get</button>'; } ?>:<span><b>Gateway Longitude</b>This is the longitude where the gateway is located (positive number for East, negative number for West)</span></a></td>
+					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['longitude'];?>:<span><b>Gateway Longitude</b>This is the longitude where the gateway is located (positive number for East, negative number for West)</span></a></td>
 					<td align="left" colspan="2"><input type="text" id="confLongitude" name="confLongitude" size="13" maxlength="9" value="<?php echo $configircddb['longitude'] ?>" />degrees (positive value for East, negative for West)</td>
 				    </tr>
 				    <tr>
