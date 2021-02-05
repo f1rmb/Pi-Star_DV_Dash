@@ -1785,16 +1785,20 @@ $MYCALL=strtoupper($callsign);
 		    // Set P25 Hang Timers
 		    if (empty($_POST['p25RfHangTime']) != TRUE ) {
 			$configmmdvm['P25']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['p25RfHangTime']);
+			$configp25gateway['Network']['RFHangTime'] = "0";
 		    }
 		    if (empty($_POST['p25NetHangTime']) != TRUE ) {
 			$configmmdvm['P25 Network']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['p25NetHangTime']);
+			$configp25gateway['Network']['NetHangTime'] = "0";
 		    }
 		    // Set NXDN Hang Timers
 		    if (empty($_POST['nxdnRfHangTime']) != TRUE ) {
 			$configmmdvm['NXDN']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['nxdnRfHangTime']);
+			$confignxdngateway['Network']['RFHangTime'] = "0";
 		    }
 		    if (empty($_POST['nxdnNetHangTime']) != TRUE ) {
 			$configmmdvm['NXDN Network']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['nxdnNetHangTime']);
+			$confignxdngateway['Network']['NetHangTime'] = "0";
 		    }
 		    
 		    // Set the hardware type
@@ -2737,13 +2741,13 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configp25gateway['Remote Commands']['Enable'])) { $configp25gateway['Remote Commands']['Enable'] = "1"; }
 		    if (!isset($configp25gateway['Remote Commands']['Port'])) { $configp25gateway['Remote Commands']['Port'] = "6074"; }
 		    if (!isset($configp25gateway['Network']['RFHangTime'])) { $configp25gateway['Network']['RFHangTime'] = "120"; }
-		    if (!isset($configp25gateway['Network']['NetHangTime'])) { $configp25gateway['Network']['NetHangTime'] = "60"; }
+		    if (!isset($configp25gateway['Network']['NetHangTime'])) { $configp25gateway['Network']['NetHangTime'] = "0"; }
 
 		    // Add missing NXDNGateway Options
 		    if (!isset($confignxdngateway['Remote Commands']['Enable'])) { $confignxdngateway['Remote Commands']['Enable'] = "1"; }
 		    if (!isset($confignxdngateway['Remote Commands']['Port'])) { $confignxdngateway['Remote Commands']['Port'] = "6075"; }
 		    if (!isset($confignxdngateway['Network']['RFHangTime'])) { $confignxdngateway['Network']['RFHangTime'] = "120"; }
-		    if (!isset($confignxdngateway['Network']['NetHangTime'])) { $confignxdngateway['Network']['NetHangTime'] = "60"; }
+		    if (!isset($confignxdngateway['Network']['NetHangTime'])) { $confignxdngateway['Network']['NetHangTime'] = "0"; }
 		    
 
 		    if (isset($configysfgateway['Network']['Startup'])) { $ysfTmpStartup = $configysfgateway['Network']['Startup']; }
