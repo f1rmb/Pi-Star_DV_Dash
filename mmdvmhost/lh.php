@@ -79,10 +79,10 @@ for ($i = 0; $i < $maxCount; $i++) {
 	else {
 	    if (strpos($listElem[2],"-") > 0) { $listElem[2] = substr($listElem[2], 0, strpos($listElem[2],"-")); }
 	    if ( $listElem[3] && $listElem[3] != '    ' ) {
-		echo "<td align=\"left\"><a href=\"https://www.qrz.com/db/$listElem[2]\" target=\"_blank\">$listElem[2]</a>/$listElem[3]</td>";
+		echo "<td align=\"left\"><div style=\"float:left;\"><a href=\"https://www.qrz.com/db/$listElem[2]\" target=\"_blank\">$listElem[2]</a>/$listElem[3]</div><div style=\"text-align:right;\">&#91;<a href=\"https://aprs.fi/#!call=".$listElem[2]."*\" target=\"_blank\">APRS</a>&#93;</div></td>";
 	    }
 	    else {
-		echo "<td align=\"left\"><a href=\"https://www.qrz.com/db/$listElem[2]\" target=\"_blank\">$listElem[2]</a></td>";
+		echo "<td align=\"left\"><div style=\"float:left;\"><a href=\"https://www.qrz.com/db/$listElem[2]\" target=\"_blank\">$listElem[2]</a></div><div style=\"text-align:right;\">&#91;<a href=\"https://aprs.fi/#!call=".$listElem[2]."*\" target=\"_blank\">APRS</a>&#93;</div></td>";
 	    }
 	}
 	
