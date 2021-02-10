@@ -47,7 +47,7 @@ function getServiceStatusClass($active) {
 	<td class="<?php getServiceStatusClass(isProcessRunning('YSFParrot')); ?>">YSFParrot</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('P25Parrot')); ?>">P25Parrot</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('gpsd')); ?>">GPSd</td>
-	<td class="disabled-service-cell"</td>
+	<td class="<?php getServiceStatusClass(isProcessRunning('NextionDriver')); ?>">NextionDriver</td>
     </tr>
     <tr>
 	<td class="disabled-service-cell"</td>

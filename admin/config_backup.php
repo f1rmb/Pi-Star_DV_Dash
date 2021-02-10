@@ -203,6 +203,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				shell_exec('sudo systemctl stop ysf2dmr.service 2>&1');		//YSF2DMR
 				shell_exec('sudo systemctl stop p25gateway.service 2>&1');	//P25Gateway
 				shell_exec('sudo systemctl stop dapnetgateway.service 2>&1');	//DAPNETGateway
+				shell_exec('sudo systemctl stop nextiondriver.service 2>&1');	//NextionDriver Service
 				
 				// Make the disk Writable
 				shell_exec('sudo mount -o remount,rw / 2>&1');
@@ -238,6 +239,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				
 				// Start the services
 				$output .= "Starting Services.\n";
+				shell_exec('sudo systemctl start nextiondriver.service 2>&1');		//NextionDriver Service
 				shell_exec('sudo systemctl start gpsd.service 2>&1');			//GPSd Service
 				shell_exec('sudo systemctl start aprsgateway.service 2>&1');		//APRSGateway Service
 				shell_exec('sudo systemctl start dstarrepeater.service 2>&1');		//D-Star Radio Service

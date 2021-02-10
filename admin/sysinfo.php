@@ -244,6 +244,10 @@ function formatSize( $bytes ) {
 			$GPSD_Ver = exec('/usr/sbin/gpsd -V | cut -d\' \' -f 2-');
 			echo "  <tr>";getStatusClass(isProcessRunning("gpsd"), true); echo "GPSd</td><td align=\"left\">".$GPSD_Ver."</td></tr>\n";
 		    }
+		    if (is_executable('/usr/local/bin/NextionDriver')) {
+			$NEXTIONDRIVER_Ver = exec('/usr/local/bin/NextionDriver -V | head -n 2 | cut -d\' \' -f 3');
+			echo "  <tr>";getStatusClass(isProcessRunning("NextionDriver"), true); echo "NextionDriver</td><td align=\"left\">".$NEXTIONDRIVER_Ver."</td></tr>\n";
+		    }
 		    ?>
 		</table>
 	    </div>

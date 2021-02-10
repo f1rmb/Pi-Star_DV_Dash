@@ -411,6 +411,45 @@ if ((($configmmdvm['DMR Network']['Address'] == "127.0.0.1") || ($configmmdvm['D
     $configdmrgateway['DMR Network 1']['Enabled'] = "1";
 }
 
+##
+## Checks for NextionDriver
+##
+if (!isset($configmmdvm['NextionDriver'])) {
+    $configmmdvm['NextionDriver']['Enable'] = "0";
+    $configmmdvm['NextionDriver']['Port'] = "0";
+    $configmmdvm['NextionDriver']['DataFilesPath'] = "/usr/local/etc/";
+    $configmmdvm['NextionDriver']['LogLevel'] = "2";
+    $configmmdvm['NextionDriver']['GroupsFile'] = "groups.txt";
+    $configmmdvm['NextionDriver']['DMRidFile'] = "stripped.csv";
+    $configmmdvm['NextionDriver']['ShowModeStatus'] = "0";
+    $configmmdvm['NextionDriver']['RemoveDim'] = "0";
+    $configmmdvm['NextionDriver']['WaitForLan'] = "1";
+    $configmmdvm['NextionDriver']['SleepWhenInactive'] = "0";
+}
+
+if (!isset($configmmdvm['NextionDriver']['Enable'])) {
+    $configmmdvm['NextionDriver']['Enable'] = "0";
+}
+
+if (!isset($configmmdvm['Transparent Data'])) {
+    $configmmdvm['Transparent Data']['Enable'] = "0";
+    $configmmdvm['Transparent Data']['RemoteAddress'] = "127.0.0.1";
+    $configmmdvm['Transparent Data']['RemotePort'] = "40094";
+    $configmmdvm['Transparent Data']['LocalPort'] = "40095";
+}
+
+if (($configmmdvm['General']['Display'] == "Nextion") && ($configmmdvm['NextionDriver']['Enable'] == "1")) {
+    if ($configmmdvm['Transparent Data']['Enable'] == "1") {
+	$configmmdvm['General']['Display'] = "NextionDriverTrans";
+    }
+    else {
+	$configmmdvm['General']['Display'] = "NextionDriver";
+    }
+
+    $configmmdvm['Nextion']['Port'] = $configmmdvm['NextionDriver']['Port'];
+}
+
+
 //
 // Build APRS password from callsign
 //
@@ -604,7 +643,7 @@ $MYCALL=strtoupper($callsign);
 	<link rel="stylesheet" type="text/css" href="/css/pistar-css.php?version=0.994" />
 	<script type="text/javascript" src="/jquery.min.js"></script>
 	<script type="text/javascript" src="/jquery-floatThead.min.js"></script>
-	<script type="text/javascript" src="/functions.js?version=1.706"></script>
+	<script type="text/javascript" src="/functions.js?version=1.710"></script>
 	<script type="text/javascript">
 	 function disablesubmitbuttons() {
 	     var inputs = document.getElementsByTagName('input');
@@ -636,7 +675,6 @@ $MYCALL=strtoupper($callsign);
 	     obj.style.height = numpix + 'px';
 	 }
 	</script>
-	<script type="text/javascript" src="/functions.js?version=1.710"></script>
     </head>
     <body onload="checkFrequency(); return false;">
 	<div class="container">
@@ -763,7 +801,8 @@ $MYCALL=strtoupper($callsign);
 		    exec('sudo systemctl stop dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
 		    exec('sudo systemctl stop dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2YSF
 		    exec('sudo systemctl stop dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
-		    exec('sudo systemctl stop dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
+		    exec('sudo systemctl stop dapnetgateway.service > /dev/null 2>/dev/null &');	// DAPNetGateway
+		    exec('sudo systemctl stop nextiondriver.service > /dev/null 2>/dev/null &');	// NextionDriver Service
 		    
 		    echo "<table>\n";
 		    echo "<tr><th>Working...</th></tr>\n";
@@ -2442,26 +2481,46 @@ $MYCALL=strtoupper($callsign);
 			if (escapeshellcmd($_POST['MMDVMModePOCSAG']) == 'OFF' ) { $configmmdvm['POCSAG']['Enable'] = "0"; $configmmdvm['POCSAG Network']['Enable'] = "0"; }
 		    }
 		    
+		    $configmmdvm['NextionDriver']['Enable'] = "0";
+		    $configmmdvm['NextionDriver']['Port'] = "0";
+		    $configmmdvm['Transparent Data']['Enable'] = "0";
+		    
 		    // Set the MMDVMHost Display Type
 		    if  (empty($_POST['mmdvmDisplayType']) != TRUE ) {
 			if (substr($_POST['mmdvmDisplayType'] , 0, 4 ) === "OLED") {
 			    $configmmdvm['General']['Display'] = "OLED";
 			    $configmmdvm['OLED']['Type'] = substr($_POST['mmdvmDisplayType'] , 4, 1 );
 			}
+			else if (substr($_POST['mmdvmDisplayType'] , 0, 13) === "NextionDriver") {
+			    $configmmdvm['General']['Display'] = "Nextion";
+			    $configmmdvm['NextionDriver']['Enable'] = "1";
+			}
 			else {
 			    $configmmdvm['General']['Display'] = escapeshellcmd($_POST['mmdvmDisplayType']);
 			}
 		    }
 		    
-		    // Set the MMDVMHost Display Type
+		    // Set the MMDVMHost Display Port
 		    if  (empty($_POST['mmdvmDisplayPort']) != TRUE ) {
-			if (($_POST['mmdvmDisplayPort'] == "None") || ($_POST['mmdvmDisplayPort'] == "modem")) {
-			    $configmmdvm['TFT Serial']['Port'] = $_POST['mmdvmDisplayPort'];
-			    $configmmdvm['Nextion']['Port'] = $_POST['mmdvmDisplayPort'];
-			} 
+			if ($_POST['mmdvmDisplayType'] == "NextionDriverTrans") {
+			    $configmmdvm['Nextion']['Port'] = "/dev/ttyNextionDriver";
+			    $configmmdvm['NextionDriver']['Port'] = "modem";
+			    $configmmdvm['Transparent Data']['SendFrameType'] = "1";
+			    $configmmdvm['Transparent Data']['Enable'] = "1";
+			}
+			else if ($_POST['mmdvmDisplayType'] == "NextionDriver") {
+			    $configmmdvm['Nextion']['Port'] = "/dev/ttyNextionDriver";
+			    $configmmdvm['NextionDriver']['Port'] = $_POST['mmdvmDisplayPort'];
+			}
 			else {
-			    $configmmdvm['TFT Serial']['Port'] = "/dev/".$_POST['mmdvmDisplayPort'];
-			    $configmmdvm['Nextion']['Port'] = "/dev/".$_POST['mmdvmDisplayPort'];
+			    if (($_POST['mmdvmDisplayPort'] == "None") || ($_POST['mmdvmDisplayPort'] == "modem")) {
+				$configmmdvm['TFT Serial']['Port'] = $_POST['mmdvmDisplayPort'];
+				$configmmdvm['Nextion']['Port'] = $_POST['mmdvmDisplayPort'];
+			    }
+			    else {
+				$configmmdvm['TFT Serial']['Port'] = $_POST['mmdvmDisplayPort'];
+				$configmmdvm['Nextion']['Port'] = $_POST['mmdvmDisplayPort'];
+			    }
 			}
 		    }
 		    
@@ -2945,6 +3004,7 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Start the DV Services
 		    exec('sudo systemctl daemon-reload > /dev/null 2>/dev/null &');			// Restart Systemd to account for any service changes
+		    exec('sudo systemctl start nextiondriver.service > /dev/null 2>/dev/null &');	// NextionDriver Service
 		    exec('sudo systemctl start gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
 		    exec('sudo systemctl start aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
 		    exec('sudo systemctl start dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
@@ -3207,6 +3267,8 @@ $MYCALL=strtoupper($callsign);
 					<option <?php if (($configmmdvm['General']['Display'] == "OLED") && ($configmmdvm['OLED']['Type'] == "3")) {echo 'selected="selected" ';}; ?>value="OLED3">OLED Type 3</option>
 					<option <?php if (($configmmdvm['General']['Display'] == "OLED") && ($configmmdvm['OLED']['Type'] == "6")) {echo 'selected="selected" ';}; ?>value="OLED6">OLED Type 6</option>
 					<option <?php if ($configmmdvm['General']['Display'] == "Nextion") {echo 'selected="selected" ';}; ?>value="Nextion">Nextion</option>
+					<option <?php if ($configmmdvm['General']['Display'] == "NextionDriver") {echo 'selected="selected" ';}; ?>value="NextionDriver">NextionDriver</option>
+					<option <?php if ($configmmdvm['General']['Display'] == "NextionDriverTrans") {echo 'selected="selected" ';}; ?>value="NextionDriverTrans">NextionDriver (modem)</option>
 					<option <?php if ($configmmdvm['General']['Display'] == "HD44780") {echo 'selected="selected" ';}; ?>value="HD44780">HD44780</option>
 					<option <?php if ($configmmdvm['General']['Display'] == "TFT Serial") {echo 'selected="selected" ';}; ?>value="TFT Serial">TFT Serial</option>
 					<option <?php if ($configmmdvm['General']['Display'] == "LCDproc") {echo 'selected="selected" ';}; ?>value="LCDproc">LCDproc</option>
@@ -3220,6 +3282,7 @@ $MYCALL=strtoupper($callsign);
 					else {
 					    echo '      <option value="None">None</option>'."\n";
 					}
+					
 					if (isset($configmmdvm['Nextion']['Port'])) {
 					    if ($configmmdvm['Nextion']['Port'] == "modem") {
 						echo '      <option selected="selected" value="modem">modem</option>'."\n";
@@ -3227,21 +3290,26 @@ $MYCALL=strtoupper($callsign);
 					    else {
 						echo '      <option value="modem">modem</option>'."\n";
 					    }
-					    if ( ($configmmdvm['Nextion']['Port'] == "None") || ($configmmdvm['Nextion']['Port'] == "" )) { } else {
-						$currentPort = str_replace($configmmdvm['Nextion']['Port'], "/dev/", "");
-						echo '      <option selected="selected" value="'.$currentPort.'">'.$configmmdvm['Nextion']['Port'].'</option>'."\n";
+
+					    if ( ($configmmdvm['Nextion']['Port'] == "None") || ($configmmdvm['Nextion']['Port'] == "0") || ($configmmdvm['Nextion']['Port'] == "")) {
+						echo '      <option selected="selected" value="None">None</option>'."\n";
+					    }
+					    else {
+						if ($configmmdvm['NextionDriver']['Enable'] == "1") {
+						    echo '      <option selected="selected" value="'.$configmmdvm['NextionDriver']['Port'].'">'.$configmmdvm['NextionDriver']['Port'].'</option>'."\n";
+						}
+						else {
+						    echo '      <option selected="selected" value="'.$configmmdvm['Nextion']['Port'].'">'.$configmmdvm['Nextion']['Port'].'</option>'."\n";
+						}
 					    }
 					}
 					exec('ls /dev/ | egrep -h "ttyA|ttyUSB"', $availablePorts);
 					foreach($availablePorts as $port) {
-					    echo "     <option value=\"$port\">/dev/$port</option>\n";
+					    echo "     <option value=\"/dev/$port\">/dev/$port</option>\n";
 					}
 					?>
 					<?php if (file_exists('/dev/ttyS2')) { ?>
-					    <option <?php if ($configmmdvm['Nextion']['Port'] == "/dev/ttyS2") {echo 'selected="selected" ';}; ?>value="ttyS2">/dev/ttyS2</option>
-    					<?php } ?>
-					<?php if (file_exists('/dev/ttyNextionDriver')) { ?>
-					    <option <?php if ($configmmdvm['Nextion']['Port'] == "/dev/ttyNextionDriver") {echo 'selected="selected" ';}; ?>value="ttyNextionDriver">/dev/ttyNextionDriver</option>
+					    <option <?php if ($configmmdvm['Nextion']['Port'] == "/dev/ttyS2") {echo 'selected="selected" ';}; ?>value="/dev/ttyS2">/dev/ttyS2</option>
     					<?php } ?>
 				    </select>
 				    Nextion Layout: <select name="mmdvmNextionDisplayType">

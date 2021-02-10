@@ -109,6 +109,7 @@ if($_POST) {
 		exec('sudo mount -o remount,ro /');				// Make rootfs read-only
 
 		// Reload the affected daemon
+		exec('sudo systemctl restart nextiondriver.service');		// Reload the daemon
 		exec('sudo systemctl restart mmdvmhost.service');		// Reload the daemon
 		return $success;
 	}
