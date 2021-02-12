@@ -449,10 +449,6 @@ if (($configmmdvm['General']['Display'] == "Nextion") && ($configmmdvm['NextionD
     $configmmdvm['Nextion']['Port'] = $configmmdvm['NextionDriver']['Port'];
 }
 
-if (isset($configmmdvm['DMR Network']['Type']) && ($configmmdvm['DMR Network']['Type'] == "Direct")) {
-    unset($configmmdvm['DMR Network']['Type']);
-}
-
 //
 // Build APRS password from callsign
 //
@@ -1643,6 +1639,7 @@ $MYCALL=strtoupper($callsign);
 			// DMR Gateway
 			if ($dmrMasterHostArr[0] == '127.0.0.1' && $dmrMasterHostArr[2] == '62031') {
 			    unset ($configmmdvm['DMR Network']['Options']);
+			    unset($configmmdvm['DMR Network']['Type']);
 			    // F1RMB: don't erase DMR Network 2::Options
 			    //unset ($configdmrgateway['DMR Network 2']['Options']);
 			    $configmmdvm['DMR Network']['Local'] = "62032";
@@ -1653,6 +1650,11 @@ $MYCALL=strtoupper($callsign);
 			    }
 			    if (isset($configdmr2nxdn['DMR Network']['LocalAddress'])) {
 				$configdmr2nxdn['DMR Network']['LocalAddress'] = "127.0.0.1";
+			    }
+			}
+			else {
+			    if (!isset($configmmdvm['DMR Network']['Type'])) {
+				$configmmdvm['DMR Network']['Type'] = "Direct";
 			    }
 			}
 			
@@ -2637,7 +2639,6 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configmmdvm['DMR']['BeaconInterval'])) { $configmmdvm['DMR']['BeaconInterval'] = "60"; }
 		    if (!isset($configmmdvm['DMR']['BeaconDuration'])) { $configmmdvm['DMR']['BeaconDuration'] = "3"; }
 		    if (!isset($configmmdvm['DMR']['OVCM'])) { $configmmdvm['DMR']['OVCM'] = "0"; }
-		    //if (!isset($configmmdvm['DMR Network']['Type'])) { $configmmdvm['DMR Network']['Type'] = "Direct"; }
 		    if (!isset($configmmdvm['P25']['RemoteGateway'])) { $configmmdvm['P25']['RemoteGateway'] = "0"; }
 		    if (!isset($configmmdvm['P25']['TXHang'])) { $configmmdvm['P25']['TXHang'] = "5"; }
 		    if (!isset($configmmdvm['OLED']['Scroll'])) { $configmmdvm['OLED']['Scroll'] = "0"; }
