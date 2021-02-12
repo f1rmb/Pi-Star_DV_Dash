@@ -449,6 +449,9 @@ if (($configmmdvm['General']['Display'] == "Nextion") && ($configmmdvm['NextionD
     $configmmdvm['Nextion']['Port'] = $configmmdvm['NextionDriver']['Port'];
 }
 
+if (isset($configmmdvm['DMR Network']['Type']) && ($configmmdvm['DMR Network']['Type'] == "Direct")) {
+    unset($configmmdvm['DMR Network']['Type']);
+}
 
 //
 // Build APRS password from callsign
@@ -2634,7 +2637,7 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configmmdvm['DMR']['BeaconInterval'])) { $configmmdvm['DMR']['BeaconInterval'] = "60"; }
 		    if (!isset($configmmdvm['DMR']['BeaconDuration'])) { $configmmdvm['DMR']['BeaconDuration'] = "3"; }
 		    if (!isset($configmmdvm['DMR']['OVCM'])) { $configmmdvm['DMR']['OVCM'] = "0"; }
-		    if (!isset($configmmdvm['DMR Network']['Type'])) { $configmmdvm['DMR Network']['Type'] = "Direct"; }
+		    //if (!isset($configmmdvm['DMR Network']['Type'])) { $configmmdvm['DMR Network']['Type'] = "Direct"; }
 		    if (!isset($configmmdvm['P25']['RemoteGateway'])) { $configmmdvm['P25']['RemoteGateway'] = "0"; }
 		    if (!isset($configmmdvm['P25']['TXHang'])) { $configmmdvm['P25']['TXHang'] = "5"; }
 		    if (!isset($configmmdvm['OLED']['Scroll'])) { $configmmdvm['OLED']['Scroll'] = "0"; }
