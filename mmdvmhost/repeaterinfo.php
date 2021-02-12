@@ -175,6 +175,9 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name'])) {
 		    $dmrMasterHost5 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name']);
 		}
+		if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 6']['Name'])) {
+		    $dmrMasterHost6 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 6']['Name']);
+		}
 
 		if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1)) {
 		    while (!feof($dmrMasterFile)) {
@@ -200,6 +203,9 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		if (isset($dmrMasterHost5)) {
 		    $dmrMasterHost5Tooltip = $dmrMasterHost5.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 5']['Address'].')';;
 		}
+		if (isset($dmrMasterHost6)) {
+		    $dmrMasterHost6Tooltip = $dmrMasterHost6.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 6']['Address'].')';;
+		}
 		if (strlen($xlxMasterHost1) > 19) {
 		    $xlxMasterHost1 = substr($xlxMasterHost1, 0, 17) . '..';
 		}
@@ -220,6 +226,11 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		if (isset($dmrMasterHost5)) {
 		    if (strlen($dmrMasterHost5) > 19) {
 			$dmrMasterHost5 = substr($dmrMasterHost5, 0, 17) . '..';
+		    }
+		}
+		if (isset($dmrMasterHost6)) {
+		    if (strlen($dmrMasterHost6) > 19) {
+			$dmrMasterHost6 = substr($dmrMasterHost6, 0, 17) . '..';
 		    }
 		}
 	    }
@@ -300,6 +311,11 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'])) {
 			if ($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'] == 1) {
                             echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost5Tooltip."\">".$dmrMasterHost5."</td></tr>\n";
+			}
+		    }
+		    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 6']['Enabled'])) {
+			if ($_SESSION['DMRGatewayConfigs']['DMR Network 6']['Enabled'] == 1) {
+                            echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost6Tooltip."\">".$dmrMasterHost6."</td></tr>\n";
 			}
 		    }
 		}

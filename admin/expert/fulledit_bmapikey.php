@@ -124,13 +124,13 @@ require_once('../config/version.php');
 		    // note the name='' attribute it has both section and key
 		    foreach($values as $key=>$value) {
 			if (($key == "Options") || ($value)) {
-			    echo "<tr><td align=\"right\" width=\"30%\">$key</td><td align=\"left\"><textarea name=\"{$section}[$key]\" cols=\"60\" rows=\"3\">$value</textarea></td></tr>\n";
+			    echo "<tr><td align=\"right\" width=\"30%\">$key</td><td align=\"left\"><textarea name=\"{$section}[$key]\" cols=\"60\" rows=\"13\">$value</textarea></td></tr>\n";
 			}
 			else if (($key == "Display") && ($value == '')) {
-			    echo "<tr><td align=\"right\" width=\"30%\">$key</td><td align=\"left\"><textarea name=\"{$section}[$key]\" cols=\"60\" rows=\"3\">$value</textarea></td></tr>\n";
+			    echo "<tr><td align=\"right\" width=\"30%\">$key</td><td align=\"left\"><textarea name=\"{$section}[$key]\" cols=\"60\" rows=\"13\">$value</textarea></td></tr>\n";
 			}
 			else {
-			    echo "<tr><td align=\"right\" width=\"30%\">$key</td><td align=\"left\"><textarea name=\"{$section}[$key]\" cols=\"60\" rows=\"3\">$value</textarea></td></tr>\n";			
+			    echo "<tr><td align=\"right\" width=\"30%\">$key</td><td align=\"left\"><textarea name=\"{$section}[$key]\" cols=\"60\" rows=\"13\">$value</textarea></td></tr>\n";			
 			}
 		    }
 		    echo "</table>\n";

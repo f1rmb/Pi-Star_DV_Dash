@@ -58,10 +58,26 @@ if ( $testMMDVModeDMR == 1 ) {
 	fclose($dmrMasterFile);
     }
 
-    if ((substr($dmrMasterHost, 0, 3) == "BM ") && ($bmEnabled == true)) {
+    if ((substr($dmrMasterHost, 0, 3) == "BM ") && ($bmEnabled == true) && isset($_SESSION['BMAPIKey'])) {
+	$bmAPIkey = $_SESSION['BMAPIKey'];
+	// Check the BM API Key
+	if (isset($bmAPIkey) && strlen($bmAPIkey) <= 20) {
+	    unset($bmAPIkey);
+	}
+	else if (isset($bmAPIkey) && strlen($bmAPIkey) >= 200) {
+	    $bmAPIkeyV2 = $bmAPIkey;
+	    unset($bmAPIkey);
+	}
+
+	
 	// Use BM API to get information about current TGs
 	$jsonContext = stream_context_create(array('http'=>array('timeout' => 2, 'header' => 'User-Agent: Pi-Star '.$_SESSION['PiStarRelease']['Pi-Star']['Version'].'-f1rmb Dashboard for '.$dmrID) )); // Add Timout and User Agent to include DMRID
-	$json = json_decode(@file_get_contents("https://api.brandmeister.network/v1.0/repeater/?action=PROFILE&q=$dmrID", true, $jsonContext));
+	if (isset($bmAPIkeyV2)) {
+	    $json = json_decode(@file_get_contents("https://api.brandmeister.network/v2/device/$dmrID/profile", true, $jsonContext));
+	}
+	else {
+	    $json = json_decode(@file_get_contents("https://api.brandmeister.network/v1.0/repeater/?action=PROFILE&q=$dmrID", true, $jsonContext));
+	}
 	
 	// Set some Variable
 	$bmStaticTGList = "";
@@ -104,12 +120,14 @@ if ( $testMMDVModeDMR == 1 ) {
   <table>
     <tr>
       <th><a class=tooltip href="#">'.$lang['bm_master'].'<span><b>Connected Master</b></span></a></th>
+      <th><a class=tooltip href="#">Repeater ID<span><b>The ID for this Repeater/Hotspot</b></span></a></th>
       <th><a class=tooltip href="#">Static TGs<span><b>Statically linked talkgroups</b></span></a></th>
       <th><a class=tooltip href="#">Dynamic TGs<span><b>Dynamically linked talkgroups</b></span></a></th>
     </tr>'."\n";
 	
 	echo '    <tr>'."\n";
 	echo '     <td>'.$dmrMasterHost.'</td>';
+	echo '     <td>'.$dmrID.'</td>';
 	echo '     <td>'.$bmStaticTGList.'</td>';
 	echo '     <td>'.$bmDynamicTGList.'</td>';
 	echo '    </tr>'."\n";
