@@ -345,6 +345,10 @@ if (isset($configircddb['aprsHostname'])) {
     }
 }
 
+if (!isset($configircddb['aprsEnabled'])) {
+    $configircddb['aprsEnabled'] = "0";
+}
+
 //
 // aprs.fi to APRS conversion (ysf2* are still using aprs.fi direct access)
 //
@@ -1344,6 +1348,11 @@ $MYCALL=strtoupper($callsign);
 			exec($rollTIMESERVERcall);
 			exec($rollSTARNETSERVERcall);
 			exec($rollSTARNETSERVERirc);
+
+			if (empty($_POST['APRSGatewayEnable']) != TRUE ) {
+			    if (escapeshellcmd($_POST['APRSGatewayEnable']) == 'ON')  { $configircddb['aprsEnabled'] = "1"; }
+			    if (escapeshellcmd($_POST['APRSGatewayEnable']) == 'OFF') { $configircddb['aprsEnabled'] = "0"; }
+			}
 		    }
 		    
 		    // Set the ircDDB Callsign routing option
@@ -3393,6 +3402,7 @@ $MYCALL=strtoupper($callsign);
 			    <div><input type="button" value="<?php echo $lang['apply'];?>" onclick="submitform()" /><br /><br /></div>
 			<?php } ?>
 			<h2><?php echo $lang['general_config'];?></h2>
+			<input type="hidden" name="APRSGatewayEnable" value="OFF" />
 			<table>
 			    <tr>
 				<th width="200"><a class="tooltip" href="#"><?php echo $lang['setting'];?><span><b>Setting</b></span></a></th>
@@ -3434,11 +3444,11 @@ $MYCALL=strtoupper($callsign);
 				    }
 				    ?>
 				    <tr>
-					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['lattitude'];?>:<span><b>Gateway Latitude</b>This is the latitude where the gateway is located (positive number for North, negative number for South)</span></a></td>
+					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['lattitude'];?>:<span><b>Gateway Latitude</b>This is the latitude where the gateway is located (positive number for North, negative number for South) - Set to 0 to hide your hotspot location</span></a></td>
 					<td align="left" colspan="2"><input type="text" id="confLatitude" name="confLatitude" size="13" maxlength="9" value="<?php echo $configircddb['latitude'] ?>" />degrees (positive value for North, negative for South)</td>
 				    </tr>
 				    <tr>
-					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['longitude'];?>:<span><b>Gateway Longitude</b>This is the longitude where the gateway is located (positive number for East, negative number for West)</span></a></td>
+					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['longitude'];?>:<span><b>Gateway Longitude</b>This is the longitude where the gateway is located (positive number for East, negative number for West) - Set to 0 to hide your hotspot location</span></a></td>
 					<td align="left" colspan="2"><input type="text" id="confLongitude" name="confLongitude" size="13" maxlength="9" value="<?php echo $configircddb['longitude'] ?>" />degrees (positive value for East, negative for West)</td>
 				    </tr>
 				    <tr>
@@ -3530,6 +3540,18 @@ $MYCALL=strtoupper($callsign);
 					<td align="left" colspan="2">
 					    <input type="radio" name="nodeMode" value="prv"<?php if ($configmmdvm['DMR']['SelfOnly'] == 1) {echo ' checked="checked"';} ?> />Private
 					    <input type="radio" name="nodeMode" value="pub"<?php if ($configmmdvm['DMR']['SelfOnly'] == 0) {echo ' checked="checked"';} ?> />Public</td>
+				    </tr>
+				    <tr>
+					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['aprs_host'];?> Enable:<span><b>APRS Host Enable</b>Enabling this feature will make your location public.</span></a></td>
+					<td align="left" colspan="2">
+					    <?php if ($configircddb['aprsEnabled'] == 1) {
+						echo "<div class=\"switch\"><input id=\"toggle-APRSGatewayEnable\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"APRSGatewayEnable\" value=\"ON\" checked=\"checked\" /><label for=\"toggle-APRSGatewayEnable\"></label></div>\n";
+					    }
+					    else {
+						echo "<div class=\"switch\"><input id=\"toggle-APRSGatewayEnable\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"APRSGatewayEnable\" value=\"ON\" /><label for=\"toggle-APRSGatewayEnable\"></label></div>\n";
+					    }
+					    ?>
+					</td>
 				    </tr>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['aprs_host'];?>:<span><b>APRS Host</b>Set your prefered APRS host here</span></a></td>
