@@ -56,8 +56,24 @@ This will reset all the colors to their default value.
 ![Gray Colors](images/Color2.png  "Gray Colors")
 ![Orange Colors](images/Color3.png  "Orange Colors")
 
+* Code optimization and cleanups.
+
 * Gateway and DAPNet Activity (*last heard*) tables are extended to the 40 last entries, fitted in a scrolling window.
 
-* Mobile GPS support.
+* Integration of [Tiny File Manager](https://github.com/prasathmani/tinyfilemanager).
 
-* Lot of small modifications and tweaks that can't be enumerated here.
+* GPSd support.
+
+* Full integration of NextionDriver.
+
+* Complete support of configuration files edition.
+
+* TheShield and alike (Libre DMR) support.
+
+* Support of latest G4KLX software suite (one gateway per mode, DMR Master connections handled by DMRGateway only, etc...).
+
+* Pi-Star services management integrated in the web interface
+
+* Continious  backport of upstream's relevant fixes and improvments.
+
+* Tons of small modifications and tweaks that can't be enumerated here.
