@@ -71,6 +71,9 @@ This will reset all the colors to their default value.
 
 * Pi-Star services management integrated in the web interface
 
-* Continious  backport of upstream's relevant fixes and improvments.
+* ***pistar-cli*** and ***pistar-services*** script added
+   - it's possible to use ***pistar-cli*** with [Raspi Check](https://github.com/eidottermihi/rpicheck) ([Google Play](https://play.google.com/store/apps/details?id=de.eidottermihi.raspicheck&hl=en&gl=US)) to switch the hostpot's configuration on the fly.
+
+* Continious backport of upstream's relevant fixes and improvments.
 
 * Tons of small modifications and tweaks that can't be enumerated here.
