@@ -90,7 +90,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 			    $output .= shell_exec("sudo cp /etc/p25gateway $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/ysfgateway $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/nxdngateway $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /etc/dmr2nxdn $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /etc/dmr2ysf $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /etc/nxdn2dmr $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/ysf2dmr $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /etc/ysf2nxdn $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /etc/ysf2p25 $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/dmrgateway $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/starnetserver $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/timeserver $backupDir 2>&1")."\n";
@@ -190,20 +195,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				$output .= "Stopping Services.\n";
 				
 				// Stop the DV Services
-				shell_exec('sudo systemctl stop cron.service 2>&1');		//Cron
-				shell_exec('sudo systemctl stop gpsd.service 2>&1');		//GPSd Service
-				shell_exec('sudo systemctl stop aprsgateway.service 2>&1');	//APRSGateway Service
-				shell_exec('sudo systemctl stop dstarrepeater.service 2>&1');	//D-Star Radio Service
-				shell_exec('sudo systemctl stop mmdvmhost.service 2>&1');	//MMDVMHost Radio Service
-				shell_exec('sudo systemctl stop ircddbgateway.service 2>&1');	//ircDDBGateway Service
-				shell_exec('sudo systemctl stop timeserver.service 2>&1');	//Time Server Service
-				shell_exec('sudo systemctl stop pistar-watchdog.service 2>&1');	//PiStar-Watchdog Service
-				shell_exec('sudo systemctl stop pistar-remote.service 2>&1');	//PiStar-Remote Service
-				shell_exec('sudo systemctl stop ysfgateway.service 2>&1');	//YSFGateway
-				shell_exec('sudo systemctl stop ysf2dmr.service 2>&1');		//YSF2DMR
-				shell_exec('sudo systemctl stop p25gateway.service 2>&1');	//P25Gateway
-				shell_exec('sudo systemctl stop dapnetgateway.service 2>&1');	//DAPNETGateway
-				shell_exec('sudo systemctl stop nextiondriver.service 2>&1');	//NextionDriver Service
+				shell_exec('sudo pistar-services fullstop 2>&1');
 				
 				// Make the disk Writable
 				shell_exec('sudo mount -o remount,rw / 2>&1');
@@ -239,23 +231,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				
 				// Start the services
 				$output .= "Starting Services.\n";
-				shell_exec('sudo systemctl start nextiondriver.service 2>&1');		//NextionDriver Service
-				shell_exec('sudo systemctl start gpsd.service 2>&1');			//GPSd Service
-				shell_exec('sudo systemctl start aprsgateway.service 2>&1');		//APRSGateway Service
-				shell_exec('sudo systemctl start dstarrepeater.service 2>&1');		//D-Star Radio Service
-				shell_exec('sudo systemctl start mmdvmhost.service 2>&1');		//MMDVMHost Radio Service
-				shell_exec('sudo systemctl start ircddbgateway.service 2>&1');		//ircDDBGateway Service
-				shell_exec('sudo systemctl start timeserver.service 2>&1');		//Time Server Service
-				shell_exec('sudo systemctl start pistar-watchdog.service 2>&1');	//PiStar-Watchdog Service
-				shell_exec('sudo systemctl start pistar-remote.service 2>&1');		//PiStar-Remote Service
-				if (substr(exec('grep "pistar-upnp.service" /etc/crontab | cut -c 1'), 0, 1) !== '#') {
-				    shell_exec('sudo systemctl start pistar-upnp.service 2>&1');		//PiStar-UPnP Service
-				}
-				shell_exec('sudo systemctl start ysfgateway.service 2>&1');		//YSFGateway
-				shell_exec('sudo systemctl start ysf2dmr.service 2>&1');		//YSF2DMR
-				shell_exec('sudo systemctl start p25gateway.service 2>&1');		//P25Gateway
-				shell_exec('sudo systemctl start dapnetgateway.service 2>&1');		//DAPNETGateway
-				shell_exec('sudo systemctl start cron.service 2>&1');			//Cron
+				shell_exec('sudo pistar-services start 2>&1');
 				
 				// Complete
 				$output .= "Configuration Restore Complete.\n";
