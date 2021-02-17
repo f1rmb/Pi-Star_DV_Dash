@@ -45,9 +45,6 @@ This will reset all the colors to their default value.
 * An enhanced POCSAG support. A service and network status indicators are there, You can send pages from the **Admin** web page. When you receive personnal pages, they are extracted from the **Activity** and displayed in a dedicated table. You can send a page to multiple callsigns and/or transmitter groups, separated with comma:
 ![POCSAG](images/Dapnet_Messenger.png  "POCSAG")
 
-* A way to change the (*default*) YSF reflector on the fly, without restarting all the services:
-![Menus](images/Admin.png  "Menus")
-
 * A new menu system, cleaner, nicer:
 ![Expert Menus](images/Expert_Menus.png  "Expert Menus")
 
