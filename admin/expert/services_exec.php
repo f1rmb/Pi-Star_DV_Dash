@@ -30,6 +30,15 @@ switch ($action) {
     case "killmmdvmhost":
 	$cmdresult = exec('sudo /usr/bin/killall -q -9 MMDVMHost', $cmdoutput, $retvalue);
 	break;
+    case "enabletheshield":
+	$cmdresult = exec('sudo -- /bin/bash -c "mount -o remount,rw /; echo PLACEHOLDER > /etc/theshield.enabled; mount -o remount,ro /;"', $cmdoutput, $retvalue);
+	break;
+    case "disabletheshield":
+	$cmdresult = exec('sudo -- /bin/bash -c "mount -o remount,rw /; rm -f /etc/theshield.enabled; mount -o remount,ro /;"', $cmdoutput, $retvalue);
+	break;
+    case "updatehostsfiles":
+	$cmdresult = exec('sudo -- /bin/bash -c "mount -o remount,rw /; /usr/local/sbin/HostFilesUpdate.sh; /usr/local/sbin/pistar-services restart;"', $cmdoutput, $retvalue);
+	break;
     default:
 	$cmdoutput = array('error !');
 }

@@ -42,11 +42,11 @@ require_once('../config/version.php');
 		
 		<?php
 		$action = isset($_GET['action']) ? $_GET['action'] : '';
-		
+
 		if (strcmp($action, 'stop') == 0) {
 		    $action_msg = 'Stopping Services';
 		}
-		if (strcmp($action, 'fullstop') == 0) {
+		else if (strcmp($action, 'fullstop') == 0) {
 		    $action_msg = 'Stopping Fully Services';
 		}
 		else if (strcmp($action, 'restart') == 0) {
@@ -54,6 +54,15 @@ require_once('../config/version.php');
 		}
 		else if (strcmp($action, 'status') == 0) {
 		    $action_msg = 'Services Status';
+		}
+		else if (strcmp($action, 'enabletheshield') == 0) {
+		    $action_msg = 'Enabling "The Shield" DMR IDs support';
+		}
+		else if (strcmp($action, 'disabletheshield') == 0) {
+		    $action_msg = 'Disabling "The Shield" DMR IDs support';
+		}
+		else if (strcmp($action, 'updatehostsfiles') == 0) {
+		    $action_msg = 'Updating The Hosts Files';
 		}
 		else {
 		    $action_msg = 'Unknown Action';

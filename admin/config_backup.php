@@ -79,6 +79,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 			    if (shell_exec('cat /etc/dhcpcd.conf | grep "static ip_address" | grep -v "#"')) {
 				$output .= shell_exec("sudo cp /etc/dhcpcd.conf $backupDir 2>&1")."\n";
 			    }
+			    $output .= shell_exec("sudo cp /etc/theshield.enabled $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/wpa_supplicant/wpa_supplicant.conf $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/hostapd/hostapd.conf $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/pistar-css.ini $backupDir 2>&1")."\n";
@@ -202,7 +203,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				
 				// Overwrite the configs
 				$output .= "Writing new Config\n";
-				$output .= shell_exec("sudo rm -f /etc/dstar-radio.* /etc/bmapi.key /etc/dapnetapi.key 2>&1")."\n";
+				$output .= shell_exec("sudo rm -f /etc/dstar-radio.* /etc/bmapi.key /etc/dapnetapi.key /etc/theshield.enabled 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/RSSI.dat /usr/local/etc/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/gpsd /etc/default/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/ircddblocal.php /var/www/dashboard/config/ 2>&1")."\n";
