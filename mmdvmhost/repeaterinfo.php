@@ -140,15 +140,16 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	<?php
 	$testMMDVModeDSTAR = getConfigItem("D-Star", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( $testMMDVModeDSTAR == 1 ) { //Hide the D-Star Reflector information when D-Star Network not enabled.
+	    $linkedTo = getActualLink($reverseLogLinesMMDVM, "D-Star");
 	    echo "<br />\n";
 	    echo "<table>\n";
 	    echo "<tr><th colspan=\"2\">".$lang['dstar_repeater']."</th></tr>\n";
 	    echo "<tr><th>RPT1</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['DStarRepeaterConfigs']['callsign'])."</td></tr>\n";
 	    echo "<tr><th>RPT2</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['DStarRepeaterConfigs']['gateway'])."</td></tr>\n";
 	    echo "<tr><th colspan=\"2\">".$lang['dstar_net']."</th></tr>\n";
-	    echo "<tr><th>APRS</th><td style=\"background: #ffffff;\">".substr($_SESSION['APRSGatewayConfigs']['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
-	    echo "<tr><th>IRC</th><td style=\"background: #ffffff;\">".substr($_SESSION['ircDDBConfigs']['ircddbHostname'], 0 ,16)."</td></tr>\n";
-	    echo "<tr><td colspan=\"2\" style=\"background: #ffffff;\">".getActualLink($reverseLogLinesMMDVM, "D-Star")."</td></tr>\n";
+	    echo "<tr><th>APRS</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['APRSGatewayConfigs']['APRS-IS']['Server']."\">".substr($_SESSION['APRSGatewayConfigs']['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
+	    echo "<tr><th>IRC</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['ircDDBConfigs']['ircddbHostname']."\">".substr($_SESSION['ircDDBConfigs']['ircddbHostname'], 0 ,16)."</td></tr>\n";
+	    echo "<tr><td colspan=\"2\" style=\"background: #ffffff;\" title=\"".$linkedTo."\">".$linkedTo."</td></tr>\n";
 	    echo "</table>\n";
 	}
 	
