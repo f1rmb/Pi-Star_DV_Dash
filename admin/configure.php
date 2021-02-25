@@ -349,6 +349,11 @@ if (!isset($configircddb['aprsEnabled'])) {
     $configircddb['aprsEnabled'] = "0";
 }
 
+## rr.openquad.net is not valid anymore
+if (isset($configircddb['ircddbHostname']) && ($configircddb['ircddbHostname'] == "rr.openquad.net")) {
+    $configircddb['ircddbHostname'] = "ircv4.openquad.net";
+}
+
 //
 // aprs.fi to APRS conversion (ysf2* are still using aprs.fi direct access)
 //
@@ -1311,7 +1316,7 @@ $MYCALL=strtoupper($callsign);
 			$rollSTARNETSERVERirc = 'sudo sed -i "/ircddbUsername=/c\\ircddbUsername='.$newCallsignUpperIRC.'" /etc/starnetserver';
 			
 			// Only roll ircDDBGateway Username if using OpenQuad
-			if ($configircddb['ircddbHostname'] == "rr.openquad.net") {
+			if ($configircddb['ircddbHostname'] == "ircv4.openquad.net") {
 			    $configircddb['ircddbUsername'] = $newCallsignUpperIRC;
 			}
 			
