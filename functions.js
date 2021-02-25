@@ -119,3 +119,19 @@ function checkFrequency(){
     if (435 <= intFreqPOCSAG && intFreqPOCSAG <= 438)   { pocsagFrequency.style.backgroundColor = badColor; }
   }
 }
+function warningIfEmpty() {
+    if (arguments.length >= 2)
+    {
+	var ti = document.getElementById(arguments[0]);
+	if(ti.value.replace(/ /g,'') != '') {
+	    for (i = 1; i < arguments.length; i++) {
+		document.getElementById(arguments[i]).style.backgroundColor = "";
+	    }
+	}
+	else {
+	    for (i = 1; i < arguments.length; i++) {
+		document.getElementById(arguments[i]).style.backgroundColor = "#ff6666";
+	    }
+	}
+    }
+}

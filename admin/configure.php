@@ -684,7 +684,16 @@ $MYCALL=strtoupper($callsign);
 	 }
 	</script>
     </head>
-    <body onload="checkFrequency(); return false;">
+    <body onload="checkFrequency(); warningIfEmpty('dmrWL', 'dmrWL'); return false;">
+	<?php if ((file_exists('/etc/dstar-radio.mmdvmhost') && ($configmmdvm['DMR']['Enable'] == 1) && ($configmmdvm['DMR']['SelfOnly'] == 0) && (strlen($configmmdvm['General']['Id']) >= 7)) && (!isset($configmmdvm['DMR']['WhiteList']) || empty($configmmdvm['DMR']['WhiteList']))) { ?>
+	    <div>
+		<table align="center" width="760px" style="margin: 0px 0px 10px 0px; width: 100%;">
+		    <tr>
+			<td align="center" valign="top" style="background-color: #ffff90; color: #906000;">Alert: You are running a hotspot in public mode without an access list for DMR, this setup *could* participate in network loops!</td>
+		    </tr>
+		</table>
+	    </div>
+	<?php } ?>
 	<div class="container">
 	    <div class="header">
 		<div style="font-size: 8px; text-align: right; padding-right: 8px;">Pi-Star:<?php echo $_SESSION['PiStarRelease']['Pi-Star']['Version']?> / <?php echo $lang['dashboard'].": ".$version; ?></div>
@@ -2559,6 +2568,12 @@ $MYCALL=strtoupper($callsign);
 			$configmmdvm['DMR']['ColorCode'] = escapeshellcmd($_POST['dmrColorCode']);
 		    }
 		    
+		    // Set MMDVMHost DMR Access List
+		    if (isset($configmmdvm['DMR']['WhiteList'])) { unset($configmmdvm['DMR']['WhiteList']); }
+		    if (empty($_POST['confDMRWhiteList']) != TRUE) {
+			$configmmdvm['DMR']['WhiteList'] = escapeshellcmd(preg_replace('/[^0-9\,]/', '', $_POST['confDMRWhiteList']));
+		    }
+
 		    // Set Node Lock Status
 		    if (empty($_POST['nodeMode']) != TRUE ) {
 			if (escapeshellcmd($_POST['nodeMode']) == 'prv' ) {
@@ -3546,6 +3561,12 @@ $MYCALL=strtoupper($callsign);
 					    <input type="radio" name="nodeMode" value="prv"<?php if ($configmmdvm['DMR']['SelfOnly'] == 1) {echo ' checked="checked"';} ?> />Private
 					    <input type="radio" name="nodeMode" value="pub"<?php if ($configmmdvm['DMR']['SelfOnly'] == 0) {echo ' checked="checked"';} ?> />Public</td>
 				    </tr>
+				    <?php if (file_exists('/etc/dstar-radio.mmdvmhost') && ($configmmdvm['DMR']['Enable'] == 1) && ($configmmdvm['DMR']['SelfOnly'] == 0)) { ?>
+					<tr>
+					    <td align="left"><a class="tooltip2" href="#">DMR Access List:<span><b>DMR IDs</b>Set the DMR IDs here that should have access to your hotspot, expected comma seperated list.</span></a></td>
+					    <td align="left" colspan="2"><input type="text" id="dmrWL" onkeyup="warningIfEmpty('dmrWL', 'dmrWL'); return false;" name="confDMRWhiteList" size="30" maxlength="50" value="<?php if (isset($configmmdvm['DMR']['WhiteList'])) { echo $configmmdvm['DMR']['WhiteList']; } ?>" /></td>
+					</tr>
+				    <?php } ?>	    
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['aprs_host'];?> Enable:<span><b>APRS Host Enable</b>Enabling this feature will make your location public.</span></a></td>
 					<td align="left" colspan="2">
