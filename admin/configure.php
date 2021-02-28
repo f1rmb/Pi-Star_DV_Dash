@@ -651,7 +651,7 @@ $MYCALL=strtoupper($callsign);
 	<link rel="stylesheet" type="text/css" href="/css/pistar-css.php?version=0.994" />
 	<script type="text/javascript" src="/jquery.min.js"></script>
 	<script type="text/javascript" src="/jquery-floatThead.min.js"></script>
-	<script type="text/javascript" src="/functions.js?version=1.710"></script>
+	<script type="text/javascript" src="/functions.js?version=1.720"></script>
 	<script type="text/javascript">
 	 function disablesubmitbuttons() {
 	     var inputs = document.getElementsByTagName('input');
