@@ -1700,7 +1700,7 @@ $MYCALL=strtoupper($callsign);
 			}
 			
 			// Set the DMR+ / HBLink Options= line
-			if ((substr($dmrMasterHostArr[3], 0, 4) == "DMR+") || (substr($dmrMasterHostArr[3], 0, 3) == "HB_")) {
+			if ((substr($dmrMasterHostArr[3], 0, 4) == "DMR+") || (substr($dmrMasterHostArr[3], 0, 3) == "HB_") || (substr($dmrMasterHostArr[3], 0, 8) == "FreeDMR_")) {
 			    unset ($configmmdvm['DMR Network']['Local']);
 			    unset ($configysf2dmr['DMR Network']['Local']);
 			    if (empty($_POST['dmrNetworkOptions']) != TRUE ) {
@@ -3771,7 +3771,7 @@ $MYCALL=strtoupper($callsign);
 					    while (!feof($dmrMasterFile2)) {
 						$dmrMasterLine2 = fgets($dmrMasterFile2);
 						$dmrMasterHost2 = preg_split('/\s+/', $dmrMasterLine2);
-						if ((strpos($dmrMasterHost2[0], '#') === FALSE ) && ((substr($dmrMasterHost2[0], 0, 4) == "DMR+") || (substr($dmrMasterHost2[0], 0, 3) == "HB_")) && ($dmrMasterHost2[0] != '')) {
+						if ((strpos($dmrMasterHost2[0], '#') === FALSE ) && ((substr($dmrMasterHost2[0], 0, 4) == "DMR+") || (substr($dmrMasterHost2[0], 0, 3) == "HB_")  || (substr($dmrMasterNow, 0, 8) == "FreeDMR_")) && ($dmrMasterHost2[0] != '')) {
 						    if (($testMMDVMdmrMaster2 == $dmrMasterHost2[2]) && ($testMMDVMdmrMaster2Port == $dmrMasterHost2[4])) {
 							echo "      <option value=\"$dmrMasterHost2[2],$dmrMasterHost2[3],$dmrMasterHost2[4],$dmrMasterHost2[0]\" selected=\"selected\">$dmrMasterHost2[0]</option>\n";
 						    }
@@ -3961,7 +3961,7 @@ $MYCALL=strtoupper($callsign);
 				    };
 				    echo '"></input></td></tr><tr><td align="left"><a class="tooltip2" href="#">'.$lang['bm_network'].':<span><b>BrandMeister Dashboards</b>Direct links to your BrandMeister Dashboards</span></a></td><td><a href="https://brandmeister.network/?page=hotspot&amp;id='.$configmmdvm['General']['Id'].'" target="_new" style="color: #000;">Repeater Information</a> | <a href="https://brandmeister.network/?page=hotspot-edit&amp;id='.$configmmdvm['General']['Id'].'" target="_new" style="color: #000;">Edit Repeater (BrandMeister Selfcare)</a></td></tr>'."\n";
 				}
-				if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_")) {
+				if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_") || (substr($dmrMasterNow, 0, 8) == "FreeDMR_")) {
 				    echo '    <tr><td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR+ Network</b>Set your options= for here</span></a></td><td align="left">Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="100" value="';
 
 				    if (isset($configmmdvm['DMR Network']['Options'])) {
