@@ -31,7 +31,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/update.php") {
   if (!isset($_GET['ajax'])) {
     system('sudo touch /var/log/pi-star/pi-star_update.log > /dev/null 2>&1 &');
     system('sudo echo "" > /var/log/pi-star/pi-star_update.log > /dev/null 2>&1 &');
-    system('sudo /usr/local/sbin/pistar-update > /dev/null 2>&1 &');
+    system('LC_ALL=en_GB.UTF-8 sudo /usr/local/sbin/pistar-update > /dev/null 2>&1 &');
     }
 
   // Sanity Check Passed.
