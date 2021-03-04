@@ -37,7 +37,7 @@ switch ($action) {
 	$cmdresult = exec('sudo -- /bin/bash -c "mount -o remount,rw /; rm -f /etc/theshield.enabled; mount -o remount,ro /;"', $cmdoutput, $retvalue);
 	break;
     case "updatehostsfiles":
-	$cmdresult = exec('sudo -- /bin/bash -c "/usr/local/sbin/pistar-services fullstop; mount -o remount,rw /; /usr/local/sbin/HostFilesUpdate.sh; /usr/local/sbin/pistar-services restart;"', $cmdoutput, $retvalue);
+	$cmdresult = exec('sudo -- /bin/bash -c "export LC_ALL=en_GB.UTF-8; /usr/local/sbin/pistar-services fullstop; mount -o remount,rw /; /usr/local/sbin/HostFilesUpdate.sh; /usr/local/sbin/pistar-services restart;"', $cmdoutput, $retvalue);
 	break;
     default:
 	$cmdoutput = array('error !');
