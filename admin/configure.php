@@ -71,7 +71,7 @@ function ensureFileExists($fname) {
 function clearAprsDotFi(&$cfgFile, $suffix) {
     $cfgAprsEnabled = 0;
     $cfgAprsSuffix = $suffix;
-    $cfgAprsDescription = "APRS Description";
+    $cfgAprsDescription = (isset($configysfgateway['APRS']['Description']) && !empty($configysfgateway['APRS']['Description'])) ? $configysfgateway['APRS']['Description'] : "APRS Description";
     
     // Old config if present, get rid of it
     if (isset($cfgFile['aprs.fi']))
@@ -1331,27 +1331,27 @@ $MYCALL=strtoupper($callsign);
 			
 			//if ( strlen($newCallsignUpper) < 6 ) { $configysfgateway['General']['Callsign'] = $newCallsignUpper."-1"; }
 			//else { $configysfgateway['General']['Callsign'] = $newCallsignUpper; }
+			$configysfgateway['Info']['Name'] = $newCallsignUpper;
 			$configysfgateway['General']['Callsign'] = $newCallsignUpper;
 			$configmmdvm['General']['Callsign'] = $newCallsignUpper;
 			$configaprsgateway['General']['Callsign'] = $newCallsignUpper;
 			$configaprsgateway['APRS-IS']['Password'] = aprspass($newCallsignUpper);
-			$configysfgateway['APRS']['Description'] = $newCallsignUpper."_Pi-Star";
+			$configysfgateway['APRS']['Description'] = $configysfgateway['Info']['Name']."_".$configysfgateway['General']['Suffix'];
 			$configysf2dmr['aprs.fi']['AprsCallsign'] = $newCallsignUpper;
 			$configysf2dmr['aprs.fi']['Password'] = aprspass($newCallsignUpper);
-			$configysf2dmr['aprs.fi']['Description'] = $newCallsignUpper."_Pi-Star";
+			$configysf2dmr['aprs.fi']['Description'] = $configysfgateway['APRS']['Description'];
 			$configysf2dmr['YSF Network']['Callsign'] = $newCallsignUpper;
 			$configysf2nxdn['aprs.fi']['Password'] = aprspass($newCallsignUpper);
-			$configysf2nxdn['aprs.fi']['Description'] = $newCallsignUpper."_Pi-Star";
+			$configysf2nxdn['aprs.fi']['Description'] = $configysfgateway['APRS']['Description'];
 			$configysf2nxdn['YSF Network']['Callsign'] = $newCallsignUpper;
 			$configysf2p25['aprs.fi']['Password'] = aprspass($newCallsignUpper);
-			$configysf2p25['aprs.fi']['Description'] = $newCallsignUpper."_Pi-Star";
+			$configysf2p25['aprs.fi']['Description'] = $configysfgateway['APRS']['Description'];
 			$configysf2p25['YSF Network']['Callsign'] = $newCallsignUpper;
 			$configdmr2ysf['YSF Network']['Callsign'] = $newCallsignUpper;
 			$confignxdn2dmr['NXDN Network']['Callsign'] = $newCallsignUpper;
 			$configp25gateway['General']['Callsign'] = $newCallsignUpper;
-			$confignxdngateway['APRS']['Description'] = $newCallsignUpper."_Pi-Star";
+			$confignxdngateway['APRS']['Description'] = $configysfgateway['APRS']['Description'];
 			$confignxdngateway['General']['Callsign'] = $newCallsignUpper;
-			$configysfgateway['Info']['Name'] = $newCallsignUpper;
 			$configysfgateway['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 			$configysf2dmr['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 			$configysf2nxdn['Info']['Description'] = $newCallsignUpper."_Pi-Star";
@@ -2880,7 +2880,7 @@ $MYCALL=strtoupper($callsign);
 			if(!isset($confignxdngateway['APRS']['Address'])) { $confignxdngateway['APRS']['Server'] = "127.0.0.1"; }
 			if(!isset($confignxdngateway['APRS']['Port'])) { $confignxdngateway['APRS']['Port'] = "8673"; }
 			if(!isset($confignxdngateway['APRS']['Suffix'])) { $confignxdngateway['APRS']['Suffix'] = "N"; }
-			if(!isset($confignxdngateway['APRS']['Description'])) { $confignxdngateway['APRS']['Description'] = "APRS for NXDN Gateway"; }
+			if(!isset($confignxdngateway['APRS']['Description'])) { $confignxdngateway['APRS']['Description'] = $configysfgateway['APRS']['Description']; }
 			// GPSd stuff
 			if(!isset($confignxdngateway['GPSD']['Enable'])) { $confignxdngateway['GPSD']['Enable'] = "0"; }
 			if(!isset($confignxdngateway['GPSD']['Address'])) { $confignxdngateway['GPSD']['Address'] = "127.0.0.1"; }
@@ -3771,7 +3771,7 @@ $MYCALL=strtoupper($callsign);
 					    while (!feof($dmrMasterFile2)) {
 						$dmrMasterLine2 = fgets($dmrMasterFile2);
 						$dmrMasterHost2 = preg_split('/\s+/', $dmrMasterLine2);
-						if ((strpos($dmrMasterHost2[0], '#') === FALSE ) && ((substr($dmrMasterHost2[0], 0, 4) == "DMR+") || (substr($dmrMasterHost2[0], 0, 3) == "HB_")  || (substr($dmrMasterNow, 0, 8) == "FreeDMR_")) && ($dmrMasterHost2[0] != '')) {
+						if ((strpos($dmrMasterHost2[0], '#') === FALSE ) && ((substr($dmrMasterHost2[0], 0, 4) == "DMR+") || (substr($dmrMasterHost2[0], 0, 3) == "HB_")  || (substr($dmrMasterHost2[0], 0, 8) == "FreeDMR_")) && ($dmrMasterHost2[0] != '')) {
 						    if (($testMMDVMdmrMaster2 == $dmrMasterHost2[2]) && ($testMMDVMdmrMaster2Port == $dmrMasterHost2[4])) {
 							echo "      <option value=\"$dmrMasterHost2[2],$dmrMasterHost2[3],$dmrMasterHost2[4],$dmrMasterHost2[0]\" selected=\"selected\">$dmrMasterHost2[0]</option>\n";
 						    }
