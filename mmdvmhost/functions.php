@@ -279,7 +279,7 @@ function getModeClass($status, $disabled = false) {
 // I've backported and optimized this function
 // but it's broken by design: only checking for a connection failure
 // in the last X lines, and not even checking if the connection was successful afterward is dumb.
-// ... Anyway, tihis is a waste of ressouces: dropped ...
+// ... Anyway, this is a waste of ressouces: dropped ...
 /*
 function checkDMRLogin($dmrDaemon) {
     $dummy = null;
