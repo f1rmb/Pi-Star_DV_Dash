@@ -258,7 +258,12 @@ function isDAPNETGatewayConnected() {
 
 function getModeClass($status, $disabled = false) {
     if ($status) {
-	echo '<td class="active-mode-cell" style="width:50%;">';
+	if ($disabled) {
+	    echo '<td class="inactive-mode-cell" style="width:50%;">';
+	}
+	else {
+	    echo '<td class="active-mode-cell" style="width:50%;">';
+	}
     }
     else {
 	if ($disabled) {
@@ -269,6 +274,34 @@ function getModeClass($status, $disabled = false) {
 	}
     }
 }
+
+// NOTE:
+// I've backported and optimized this function
+// but it's broken by design: only checking for a connection failure
+// in the last X lines, and not even checking if the connection was successful afterward is dumb.
+// ... Anyway, tihis is a waste of ressouces: dropped ...
+/*
+function checkDMRLogin($dmrDaemon) {
+    $dummy = null;
+    $exitCode = null;
+    if ($dmrDaemon == "MMDVMHost") {
+        if (file_exists(MMDVMLOGPATH."/".MMDVMLOGPREFIX."-".gmdate("Y-m-d").".log")) {
+            $logPath = MMDVMLOGPATH."/".MMDVMLOGPREFIX."-".gmdate("Y-m-d").".log";
+	    exec('tail -n20 '.$logPath.' | grep -m 1 "Login to the master has failed"', $dummy, $exitCode);
+            return ($exitCode == 1);
+        }
+    }
+    else if ($dmrDaemon == "DMRGateway") {
+        if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
+            $logPath = "/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log";#
+	    exec('tail -n20 '.$logPath.' | grep -m 1 "Login to the master has failed"', $dummy, $exitCode);
+            return ($exitCode == 1);
+        }
+    }
+
+    return false;
+}
+*/
 
 // shows if mode is enabled or not.
 function showMode($mode, $configs) {
@@ -290,9 +323,11 @@ function showMode($mode, $configs) {
 	}
 	else if ($mode == "DMR Network") {
 	    if (getConfigItem("DMR Network", "Address", $configs) == '127.0.0.1') {
+		//getModeClass(isProcessRunning("DMRGateway"), !checkDMRLogin("DMRGateway"));
 		getModeClass(isProcessRunning("DMRGateway"));
 	    }
 	    else {
+		//getModeClass(isProcessRunning("MMDVMHost"), !checkDMRLogin("MMDVMHost"));
 		getModeClass(isProcessRunning("MMDVMHost"));
 	    }
 	}
