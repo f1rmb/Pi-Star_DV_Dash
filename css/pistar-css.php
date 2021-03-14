@@ -548,7 +548,7 @@ input.toggle-round-flat:focus + label {
 .has-subs .has-subs .dropdown .subs {
     position: relative;
     top: -133px;
-    width: 170px;
+    width: 190px;
     border-style: none none none solid;
     border-width: 1px;
     border-color: <?php echo $backgroundDropdownHover; ?>;
@@ -560,7 +560,7 @@ input.toggle-round-flat:focus + label {
 
 .has-subs .has-subs .dropdown {
     position: absolute;
-    width: 170px;
+    width: 190px;
     left: 170px;
     opacity: 0;
     visibility: hidden;
