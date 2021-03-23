@@ -23,6 +23,53 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDa
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translation Code
 require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 
+
+function FillConnectionStatus(&$destArray, $remoteEnabled, $remotePort) {
+    if (($remoteEnabled == 1) && ($remotePort != 0)) {
+	$remoteOutput = null;
+	$remoteRetval = null;
+	exec('/usr/local/bin/RemoteCommand '.$remotePort.' status', $remoteOutput, $remoteRetval);
+	if (($remoteRetval == 0) && (count($remoteOutput) >= 2)) {
+	    $tok = strtok($remoteOutput[1], " \n\t");
+	    while ($tok !== false) {
+		$keysValues = explode(":", $tok);
+		$destArray[$keysValues[0]] = $keysValues[1];
+		$tok = strtok(" \n\t");
+	    }
+	}
+    }
+}
+
+function GetActiveConnectionStyle($masterStates, $key) {
+    if (count($masterStates)) {
+	if (isset($masterStates[$key])) {
+	    if (($masterStates[$key] == "n/a") || ($masterStates[$key] == "disc")) {
+		return "style=\"background: #b00; color: #500;\"";
+	    }
+	}
+    }
+    return "style=\"background: #ffffff;\"";
+}
+
+
+//
+// Grab networks status from MMDVMHost and DMRGateway
+//
+$remoteMMDVMResults = [];
+$remoteDMRGResults = [];
+
+if (isProcessRunning("MMDVMHost")) {
+    $cfgItemEnabled = getConfigItem("Remote Control", "Enable", $_SESSION['MMDVMHostConfigs']);
+    $cfgItemPort = getConfigItem("Remote Control", "Port", $_SESSION['MMDVMHostConfigs']);
+    FillConnectionStatus($remoteMMDVMResults, (isset($cfgItemEnabled) ? $cfgItemEnabled : 0), (isset($cfgItemPort) ? $cfgItemPort : 0));
+}
+
+if (isProcessRunning("DMRGateway")) {
+    $remoteCommandEnabled = (isset($_SESSION['DMRGatewayConfigs']['Remote Control']) ? $_SESSION['DMRGatewayConfigs']['Remote Control']['Enable'] : 0);
+    $remoteCommandPort = (isset($_SESSION['DMRGatewayConfigs']['Remote Control']) ? $_SESSION['DMRGatewayConfigs']['Remote Control']['Port'] : 0);
+    FillConnectionStatus($remoteDMRGResults, $remoteCommandEnabled, $remoteCommandPort);
+}
+
 ?>
 <table>
     <tr><th colspan="2"><?php echo $lang['modes_enabled'];?></th></tr>
@@ -138,6 +185,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 </table>
 
 	<?php
+
 	$testMMDVModeDSTAR = getConfigItem("D-Star", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( $testMMDVModeDSTAR == 1 ) { //Hide the D-Star Reflector information when D-Star Network not enabled.
 	    $linkedTo = getActualLink($reverseLogLinesMMDVM, "D-Star");
@@ -149,7 +197,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	    echo "<tr><th colspan=\"2\">".$lang['dstar_net']."</th></tr>\n";
 	    echo "<tr><th>APRS</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['APRSGatewayConfigs']['APRS-IS']['Server']."\">".substr($_SESSION['APRSGatewayConfigs']['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
 	    echo "<tr><th>IRC</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['ircDDBConfigs']['ircddbHostname']."\">".substr($_SESSION['ircDDBConfigs']['ircddbHostname'], 0 ,16)."</td></tr>\n";
-	    echo "<tr><td colspan=\"2\" style=\"background: #ffffff;\" title=\"".$linkedTo."\">".$linkedTo."</td></tr>\n";
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "dstar")." title=\"".$linkedTo."\">".$linkedTo."</td></tr>\n";
 	    echo "</table>\n";
 	}
 	
@@ -176,9 +224,6 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name'])) {
 		    $dmrMasterHost5 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 5']['Name']);
 		}
-		if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 6']['Name'])) {
-		    $dmrMasterHost6 = str_replace('_', ' ', $_SESSION['DMRGatewayConfigs']['DMR Network 6']['Name']);
-		}
 
 		if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1)) {
 		    while (!feof($dmrMasterFile)) {
@@ -204,9 +249,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		if (isset($dmrMasterHost5)) {
 		    $dmrMasterHost5Tooltip = $dmrMasterHost5.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 5']['Address'].')';;
 		}
-		if (isset($dmrMasterHost6)) {
-		    $dmrMasterHost6Tooltip = $dmrMasterHost6.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 6']['Address'].')';;
-		}
+
 		if (strlen($xlxMasterHost1) > 19) {
 		    $xlxMasterHost1 = substr($xlxMasterHost1, 0, 17) . '..';
 		}
@@ -227,11 +270,6 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		if (isset($dmrMasterHost5)) {
 		    if (strlen($dmrMasterHost5) > 19) {
 			$dmrMasterHost5 = substr($dmrMasterHost5, 0, 17) . '..';
-		    }
-		}
-		if (isset($dmrMasterHost6)) {
-		    if (strlen($dmrMasterHost6) > 19) {
-			$dmrMasterHost6 = substr($dmrMasterHost6, 0, 17) . '..';
 		    }
 		}
 	    }
@@ -277,7 +315,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	    if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {
 		if ($dmrMasterHost == '127.0.0.1') {
 		    if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1)) {
-			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
+			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "xlx")." colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
 		    }
                     if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
 			if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
@@ -293,35 +331,30 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 			else if ( strpos($xlxMasterHost1, 'Unlinking') !== false ) {
 			    $xlxMasterHost1 = "XLX Not Linked";
 			}
-			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
+			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "xlx")." colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
                     }
 		    if ($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Enabled'] == 1) {
-			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost1Tooltip."\">".$dmrMasterHost1."</td></tr>\n";
+			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net1")." colspan=\"2\" title=\"".$dmrMasterHost1Tooltip."\">".$dmrMasterHost1."</td></tr>\n";
 		    }
 		    if ($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Enabled'] == 1) {
-			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost2Tooltip."\">".$dmrMasterHost2."</td></tr>\n";
+			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net2")." colspan=\"2\" title=\"".$dmrMasterHost2Tooltip."\">".$dmrMasterHost2."</td></tr>\n";
 		    }
 		    if ($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Enabled'] == 1) {
-			echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost3Tooltip."\">".$dmrMasterHost3."</td></tr>\n";
+			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net3")." colspan=\"2\" title=\"".$dmrMasterHost3Tooltip."\">".$dmrMasterHost3."</td></tr>\n";
 		    }
 		    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'])) {
 			if ($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'] == 1) {
-                            echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost4Tooltip."\">".$dmrMasterHost4."</td></tr>\n";
+                            echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net4")." colspan=\"2\" title=\"".$dmrMasterHost4Tooltip."\">".$dmrMasterHost4."</td></tr>\n";
 			}
 		    }
 		    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'])) {
 			if ($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'] == 1) {
-                            echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost5Tooltip."\">".$dmrMasterHost5."</td></tr>\n";
-			}
-		    }
-		    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 6']['Enabled'])) {
-			if ($_SESSION['DMRGatewayConfigs']['DMR Network 6']['Enabled'] == 1) {
-                            echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHost6Tooltip."\">".$dmrMasterHost6."</td></tr>\n";
+                            echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net5")." colspan=\"2\" title=\"".$dmrMasterHost5Tooltip."\">".$dmrMasterHost5."</td></tr>\n";
 			}
 		    }
 		}
 		else {
-		    echo "<tr><td  style=\"background: #ffffff;\" colspan=\"2\" title=\"".$dmrMasterHostTooltip."\">".$dmrMasterHost."</td></tr>\n";
+		    echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "dmr")." colspan=\"2\" title=\"".$dmrMasterHostTooltip."\">".$dmrMasterHost."</td></tr>\n";
 		}
 	    }
 	    else {
@@ -370,7 +403,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		
                 $ysfLinkedToTxt = str_replace('_', ' ', $ysfLinkedToTxt);
             }
-	    
+
 	    $ysfLinkedToTooltip = $ysfLinkStateTooltip.$ysfLinkedToTxt;
             if (strlen($ysfLinkedToTxt) > 19) {
 		$ysfLinkedToTxt = substr($ysfLinkedToTxt, 0, 17) . '..';
@@ -378,7 +411,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
             echo "<br />\n";
             echo "<table>\n";
 	    echo "<tr><th colspan=\"2\">".$lang['ysf_net']."".$ysfLinkState."</th></tr>\n";
-	    echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\" title=\"".$ysfLinkedToTooltip."\">".$ysfLinkedToTxt."</td></tr>\n";
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "ysf")." title=\"".$ysfLinkedToTooltip."\">".$ysfLinkedToTxt."</td></tr>\n";
             echo "</table>\n";
 	}
 	
@@ -424,7 +457,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 		echo "<tr><th style=\"width:70px\">NAC</th><td>".getConfigItem("P25", "NAC", $_SESSION['MMDVMHostConfigs'])."</td></tr>\n";
 	    }
 	    echo "<tr><th colspan=\"2\">".$lang['p25_net']."</th></tr>\n";
-	    echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\">".getActualLink($logLinesP25Gateway, "P25")."</td></tr>\n";
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "p25").">".getActualLink($logLinesP25Gateway, "P25")."</td></tr>\n";
 	    echo "</table>\n";
 	}
 	
@@ -448,10 +481,10 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 	    }
 	    echo "<tr><th colspan=\"2\">".$lang['nxdn_net']."</th></tr>\n";
 	    if (file_exists('/etc/nxdngateway')) {
-		echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\">".getActualLink($logLinesNXDNGateway, "NXDN")."</td></tr>\n";
+		echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "nxdn")." >".getActualLink($logLinesNXDNGateway, "NXDN")."</td></tr>\n";
 	    }
 	    else {
-		echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\">TG65000</td></tr>\n";
+		echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "nxdn")." >TG65000</td></tr>\n";
 	    }
 	    echo "</table>\n";
 	}

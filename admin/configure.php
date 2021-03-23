@@ -421,6 +421,15 @@ if ((($configmmdvm['DMR Network']['Address'] == "127.0.0.1") || ($configmmdvm['D
 }
 
 ##
+## Check for DMRGateway RemoteCommand
+##
+if (!isset($configdmrgateway['Remote Control'])) {
+    $configdmrgateway['Remote Control']['Enable'] = "1";
+    $configdmrgateway['Remote Control']['Port'] = "7643";
+    $configdmrgateway['Remote Control']['Address'] = "127.0.0.1";
+}
+
+##
 ## Checks for NextionDriver
 ##
 if (!isset($configmmdvm['NextionDriver'])) {
