@@ -195,8 +195,12 @@ if (isProcessRunning("DMRGateway")) {
 	    echo "<tr><th>RPT1</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['DStarRepeaterConfigs']['callsign'])."</td></tr>\n";
 	    echo "<tr><th>RPT2</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['DStarRepeaterConfigs']['gateway'])."</td></tr>\n";
 	    echo "<tr><th colspan=\"2\">".$lang['dstar_net']."</th></tr>\n";
-	    echo "<tr><th>APRS</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['APRSGatewayConfigs']['APRS-IS']['Server']."\">".substr($_SESSION['APRSGatewayConfigs']['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
-	    echo "<tr><th>IRC</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['ircDDBConfigs']['ircddbHostname']."\">".substr($_SESSION['ircDDBConfigs']['ircddbHostname'], 0 ,16)."</td></tr>\n";
+	    if ($_SESSION['ircDDBConfigs']['aprsEnabled'] == 1) {
+		echo "<tr><th>APRS</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['APRSGatewayConfigs']['APRS-IS']['Server']."\">".substr($_SESSION['APRSGatewayConfigs']['APRS-IS']['Server'], 0, 16)."</td></tr>\n";
+	    }
+	    if ($_SESSION['ircDDBConfigs']['ircddbEnabled'] == 1) {
+		echo "<tr><th>IRC</th><td style=\"background: #ffffff;\" title=\"".$_SESSION['ircDDBConfigs']['ircddbHostname']."\">".substr($_SESSION['ircDDBConfigs']['ircddbHostname'], 0 ,16)."</td></tr>\n";
+	    }
 	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "dstar")." title=\"".$linkedTo."\">".$linkedTo."</td></tr>\n";
 	    echo "</table>\n";
 	}
