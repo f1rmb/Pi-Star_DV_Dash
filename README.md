@@ -9,7 +9,7 @@ This, and other required Pi-Star modules, are my personal forks, **DO NOT** repo
 ===
 
 Two possible options are:
-  - Prepare an SDCard using the image disk available [here](https://tny.sh/PiStar-V4-RMB).
+  - Prepare an SDCard using the disk image available [here](https://tny.sh/PiStar-V4-RMB).
   - An **easy** manual installation, over a pristine running Pi-Star system, following the below procedure:
 
 	 * you need a working Pi-Star, from [here](http://www.pistar.uk/downloads/). Pi-Star 3 and 4 are supported.
