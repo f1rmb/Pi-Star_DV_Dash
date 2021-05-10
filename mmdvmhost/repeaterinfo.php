@@ -318,10 +318,7 @@ if (isProcessRunning("DMRGateway")) {
 	    echo "<tr><th colspan=\"2\">".$lang['dmr_master']."</th></tr>\n";
 	    if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {
 		if ($dmrMasterHost == '127.0.0.1') {
-		    if ((isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'])) && ($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1)) {
-			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "xlx")." colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
-		    }
-                    if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
+                    if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
 			if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
 			    $xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
 			}
