@@ -3791,7 +3791,20 @@ $MYCALL=strtoupper($callsign);
 					    }
 					    fclose($dmrMasterFile2);
 					    ?>
-					</select></td></tr>
+					</select>
+					</td>
+				    </tr>
+				    <?php if (isset($configdmrgateway['DMR Network 2']['Enabled']) && ($configdmrgateway['DMR Network 2']['Enabled'] == 1) &&
+					      isset($configdmrgateway['DMR Network 2']['Name']) && (substr($configdmrgateway['DMR Network 2']['Name'], 0, 8) == "FreeDMR_")) {
+					echo '
+    <tr>
+    <td align="left"><a class="tooltip2" href="#">FreeDMR Help:<span><b>FreeDMR Help</b>FreeDMR Options Help</span></a></td>
+    <td>
+      <a href="http://www.freedmr.uk/index.php/static-talk-groups-pi-star/" target="_new" style="color: #000;">FreeDMR Options Guide</a> |
+      <a href="http://www.freedmr.uk/index.php/dashboard/options-calculator/" target="_new" style="color: #000;">FreeDMR Options Calculator</a>
+    </td>
+    </tr>'."\n";
+				    }?>
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['dmr_plus_network'];?>:<span><b>DMR+ Network</b>Set your options= for DMR+ here</span></a></td>
 					<td align="left">
@@ -3970,7 +3983,26 @@ $MYCALL=strtoupper($callsign);
 				    };
 				    echo '"></input></td></tr><tr><td align="left"><a class="tooltip2" href="#">'.$lang['bm_network'].':<span><b>BrandMeister Dashboards</b>Direct links to your BrandMeister Dashboards</span></a></td><td><a href="https://brandmeister.network/?page=hotspot&amp;id='.$configmmdvm['General']['Id'].'" target="_new" style="color: #000;">Repeater Information</a> | <a href="https://brandmeister.network/?page=hotspot-edit&amp;id='.$configmmdvm['General']['Id'].'" target="_new" style="color: #000;">Edit Repeater (BrandMeister Selfcare)</a></td></tr>'."\n";
 				}
-				if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_") || (substr($dmrMasterNow, 0, 8) == "FreeDMR_")) {
+				else if (substr($dmrMasterNow, 0, 8) == "FreeDMR_") {
+				    echo '    <tr>
+    <td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR Network</b>Set your options= for DMR here</span></a></td>
+    <td align="left">
+    Options=<input type="text" name="dmrNetworkOptions" size="65" maxlength="100" value="';
+				    if (isset($configmmdvm['DMR Network']['Options'])) {
+					echo $configmmdvm['DMR Network']['Options'];
+				    }
+				    echo '" />
+    </td>
+    </tr>
+    <tr>
+    <td align="left"><a class="tooltip2" href="#">FreeDMR Help:<span><b>FreeDMR Help</b>FreeDMR Options Help</span></a></td>
+    <td>
+      <a href="http://www.freedmr.uk/index.php/static-talk-groups-pi-star/" target="_new" style="color: #000;">FreeDMR Options Guide</a> |
+      <a href="http://www.freedmr.uk/index.php/dashboard/options-calculator/" target="_new" style="color: #000;">FreeDMR Options Calculator</a>
+    </td>
+    </tr>'."\n";
+				}
+				else if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_")) {
 				    echo '    <tr><td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR+ Network</b>Set your options= for here</span></a></td><td align="left">Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="100" value="';
 
 				    if (isset($configmmdvm['DMR Network']['Options'])) {
