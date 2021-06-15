@@ -61,7 +61,7 @@ function ensureFileExists($fname) {
     if (!file_exists('/etc/'.$fname) || trim(@file_get_contents('/etc/'.$fname)) == false) {
 	exec('sudo mount -o remount,rw /');
 	exec('sudo sudo rm -rf /tmp/cfgupdate && mkdir -p /tmp/cfgupdate && sudo unzip /usr/local/bin/config_clean.zip -d /tmp/cfgupdate && sudo rm -f /etc/'.$fname.' && sudo mv -f /tmp/cfgupdate/'.$fname.' /etc/'.$fname.' && sudo chmod 644 /etc/'.$fname.' && sudo chown root:root /etc/'.$fname.' && sudo rm -rf /tmp/cfgupdate');
-	exec('sudo mount -o remount,ro /');
+	exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
     }
 }
 
@@ -180,7 +180,7 @@ if (file_exists('/etc/nxdngateway')) {
 	if (!file_exists('/usr/local/etc/NXDNHostsLocal.txt')) {
 	    exec('sudo mount -o remount,rw /');
 	    exec('sudo touch /usr/local/etc/NXDNHostsLocal.txt');
-	    exec('sudo mount -o remount,ro /');
+	    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 	}
     }
     if (isset($confignxdngateway['Network']['InactivityTimeout'])) { unset($confignxdngateway['Network']['InactivityTimeout']); }
@@ -231,7 +231,7 @@ if (file_exists('/etc/mobilegps'))
 {
     exec('sudo mount -o remount,rw /');
     exec('sudo rm -f /etc/mobilegps');
-    exec('sudo mount -o remount,ro /');
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 }
 // Convert MMDVMHost config file
 if (isset($configmmdvm['Mobile GPS'])) {
@@ -319,12 +319,18 @@ if (isset($configmmdvm['GPSD'])) {
     unset($configmmdvm['GPSD']);
 }
 
+//
+// Remove ['DMR Network']['Type'], as it's pointless to use 'Direct' mode
+//
+if (isset($configmmdvm['DMR Network']['Type'])) {
+    unset($configmmdvm['DMR Network']['Type']);
+}
 
 // Ensure ircDDBGateway file contains the new APRS configuration
 if (isset($configircddb['aprsHostname'])) {
     exec('sudo mount -o remount,rw /');
     exec('sudo sed -i "/mobileGPS.*/d;/aprsPassword.*/d;s/aprsHostname=.*/aprsAddress=127.0.0.1/g;s/aprsPort=.*/aprsPort=8673/g" /etc/ircddbgateway');
-    exec('sudo mount -o remount,ro /');
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
     
     // Re-read new ircDDBGateway config file
     unset($configircddb);
@@ -389,7 +395,7 @@ if ( $configmmdvm['POCSAG']['Enable'] == 1 ) {
         exec('sudo cp /tmp/jsADGHwf9sj294.tmp /etc/dapnetapi.key');
         exec('sudo chmod 644 /etc/dapnetapi.key');
         exec('sudo chown root:root /etc/dapnetapi.key');
-        exec('sudo mount -o remount,ro /');
+        exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
     }
     
     // DAPNet API config 
@@ -768,7 +774,7 @@ $MYCALL=strtoupper($callsign);
 			}
 			
 			// Make the root filesystem writable
-			exec('sudo mount -o remount,ro /');
+			exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 			
 			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},3000);</script>';
 			die();
@@ -796,7 +802,7 @@ $MYCALL=strtoupper($callsign);
 			}
 
 			// Make the root filesystem writable
-			exec('sudo mount -o remount,ro /');
+			exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 			
 			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},3000);</script>';
 			die();
@@ -858,7 +864,7 @@ $MYCALL=strtoupper($callsign);
 			exec('sudo git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git reset --hard origin/master');
 			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},5000);</script>';
 			// Make the root filesystem read-only
-			exec('sudo mount -o remount,ro /');
+			exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 			echo "<br />\n</div>\n";
 			echo "<div class=\"footer\">\nPi-Star web config, &copy; Andy Taylor (MW0MWZ) 2014-".date("Y").".<br />\n";
 			echo "&copy; Daniel Caujolle-Bert (F1RMB) 2017-".date("Y").".<br />\n";
@@ -1660,6 +1666,18 @@ $MYCALL=strtoupper($callsign);
 			    unset($configModem['BrandMeister']['Password']);
 			}
 			
+			if ((isset($_POST['tgifHSSecurity'])) && substr($dmrMasterHostArr[3], 0, 4) == "TGIF") {
+			    if (empty($_POST['tgifHSSecurity']) != TRUE ) {
+				$configModem['TGIF']['Password'] = '"'.$_POST['tgifHSSecurity'].'"';
+				if ($dmrMasterHostArr[0] != '127.0.0.1') {
+				    $configmmdvm['DMR Network']['Password'] = '"'.$_POST['tgifHSSecurity'].'"';
+				}
+			    }
+			    else {
+				unset ($configModem['TGIF']['Password']);
+			    }
+			}
+
 			if (substr($dmrMasterHostArr[3], 0, 2) == "BM") {
 			    unset ($configmmdvm['DMR Network']['Options']);
 			    unset ($configdmrgateway['DMR Network 2']['Options']);
@@ -1709,7 +1727,7 @@ $MYCALL=strtoupper($callsign);
 			}
 			
 			// Set the DMR+ / HBLink Options= line
-			if ((substr($dmrMasterHostArr[3], 0, 4) == "DMR+") || (substr($dmrMasterHostArr[3], 0, 3) == "HB_") || (substr($dmrMasterHostArr[3], 0, 8) == "FreeDMR_")) {
+			if ((substr($dmrMasterHostArr[3], 0, 4) == "DMR+") || (substr($dmrMasterHostArr[3], 0, 3) == "HB_") || (substr($dmrMasterHostArr[3], 0, 3) == "FD_") || (substr($dmrMasterHostArr[3], 0, 8) == "FreeDMR_")) {
 			    unset ($configmmdvm['DMR Network']['Local']);
 			    unset ($configysf2dmr['DMR Network']['Local']);
 			    if (empty($_POST['dmrNetworkOptions']) != TRUE ) {
@@ -2349,8 +2367,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set the Dashboard Public
 		    if (empty($_POST['dashAccess']) != TRUE ) {
-			$publicDashboard = 'sudo sed -i \'/$DAEMON -a $ipVar 80/c\\\t\t$DAEMON -a $ipVar 80 80 TCP > /dev/null 2>&1 &\' /usr/local/sbin/pistar-upnp.service';
-			$privateDashboard = 'sudo sed -i \'/$DAEMON -a $ipVar 80/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicDashboard = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 80/c\\\t\t$DAEMON -e $hostVar -a $ipVar 80 80 TCP $timeOut > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
+			$privateDashboard = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 80/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
 			if (escapeshellcmd($_POST['dashAccess']) == 'PUB' ) { exec($publicDashboard); }
 			if (escapeshellcmd($_POST['dashAccess']) == 'PRV' ) { exec($privateDashboard); }
@@ -2358,8 +2376,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set the ircDDBGateway Remote Public
 		    if (empty($_POST['ircRCAccess']) != TRUE ) {
-			$publicRCirc = 'sudo sed -i \'/$DAEMON -a $ipVar 10022/c\\\t\t$DAEMON -a $ipVar 10022 10022 UDP > /dev/null 2>&1 &\' /usr/local/sbin/pistar-upnp.service';
-			$privateRCirc = 'sudo sed -i \'/$DAEMON -a $ipVar 10022/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicRCirc = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 10022/c\\\t\t$DAEMON -e $hostVar -a $ipVar 10022 10022 UDP $timeOut > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
+			$privateRCirc = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 10022/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
 			if (escapeshellcmd($_POST['ircRCAccess']) == 'PUB' ) { exec($publicRCirc); }
 			if (escapeshellcmd($_POST['ircRCAccess']) == 'PRV' ) { exec($privateRCirc); }
@@ -2367,8 +2385,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set SSH Access Public
 		    if (empty($_POST['sshAccess']) != TRUE ) {
-			$publicSSH = 'sudo sed -i \'/$DAEMON -a $ipVar 22/c\\\t\t$DAEMON -a $ipVar 22 22 TCP > /dev/null 2>&1 &\' /usr/local/sbin/pistar-upnp.service';
-			$privateSSH = 'sudo sed -i \'/$DAEMON -a $ipVar 22/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicSSH = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 22/c\\\t\t$DAEMON -e $hostVar -a $ipVar 22 22 TCP $timeOut > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
+			$privateSSH = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 22/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
 			if (escapeshellcmd($_POST['sshAccess']) == 'PUB' ) { exec($publicSSH); }
 			if (escapeshellcmd($_POST['sshAccess']) == 'PRV' ) { exec($privateSSH); }
@@ -2659,6 +2677,44 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configdmrgateway['Dynamic TG Control'])) {
 			$configdmrgateway['Dynamic TG Control']['Enabled'] = "1";
 			$configdmrgateway['Dynamic TG Control']['Port'] = "3769";
+		    }
+
+		    // DMRGateway can break the lines with quotes in, when DMRGateway is off...
+		    if (isset($configdmrgateway['Info']['Location']) && substr($configdmrgateway['Info']['Location'], 0, 1) !== '"' ) {
+			$configdmrgateway['Info']['Location'] = '"'.$configdmrgateway['Info']['Location'].'"';
+		    }
+		    if (isset($configdmrgateway['Info']['Description']) && substr($configdmrgateway['Info']['Description'], 0, 1) !== '"' ) {
+			$configdmrgateway['Info']['Description'] = '"'.$configdmrgateway['Info']['Description'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 1']['Password']) && substr($configdmrgateway['DMR Network 1']['Password'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 1']['Password'] = '"'.$configdmrgateway['DMR Network 1']['Password'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 1']['Options']) && substr($configdmrgateway['DMR Network 1']['Options'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 1']['Options'] = '"'.$configdmrgateway['DMR Network 1']['Options'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 2']['Password']) && substr($configdmrgateway['DMR Network 2']['Password'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 2']['Password'] = '"'.$configdmrgateway['DMR Network 2']['Password'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 2']['Options']) &&  substr($configdmrgateway['DMR Network 2']['Options'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 2']['Options'] = '"'.$configdmrgateway['DMR Network 2']['Options'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 3']['Password']) && substr($configdmrgateway['DMR Network 3']['Password'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 3']['Password'] = '"'.$configdmrgateway['DMR Network 3']['Password'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 3']['Options']) && substr($configdmrgateway['DMR Network 3']['Options'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 3']['Options'] = '"'.$configdmrgateway['DMR Network 3']['Options'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 4']['Password']) && substr($configdmrgateway['DMR Network 4']['Password'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 4']['Password'] = '"'.$configdmrgateway['DMR Network 4']['Password'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 4']['Options']) && substr($configdmrgateway['DMR Network 4']['Options'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 4']['Options'] = '"'.$configdmrgateway['DMR Network 4']['Options'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 5']['Password']) && substr($configdmrgateway['DMR Network 5']['Password'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 5']['Password'] = '"'.$configdmrgateway['DMR Network 5']['Password'].'"';
+		    }
+		    if (isset($configdmrgateway['DMR Network 5']['Options']) && substr($configdmrgateway['DMR Network 5']['Options'], 0, 1) !== '"' ) {
+			$configdmrgateway['DMR Network 5']['Options'] = '"'.$configdmrgateway['DMR Network 5']['Options'].'"';
 		    }
 		    
 		    // Add missing options to MMDVMHost
@@ -3150,7 +3206,7 @@ $MYCALL=strtoupper($callsign);
 		    echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},7500);</script>';
 		    
 		    // Make the root filesystem read-only
-		    exec('sudo mount -o remount,ro /');
+		    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 		    
 		else:
 		    // Output the HTML Form here
@@ -3916,14 +3972,15 @@ $MYCALL=strtoupper($callsign);
 					    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['xlx_startup_module'];?>:<span><b>XLX Startup Module override</b>Default will use the host file option, or override it here.</span></a></td>
 					    <td align="left"><select name="dmrMasterHost3StartupModule">
 						<?php
-						if ((isset($configdmrgateway['XLX Network']['Module'])) && ($configdmrgateway['XLX Network']['Module'] != "")) {
+						if ((isset($configdmrgateway['XLX Network']['Module'])) && ($configdmrgateway['XLX Network']['Module'] != "@")) {
 						    echo '        <option value="'.$configdmrgateway['XLX Network']['Module'].'" selected="selected">'.$configdmrgateway['XLX Network']['Module'].'</option>'."\n";
 						    echo '        <option value="Default">Default</option>'."\n";
-						    echo '        <option value=" ">None</option>'."\n";
+						    echo '        <option value="@">None</option>'."\n";
 						}
-						elseif ((isset($configdmrgateway['XLX Network']['Module'])) && ($configdmrgateway['XLX Network']['Module'] == "")) {
+						elseif ((isset($configdmrgateway['XLX Network']['Module'])) && ($configdmrgateway['XLX Network']['Module'] == "@")) {
+						    
 						    echo '        <option value="Default">Default</option>'."\n";
-						    echo '        <option value=" " selected="selected">None</option>'."\n";
+						    echo '        <option value="@" selected="selected">None</option>'."\n";
 						} 
 						else {
 						    echo '        <option value="Default" selected="selected">Default</option>'."\n";
@@ -4002,13 +4059,26 @@ $MYCALL=strtoupper($callsign);
     </td>
     </tr>'."\n";
 				}
-				else if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_")) {
+				else if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_") || (substr($dmrMasterNow, 0, 3) == "FD_")) {
 				    echo '    <tr><td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR+ Network</b>Set your options= for here</span></a></td><td align="left">Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="100" value="';
 
 				    if (isset($configmmdvm['DMR Network']['Options'])) {
 					echo $configmmdvm['DMR Network']['Options'];
 				    }
 				    echo '" /></td></tr>'."\n";
+				}
+				if (substr($dmrMasterNow, 0, 4) == "TGIF") {
+				    echo '    <tr>
+      <td align="left"><a class="tooltip2" href="#">Hotspot Security:<span><b>Custom Password</b>Override the Password for your DMR Host with your own custom password, make sure you already configured this with your chosen DMR Host too. Empty the field to use the default.</span></a></td>
+      <td align="left">
+        <input type="password" name="tgifHSSecurity" size="30" maxlength="30" value="';
+				    if (isset($configModem['TGIF']['Password'])) {
+					echo $configModem['TGIF']['Password'];
+				    }
+				    echo '"></input>
+      </td>
+    </tr>
+    <tr>'."\n";
 				}
 				?>
 				
@@ -4787,7 +4857,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><a class="tooltip2" href="#"><?php echo $lang['fw_dash'];?>:<span><b>Dashboard Access</b>Do you want the dashboard access to be publicly available? This modifies the uPNP firewall configuration.</span></a></td>
 				<?php
-				$testPrvPubDash = exec('sudo sed -n 32p /usr/local/sbin/pistar-upnp.service | cut -c 1');
+				$testPrvPubDash = exec('sudo grep "80 80" /usr/local/sbin/pistar-upnp.service | cut -c 1');
 				if (substr($testPrvPubDash, 0, 1) === '#') {
 				    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"dashAccess\" value=\"PRV\" checked=\"checked\" />Private <input type=\"radio\" name=\"dashAccess\" value=\"PUB\" />Public</td>\n";
 				}
@@ -4799,7 +4869,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><a class="tooltip2" href="#"><?php echo $lang['fw_irc'];?>:<span><b>ircDDBGateway Remote</b>Do you want the ircDDBGateway remote control access to be publicly available? This modifies the uPNP firewall Configuration.</span></a></td>
 				<?php
-				$testPrvPubIRC = exec('sudo sed -n 33p /usr/local/sbin/pistar-upnp.service | cut -c 1');
+				$testPrvPubIRC = exec('sudo grep "10022 10022" /usr/local/sbin/pistar-upnp.service | cut -c 1');
 				if (substr($testPrvPubIRC, 0, 1) === '#') {
 				    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"ircRCAccess\" value=\"PRV\" checked=\"checked\" />Private <input type=\"radio\" name=\"ircRCAccess\" value=\"PUB\" />Public</td>\n";
 				}
@@ -4811,7 +4881,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><a class="tooltip2" href="#"><?php echo $lang['fw_ssh'];?>:<span><b>SSH Access</b>Do you want access to be publicly available over SSH (used for support issues)? This modifies the uPNP firewall Configuration.</span></a></td>
 				<?php
-				$testPrvPubSSH = exec('sudo sed -n 31p /usr/local/sbin/pistar-upnp.service | cut -c 1');
+				$testPrvPubSSH = exec('sudo grep "22 22" /usr/local/sbin/pistar-upnp.service | cut -c 1');
 				if (substr($testPrvPubSSH, 0, 1) === '#') {
 				    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"sshAccess\" value=\"PRV\" checked=\"checked\" />Private <input type=\"radio\" name=\"sshAccess\" value=\"PUB\" />Public</td>\n";
 				}

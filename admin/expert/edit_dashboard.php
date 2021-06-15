@@ -122,7 +122,7 @@ require_once('../config/version.php');
 			// Reset CSS configuration
 			exec('sudo mount -o remount,rw /');                             // Make rootfs writable
 			exec('sudo rm -rf /etc/pistar-css.ini');                        // Delete the Config
-			exec('sudo mount -o remount,ro /');                             // Make rootfs read-only
+			exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');                             // Make rootfs read-only
 			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},0);</script>';
 			die();
 		    }
@@ -145,7 +145,7 @@ require_once('../config/version.php');
 		    exec('sudo cp /tmp/bW1kd4jg6b3N0DQo.tmp /etc/pistar-css.ini');  // Move the file back
 		    exec('sudo chmod 644 /etc/pistar-css.ini');                     // Set the correct runtime permissions
 		    exec('sudo chown root:root /etc/pistar-css.ini');               // Set the owner
-		    exec('sudo mount -o remount,ro /');                             // Make rootfs read-only
+		    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');                             // Make rootfs read-only
 		}
 		
 		//Do some file wrangling...
@@ -170,7 +170,7 @@ require_once('../config/version.php');
 			//Reset the config
 			exec('sudo mount -o remount,rw /');                             // Make rootfs writable
 			exec('sudo rm -rf /etc/pistar-css.ini');                        // Delete the Config
-			exec('sudo mount -o remount,ro /');                             // Make rootfs read-only
+			exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');                             // Make rootfs read-only
 			echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},0);</script>';
 			die();
 		    }
@@ -241,7 +241,7 @@ require_once('../config/version.php');
 				$output .= shell_exec("sudo mv -v -f /tmp/css_restore/pistar-css.ini /etc/ 2>&1")."\n";
 
 				// Make the disk Read-Only
-				shell_exec('sudo mount -o remount,ro / 2>&1');
+				shell_exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro / 2>&1');
 				
 				// Complete
 				$output .= "Configuration Restore Complete.\n";
@@ -321,7 +321,7 @@ require_once('../config/version.php');
 		    exec('sudo cp /tmp/bW1kd4jg6b3N0DQo.tmp /etc/pistar-css.ini');  // Move the file back
 		    exec('sudo chmod 644 /etc/pistar-css.ini');                     // Set the correct runtime permissions
 		    exec('sudo chown root:root /etc/pistar-css.ini');               // Set the owner
-		    exec('sudo mount -o remount,ro /');                             // Make rootfs read-only
+		    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');                             // Make rootfs read-only
 		    
 		    return $success;
 		}

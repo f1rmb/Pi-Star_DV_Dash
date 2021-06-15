@@ -149,7 +149,7 @@ function mount_rw()
 
 function mount_ro()
 {
-    exec('sudo mount -o remount,ro /');
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 }
 
 // --- EDIT BELOW CAREFULLY OR DO NOT EDIT AT ALL ---

@@ -59,7 +59,7 @@ function update_ini_file($data, $filepath) {
     exec('sudo cp /tmp/cVKu8oJJKWqe.tmp /etc/dapnetgateway');	    // Move the file back
     exec('sudo chmod 644 /etc/dapnetgateway');				        // Set the correct runtime permissions
     exec('sudo chown root:root /etc/dapnetgateway');			    // Set the owner
-    exec('sudo mount -o remount,ro /');				                // Make rootfs read-only
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');				                // Make rootfs read-only
     
     // Reload the affected daemon
     exec('sudo systemctl restart dapnetgateway.service');		    // Reload the daemon

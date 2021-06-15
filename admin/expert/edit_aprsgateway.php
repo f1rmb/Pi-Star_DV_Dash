@@ -53,7 +53,7 @@ function update_ini_file($data, $filepath) {
     exec('sudo cp /tmp/oDFuttgksHSRb8.tmp /etc/aprsgateway');
     exec('sudo chmod 644 /etc/dapnetgateway');
     exec('sudo chown root:root /etc/dapnetgateway');
-    exec('sudo mount -o remount,ro /');
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
     
     // Reload the affected daemon
     exec('sudo systemctl restart aprsgateway.service');

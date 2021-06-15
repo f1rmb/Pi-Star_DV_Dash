@@ -54,7 +54,7 @@ function update_ini_file($data, $filepath) {
     exec('sudo cp /tmp/aFEds45dgs4tFS.tmp /etc/nxdngateway'); // Move the file back
     exec('sudo chmod 644 /etc/nxdngateway');                  // Set the correct runtime permissions
     exec('sudo chown root:root /etc/nxdngateway');            // Set the owner
-    exec('sudo mount -o remount,ro /');                       // Make rootfs read-only
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');                       // Make rootfs read-only
     
     // Reload the affected daemon
     exec('sudo systemctl restart nxdngateway.service');       // Reload the daemon

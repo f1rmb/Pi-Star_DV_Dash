@@ -106,7 +106,7 @@ if($_POST) {
 		exec('sudo sed -i \'/\\[starnetserver\\]/d\' /etc/starnetserver');	// Clean up file mangling
 		exec('sudo chmod 644 /etc/starnetserver');				// Set the correct runtime permissions
 		exec('sudo chown root:root /etc/starnetserver');			// Set the owner
-		exec('sudo mount -o remount,ro /');					// Make rootfs read-only
+		exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');					// Make rootfs read-only
 
 		// Reload the affected daemon
 		//exec('sudo systemctl restart starnetserver.service');		// Reload the daemon

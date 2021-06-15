@@ -54,7 +54,7 @@ function update_ini_file($data, $filepath) {
     exec('sudo cp /tmp/bm5qFPvEa7EH2k.tmp /etc/dmr2nxdn');	// Move the file back
     exec('sudo chmod 644 /etc/dmr2nxdn');				// Set the correct runtime permissions
     exec('sudo chown root:root /etc/dmr2nxdn');			// Set the owner
-    exec('sudo mount -o remount,ro /');				// Make rootfs read-only
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');				// Make rootfs read-only
     
     // Reload the affected daemon
     exec('sudo systemctl restart dmr2nxdn.service');		// Reload the daemon

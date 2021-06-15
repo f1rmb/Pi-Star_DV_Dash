@@ -68,7 +68,7 @@ require_once('../config/version.php');
 		    exec('sudo cp '.$tempfile.' '.$configfile);
 		    exec('sudo chmod 644 '.$configfile);
 		    exec('sudo chown root:root '.$configfile);
-		    exec('sudo mount -o remount,ro /');
+		    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 		    
 		    // Reload the affected daemon
 		    if (isset($servicenames) && (count($servicenames) > 0)) {

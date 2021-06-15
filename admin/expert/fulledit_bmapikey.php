@@ -105,7 +105,7 @@ require_once('../config/version.php');
 		    exec('sudo mv /tmp/d39fk36sg55433gd.tmp /etc/bmapi.key');	// Move the file back
 		    exec('sudo chmod 644 /etc/bmapi.key');				// Set the correct runtime permissions
 		    exec('sudo chown root:root /etc/bmapi.key');			// Set the owner
-		    exec('sudo mount -o remount,ro /');				// Make rootfs read-only
+		    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');				// Make rootfs read-only
 		    
 		    return $success;
 		}

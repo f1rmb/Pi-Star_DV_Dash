@@ -27,7 +27,7 @@ if (file_exists($fm_config_file) == FALSE) {
     exec('sudo mv /tmp/XEFvyCJ6W2AyFMX5.tmp '.$fm_config_file.'');
     exec('sudo chown www-data:www-data '.$fm_config_file.'');
     exec('sudo chmod 664 '.$fm_config_file.'');
-    exec('sudo mount -o remount,ro /');
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 }
 
 // Create default auth file
@@ -43,7 +43,7 @@ if (file_exists($fm_auth_file) == FALSE) {
     exec('sudo mv /tmp/nyzGP6y6xQT5HZmz.tmp '.$fm_auth_file.'');
     exec('sudo chown www-data:www-data '.$fm_auth_file.'');
     exec('sudo chmod 664 '.$fm_auth_file.'');
-    exec('sudo mount -o remount,ro /');
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');
 }
 
 

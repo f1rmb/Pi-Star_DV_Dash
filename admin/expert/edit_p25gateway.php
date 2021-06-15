@@ -53,7 +53,7 @@ function update_ini_file($data, $filepath) {
     exec('sudo cp /tmp/aFE45dgs4tFS.tmp /etc/p25gateway');	// Move the file back
     exec('sudo chmod 644 /etc/p25gateway');				// Set the correct runtime permissions
     exec('sudo chown root:root /etc/p25gateway');			// Set the owner
-    exec('sudo mount -o remount,ro /');				// Make rootfs read-only
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');				// Make rootfs read-only
     
     // Reload the affected daemon
     exec('sudo systemctl restart p25gateway.service');		// Reload the daemon

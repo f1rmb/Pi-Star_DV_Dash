@@ -63,7 +63,7 @@ function update_ini_file($data, $filepath) {
     exec('sudo cp /tmp/MNhQn9HUvpNPgp.tmp /etc/ysf2dmr');	// Move the file back
     exec('sudo chmod 644 /etc/ysf2dmr');				// Set the correct runtime permissions
     exec('sudo chown root:root /etc/ysf2dmr');			// Set the owner
-    exec('sudo mount -o remount,ro /');				// Make rootfs read-only
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');				// Make rootfs read-only
     
     // Reload the affected daemon
     exec('sudo systemctl restart ysf2dmr.service');		// Reload the daemon

@@ -319,17 +319,21 @@ if (isProcessRunning("DMRGateway")) {
 	    if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {
 		if ($dmrMasterHost == '127.0.0.1') {
                     if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
-			if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
-			    $xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
+
+                        if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
+			    $xlxMasterHost1 = exec('grep \'XLX, Linking\|XLX, Unlinking\|XLX, Logged\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
 			}
-                        else {
-			    $xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d", time() - 86340).'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
+			else {
+			    $xlxMasterHost1 = exec('grep \'XLX, Linking\|XLX, Unlinking\|XLX, Logged\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d", time() - 86340).'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
 			}
-			//$xlxMasterHost1 = exec('grep \'XLX, Linking\|Unlinking\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
+			
 			if ( strpos($xlxMasterHost1, 'Linking') !== false ) {
 			    $xlxMasterHost1 = str_replace('Linking ', '', $xlxMasterHost1);
 			}
 			else if ( strpos($xlxMasterHost1, 'Unlinking') !== false ) {
+			    $xlxMasterHost1 = "XLX Not Linked";
+			}
+			else if ( strpos($xlxMasterHost1, 'Logged') !== false ) {
 			    $xlxMasterHost1 = "XLX Not Linked";
 			}
 			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "xlx")." colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";

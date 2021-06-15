@@ -58,7 +58,7 @@ function update_ini_file($data, $filepath) {
     exec('sudo cp /tmp/fmehg65694eg.tmp /etc/dmrgateway');	  // Move the file back
     exec('sudo chmod 644 /etc/dmrgateway');				            // Set the correct runtime permissions
     exec('sudo chown root:root /etc/dmrgateway');			        // Set the owner
-    exec('sudo mount -o remount,ro /');				                // Make rootfs read-only
+    exec('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro /');				                // Make rootfs read-only
     
     // Reload the affected daemon
     exec('sudo systemctl restart dmrgateway.service');		    // Reload the daemon
