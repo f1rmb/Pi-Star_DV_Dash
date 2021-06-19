@@ -941,6 +941,13 @@ $MYCALL=strtoupper($callsign);
 			    $configircddb['atStartup1'] = "0";
 			}
 		    }
+
+		    // Set random (working) CCS host.
+		    if ($configs['ccsEnabled'] == "1") {
+			$activeCCS = array("CCS701"=>"CCS701", "CCS702"=>"CCS702", "CCS704"=>"CCS704");
+			shuffle($activeCCS);
+			$configircddb['ccsHost'] = $activeCCS[0];
+		    }
 		    
 		    // Set the Latitude
 		    if (empty($_POST['confLatitude']) != TRUE ) {

@@ -76,13 +76,13 @@ if ($_SERVER["PHP_SELF"] == "/admin/power.php") {
 				   </script>
 				   </td></tr>'; 
 				system('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro / > /dev/null &');
-				exec('sleep 5 && sudo shutdown -r now > /dev/null &');
+				exec('sudo reboot > /dev/null &');
 			    }
 			    else if ( escapeshellcmd($_POST["action"]) == "shutdown" ) {
 				echo '<tr><td colspan="2" style="background: #000000; color: #00ff00;"><br /><br />Shutdown command has been sent to your Pi,
 				   <br /> please wait 30 secs for it to fully shutdown<br />before removing the power.<br /><br /><br /></td></tr>';
 				system('sudo sync && sudo sync && sudo sync && sudo mount -o remount,ro / > /dev/null &');
-				exec('sleep 5 && sudo shutdown -h now > /dev/null &');
+				exec('sudo shutdown -h now > /dev/null &');
 			    }
 
 			    unset($_POST);
