@@ -943,7 +943,7 @@ $MYCALL=strtoupper($callsign);
 		    }
 
 		    // Set random (working) CCS host.
-		    if ($configs['ccsEnabled'] == "1") {
+		    if ($configircddb['ccsEnabled'] == "1") {
 			$activeCCS = array("CCS701"=>"CCS701", "CCS702"=>"CCS702", "CCS704"=>"CCS704");
 			shuffle($activeCCS);
 			$configircddb['ccsHost'] = $activeCCS[0];
