@@ -2374,8 +2374,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set the Dashboard Public
 		    if (empty($_POST['dashAccess']) != TRUE ) {
-			$publicDashboard = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 80/c\\\t\t$DAEMON -e $hostVar -a $ipVar 80 80 TCP $timeOut > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
-			$privateDashboard = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 80/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicDashboard = 'sudo sed -i \'/$ipVar 80 80/c\\\t\t$DAEMON -u ${igdURL} -e ${hostVar}_Dash -a $ipVar 80 80 TCP > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
+			$privateDashboard = 'sudo sed -i \'/$ipVar 80 80/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
 			if (escapeshellcmd($_POST['dashAccess']) == 'PUB' ) { exec($publicDashboard); }
 			if (escapeshellcmd($_POST['dashAccess']) == 'PRV' ) { exec($privateDashboard); }
@@ -2383,8 +2383,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set the ircDDBGateway Remote Public
 		    if (empty($_POST['ircRCAccess']) != TRUE ) {
-			$publicRCirc = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 10022/c\\\t\t$DAEMON -e $hostVar -a $ipVar 10022 10022 UDP $timeOut > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
-			$privateRCirc = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 10022/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicRCirc = 'sudo sed -i \'/$ipVar 10022 10022/c\\\t\t\t$DAEMON -u ${igdURL} -e ${hostVar}_Remote -a $ipVar 10022 10022 UDP > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
+			$privateRCirc = 'sudo sed -i \'/$ipVar 10022 10022/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
 			if (escapeshellcmd($_POST['ircRCAccess']) == 'PUB' ) { exec($publicRCirc); }
 			if (escapeshellcmd($_POST['ircRCAccess']) == 'PRV' ) { exec($privateRCirc); }
@@ -2392,8 +2392,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set SSH Access Public
 		    if (empty($_POST['sshAccess']) != TRUE ) {
-			$publicSSH = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 22/c\\\t\t$DAEMON -e $hostVar -a $ipVar 22 22 TCP $timeOut > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
-			$privateSSH = 'sudo sed -i \'/$DAEMON -e $hostVar -a $ipVar 22/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicSSH = 'sudo sed -i \'/$ipVar 22 22/c\\\t\t$DAEMON -u ${igdURL} -e ${hostVar}_SSH -a $ipVar 22 22 TCP > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
+			$privateSSH = 'sudo sed -i \'/$ipVar 22 22/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
 			
 			if (escapeshellcmd($_POST['sshAccess']) == 'PUB' ) { exec($publicSSH); }
 			if (escapeshellcmd($_POST['sshAccess']) == 'PRV' ) { exec($privateSSH); }
@@ -2403,11 +2403,13 @@ $MYCALL=strtoupper($callsign);
 		    if (empty($_POST['uPNP']) != TRUE ) {
 			$uPNPon = 'sudo sed -i \'/pistar-upnp.service/c\\*/5 *\t* * *\troot\t/usr/local/sbin/pistar-upnp.service start > /dev/null 2>&1 &\' /etc/crontab';
 			$uPNPoff = 'sudo sed -i \'/pistar-upnp.service/ s/^#*/#/\' /etc/crontab';
-			$uPNPsvcOn = 'sudo systemctl enable pistar-upnp.timer&';
-			$uPNPsvcOff = 'sudo systemctl disable pistar-upnp.timer&';
+			$uPNPsvcOn = 'sudo systemctl enable pistar-upnp.timer';
+			$uPNPsvcOff = 'sudo systemctl disable pistar-upnp.timer';
+			$uPNPsvcStart = '(sudo systemctl stop pistar-upnp.service && sudo systemctl start pistar-upnp.service) > /dev/null 2>&1 &';
+			$uPNPsvcStop = '(sudo systemctl stop pistar-upnp.service) > /dev/null 2>&1 &';
 			
-			if (escapeshellcmd($_POST['uPNP']) == 'ON' ) { exec($uPNPon); exec($uPNPsvcOn); }
-			if (escapeshellcmd($_POST['uPNP']) == 'OFF' ) { exec($uPNPoff); exec($uPNPsvcOff); }
+			if (escapeshellcmd($_POST['uPNP']) == 'ON' )  { system($uPNPon); system($uPNPsvcOn); system($uPNPsvcStart); }
+			if (escapeshellcmd($_POST['uPNP']) == 'OFF' ) { system($uPNPoff); system($uPNPsvcStop); system($uPNPsvcOff); }
 		    }
 		    
 		    // D-Star Time Announce
@@ -3180,9 +3182,6 @@ $MYCALL=strtoupper($callsign);
 		    exec('sudo systemctl start timeserver.service > /dev/null 2>/dev/null &');		// Time Server Service
 		    exec('sudo systemctl start pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
 		    exec('sudo systemctl start pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
-		    if (empty($_POST['uPNP']) != TRUE ) {
-			if (escapeshellcmd($_POST['uPNP']) == 'ON' ) { exec('sudo systemctl start pistar-upnp.service > /dev/null 2>/dev/null &'); }
-		    }
 		    exec('sudo systemctl start ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
 		    exec('sudo systemctl start ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
 		    exec('sudo systemctl start ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
