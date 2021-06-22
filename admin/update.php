@@ -28,10 +28,17 @@ setlocale(LC_ALL, "LC_CTYPE=en_GB.UTF-8;LC_NUMERIC=C;LC_TIME=C;LC_COLLATE=C;LC_M
 // Sanity Check that this file has been opened correctly
 if ($_SERVER["PHP_SELF"] == "/admin/update.php") {
 
-  if (!isset($_GET['ajax'])) {
-    system('sudo touch /var/log/pi-star/pi-star_update.log > /dev/null 2>&1 &');
-    system('sudo echo "" > /var/log/pi-star/pi-star_update.log > /dev/null 2>&1 &');
-    system('LC_ALL=en_GB.UTF-8 sudo /usr/local/sbin/pistar-update > /dev/null 2>&1 &');
+    if (!isset($_GET['ajax'])) {
+	if (!file_exists('/var/log/pi-star') || !is_dir('/var/log/pi-star')) {
+	    system('sudo rm -rf /var/log/pi-star > /dev/null 2>&1');
+	    system('sudo mkdir -p /var/log/pi-star/');
+	    system('sudo chmod 775 /var/log/pi-star/');
+	    system('sudo chown root:mmdvm /var/log/pi-star/');
+	}
+	
+	system('sudo touch /var/log/pi-star/pi-star_update.log > /dev/null 2>&1 &');
+	system('sudo echo "" > /var/log/pi-star/pi-star_update.log > /dev/null 2>&1 &');
+	system('LC_ALL=en_GB.UTF-8 sudo /usr/local/sbin/pistar-update > /dev/null 2>&1 &');
     }
 
   // Sanity Check Passed.
