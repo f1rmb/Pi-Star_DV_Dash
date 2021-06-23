@@ -858,7 +858,7 @@ $MYCALL=strtoupper($callsign);
 			exec('sudo unzip -o /usr/local/bin/config_clean.zip -d /etc/');
 			exec('sudo rm -rf /etc/dstar-radio.*');
 			exec('sudo rm -rf /etc/pistar-css.ini');
-			exec('sudo git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git update-index --assume-unchanged pistar-upnp.service');
+			exec('sudo git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git update-index');
 			exec('sudo git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git reset --hard origin/master');
 			exec('sudo git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git reset --hard origin/master');
 			exec('sudo git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git reset --hard origin/master');
@@ -2374,8 +2374,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set the Dashboard Public
 		    if (empty($_POST['dashAccess']) != TRUE ) {
-			$publicDashboard = 'sudo sed -i \'/$ipVar 80 80/c\\\t\t$DAEMON -u ${igdURL} -e ${hostVar}_Dash -a $ipVar 80 80 TCP > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
-			$privateDashboard = 'sudo sed -i \'/$ipVar 80 80/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicDashboard = 'sudo sed -i \'/$ipVar 80 80/c\\\t\t$DAEMON -u ${igdURL} -e ${hostVar}_Dash -a $ipVar 80 80 TCP > /dev/null 2>&1\' /usr/local/etc/pistar-upnp.service.functions';
+			$privateDashboard = 'sudo sed -i \'/$ipVar 80 80/ s/^#*/#/\' /usr/local/etc/pistar-upnp.service.functions';
 			
 			if (escapeshellcmd($_POST['dashAccess']) == 'PUB' ) { exec($publicDashboard); }
 			if (escapeshellcmd($_POST['dashAccess']) == 'PRV' ) { exec($privateDashboard); }
@@ -2383,8 +2383,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set the ircDDBGateway Remote Public
 		    if (empty($_POST['ircRCAccess']) != TRUE ) {
-			$publicRCirc = 'sudo sed -i \'/$ipVar 10022 10022/c\\\t\t\t$DAEMON -u ${igdURL} -e ${hostVar}_Remote -a $ipVar 10022 10022 UDP > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
-			$privateRCirc = 'sudo sed -i \'/$ipVar 10022 10022/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicRCirc = 'sudo sed -i \'/$ipVar 10022 10022/c\\\t\t\t$DAEMON -u ${igdURL} -e ${hostVar}_Remote -a $ipVar 10022 10022 UDP > /dev/null 2>&1\' /usr/local/etc/pistar-upnp.service.functions';
+			$privateRCirc = 'sudo sed -i \'/$ipVar 10022 10022/ s/^#*/#/\' /usr/local/etc/pistar-upnp.service.functions';
 			
 			if (escapeshellcmd($_POST['ircRCAccess']) == 'PUB' ) { exec($publicRCirc); }
 			if (escapeshellcmd($_POST['ircRCAccess']) == 'PRV' ) { exec($privateRCirc); }
@@ -2392,8 +2392,8 @@ $MYCALL=strtoupper($callsign);
 		    
 		    // Set SSH Access Public
 		    if (empty($_POST['sshAccess']) != TRUE ) {
-			$publicSSH = 'sudo sed -i \'/$ipVar 22 22/c\\\t\t$DAEMON -u ${igdURL} -e ${hostVar}_SSH -a $ipVar 22 22 TCP > /dev/null 2>&1\' /usr/local/sbin/pistar-upnp.service';
-			$privateSSH = 'sudo sed -i \'/$ipVar 22 22/ s/^#*/#/\' /usr/local/sbin/pistar-upnp.service';
+			$publicSSH = 'sudo sed -i \'/$ipVar 22 22/c\\\t\t$DAEMON -u ${igdURL} -e ${hostVar}_SSH -a $ipVar 22 22 TCP > /dev/null 2>&1\' /usr/local/etc/pistar-upnp.service.functions';
+			$privateSSH = 'sudo sed -i \'/$ipVar 22 22/ s/^#*/#/\' /usr/local/etc/pistar-upnp.service.functions';
 			
 			if (escapeshellcmd($_POST['sshAccess']) == 'PUB' ) { exec($publicSSH); }
 			if (escapeshellcmd($_POST['sshAccess']) == 'PRV' ) { exec($privateSSH); }
@@ -4863,7 +4863,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><a class="tooltip2" href="#"><?php echo $lang['fw_dash'];?>:<span><b>Dashboard Access</b>Do you want the dashboard access to be publicly available? This modifies the uPNP firewall configuration.</span></a></td>
 				<?php
-				$testPrvPubDash = exec('sudo grep "80 80" /usr/local/sbin/pistar-upnp.service | cut -c 1');
+				$testPrvPubDash = exec('sudo grep "80 80" /usr/local/etc/pistar-upnp.service.functions | cut -c 1');
 				if (substr($testPrvPubDash, 0, 1) === '#') {
 				    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"dashAccess\" value=\"PRV\" checked=\"checked\" />Private <input type=\"radio\" name=\"dashAccess\" value=\"PUB\" />Public</td>\n";
 				}
@@ -4875,7 +4875,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><a class="tooltip2" href="#"><?php echo $lang['fw_irc'];?>:<span><b>ircDDBGateway Remote</b>Do you want the ircDDBGateway remote control access to be publicly available? This modifies the uPNP firewall Configuration.</span></a></td>
 				<?php
-				$testPrvPubIRC = exec('sudo grep "10022 10022" /usr/local/sbin/pistar-upnp.service | cut -c 1');
+				$testPrvPubIRC = exec('sudo grep "10022 10022" /usr/local/etc/pistar-upnp.service.functions | cut -c 1');
 				if (substr($testPrvPubIRC, 0, 1) === '#') {
 				    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"ircRCAccess\" value=\"PRV\" checked=\"checked\" />Private <input type=\"radio\" name=\"ircRCAccess\" value=\"PUB\" />Public</td>\n";
 				}
@@ -4887,7 +4887,7 @@ $MYCALL=strtoupper($callsign);
 			    <tr>
 				<td align="left"><a class="tooltip2" href="#"><?php echo $lang['fw_ssh'];?>:<span><b>SSH Access</b>Do you want access to be publicly available over SSH (used for support issues)? This modifies the uPNP firewall Configuration.</span></a></td>
 				<?php
-				$testPrvPubSSH = exec('sudo grep "22 22" /usr/local/sbin/pistar-upnp.service | cut -c 1');
+				$testPrvPubSSH = exec('sudo grep "22 22" /usr/local/etc/pistar-upnp.service.functions | cut -c 1');
 				if (substr($testPrvPubSSH, 0, 1) === '#') {
 				    echo "   <td align=\"left\" colspan=\"2\"><input type=\"radio\" name=\"sshAccess\" value=\"PRV\" checked=\"checked\" />Private <input type=\"radio\" name=\"sshAccess\" value=\"PUB\" />Public</td>\n";
 				}

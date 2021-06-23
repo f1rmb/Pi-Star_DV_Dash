@@ -110,6 +110,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 			    $output .= shell_exec("sudo cp /etc/tinyfilemanager-auth.php $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/tinyfilemanager-config.php $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /usr/local/etc/RSSI.dat $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /usr/local/etc/pistar-upnp.service.functions $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /var/www/dashboard/config/ircddblocal.php $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /var/www/dashboard/config/config.php $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /var/www/dashboard/config/language.php $backupDir 2>&1")."\n";
@@ -205,6 +206,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				$output .= "Writing new Config\n";
 				$output .= shell_exec("sudo rm -f /etc/dstar-radio.* /etc/bmapi.key /etc/dapnetapi.key /etc/theshield.enabled 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/RSSI.dat /usr/local/etc/ 2>&1")."\n";
+				$output .= shell_exec("sudo mv -fv /tmp/config_restore/pistar-upnp.service.functions /usr/local/etc/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/gpsd /etc/default/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/ircddblocal.php /var/www/dashboard/config/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/config.php /var/www/dashboard/config/ 2>&1")."\n";
