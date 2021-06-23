@@ -206,8 +206,12 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 				$output .= "Writing new Config\n";
 				$output .= shell_exec("sudo rm -f /etc/dstar-radio.* /etc/bmapi.key /etc/dapnetapi.key /etc/theshield.enabled 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/RSSI.dat /usr/local/etc/ 2>&1")."\n";
+				
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/pistar-upnp.service.functions /usr/local/etc/ 2>&1")."\n";
-				$output .= shell_exec("sudo mv -fv /tmp/config_restore/gpsd /etc/default/ 2>&1")."\n";
+				$output .= shell_exec("sudo chown root:staff /usr/local/etc/pistar-upnp.service.functions 2>&1");
+				$output .= shell_exec("sudo chmod 0644 /usr/local/etc/pistar-upnp.service.functions 2>&1");
+				
+			    	$output .= shell_exec("sudo mv -fv /tmp/config_restore/gpsd /etc/default/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/ircddblocal.php /var/www/dashboard/config/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/config.php /var/www/dashboard/config/ 2>&1")."\n";
 				$output .= shell_exec("sudo mv -fv /tmp/config_restore/language.php /var/www/dashboard/config/ 2>&1")."\n";
