@@ -69,7 +69,7 @@ $lang = array (
   "timezone"                    =>  "Zona horària",
   "dash_lang"                   =>  "Idioma del Tauler de Control",
   // Config Page - DMR Configuration
-  "dmr_master"                  =>  "DMR màster (MMDVMHost)",
+  "dmr_master"                  =>  "DMR màster",
   "bm_master"                   =>  "Màster BrandMeister",
   "bm_network"                  =>  "Xarxa BrandMeister",
   "dmr_plus_master"             =>  "Màster DMR+",

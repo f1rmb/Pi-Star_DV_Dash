@@ -68,7 +68,7 @@ $lang = array (
   "timezone"                    =>  "Sistem Saati Dilimi",
   "dash_lang"                   =>  "Pano Dili",
   // Config Page - DMR Configuration
-  "dmr_master"                  =>  "DMR Sunucu (MMDVMHost)",
+  "dmr_master"                  =>  "DMR Sunucu",
   "bm_master"                   =>  "BrandMeister Sunucu",
   "bm_network"                  =>  "BrandMeister Ağı",
   "dmr_plus_master"             =>  "DMR+ Sunucu",

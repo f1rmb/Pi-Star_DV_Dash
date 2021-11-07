@@ -68,7 +68,7 @@ $lang = array (
   "timezone"                    =>  "Ζώνη Ωρας",
   "dash_lang"                   =>  "Γλώσσα Πίνακα Ελέγχου",
   // Config Page - DMR Configuration
-  "dmr_master"                  =>  "Εξυπηρετητής DMR (MMDVMHost)",
+  "dmr_master"                  =>  "Εξυπηρετητής DMR",
   "bm_master"                   =>  "Εξυπηρετητής BrandMeister",
   "bm_network"                  =>  "Δίκτυο BrandMeister",
   "dmr_plus_master"             =>  "Εξυπηρετητής DMR+",

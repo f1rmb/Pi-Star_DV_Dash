@@ -67,7 +67,7 @@ $lang = array (
   "timezone"                    =>  "Systeem tijdzone",
   "dash_lang"                   =>  "Dashboard taal",
   // Config Page - DMR Configuration
-  "dmr_master"                  =>  "DMR Master (MMDVMHost)",
+  "dmr_master"                  =>  "DMR Master",
   "bm_master"                   =>  "BrandMeister Master",
   "bm_network"                  =>  "BrandMeister netwerk",
   "dmr_plus_master"             =>  "DMR+ Master",

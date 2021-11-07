@@ -68,7 +68,7 @@ $lang = array (
   "timezone"                    =>  "Horário do Sistema",
   "dash_lang"                   =>  "Idioma do Painel de Controle",
   // Config Page - DMR Configuration
-  "dmr_master"                  =>  "DMR Master (MMDVMHost)",
+  "dmr_master"                  =>  "DMR Master",
   "bm_master"                   =>  "BrandMeister Master",
   "bm_network"                  =>  "Rede BrandMeister",
   "dmr_plus_master"             =>  "DMR+ Master",

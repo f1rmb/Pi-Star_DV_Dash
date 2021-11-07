@@ -68,7 +68,7 @@ $lang = array (
   "timezone"                    =>  "Fuso Orario",
   "dash_lang"                   =>  "Linguaggio Cruscotto",
   // Config Page - DMR Configuration
-  "dmr_master"                  =>  "DMR Master (MMDVMHost)",
+  "dmr_master"                  =>  "DMR Master",
   "bm_master"                   =>  "BrandMeister Master",
   "bm_network"                  =>  "BrandMeister Network",
   "dmr_plus_master"             =>  "DMR+ Master",
