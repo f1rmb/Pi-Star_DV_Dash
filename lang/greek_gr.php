@@ -118,7 +118,6 @@ $lang = array (
   "dstar_repeater"              =>  "Αναμεταδότης D-Star",
   "dstar_net"                   =>  "Δίκτυο D-Star",
   "dmr_repeater"                =>  "Αναμεταδότης DMR",
-  "dmr_master"                  =>  "Εξυπηρετητής DMR",
   "ysf_net"                     =>  "Δίκτυο YSF",
   "p25_radio"                   =>  "Ασύρματος P25",
   "p25_net"                     =>  "Δίκτυο P25",

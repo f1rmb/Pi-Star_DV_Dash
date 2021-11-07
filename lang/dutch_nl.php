@@ -117,7 +117,6 @@ $lang = array (
   "dstar_repeater"              =>  "D-Star repeater",
   "dstar_net"                   =>  "D-Star netwerk",
   "dmr_repeater"                =>  "DMR repeater",
-  "dmr_master"                  =>  "DMR Master",
   "ysf_net"                     =>  "YSF netwerk",
   "p25_radio"                   =>  "P25 Radio",
   "p25_net"                     =>  "P25 netwerk",

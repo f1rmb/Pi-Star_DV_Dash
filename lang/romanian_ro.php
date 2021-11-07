@@ -118,7 +118,6 @@ $lang = array (
   "dstar_repeater"              =>  "Repetor D-Star",
   "dstar_net"                   =>  "Reteaua D-Star",
   "dmr_repeater"                =>  "Repetor DMR",
-  "dmr_master"                  =>  "DMR Master",
   "ysf_net"                     =>  "Reteaua YSF",
   "p25_radio"                   =>  "P25 Radio",
   "p25_net"                     =>  "Reteaua P25",

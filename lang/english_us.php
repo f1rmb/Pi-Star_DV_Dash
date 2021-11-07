@@ -118,7 +118,6 @@ $lang = array (
   "dstar_repeater"              =>  "D-Star Repeater",
   "dstar_net"                   =>  "D-Star Network",
   "dmr_repeater"                =>  "DMR Repeater",
-  "dmr_master"                  =>  "DMR Master",
   "ysf_net"                     =>  "YSF Network",
   "p25_radio"                   =>  "P25 Radio",
   "p25_net"                     =>  "P25 Network",

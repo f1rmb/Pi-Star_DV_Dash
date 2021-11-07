@@ -137,7 +137,7 @@ function listDAPNETGWMessages($logLinesDAPNETGateway, $tillMYRIC) {
 	$utc_tz =  new DateTimeZone('UTC');
 	$local_tz = new DateTimeZone(date_default_timezone_get ());
 	$dt = new DateTime($utc_time, $utc_tz);
-	$dt->setTimeZone($local_tz);
+	$dt->setTimezone($local_tz);
 	$local_time = $dt->format('H:i:s M jS');
 	$pocsag_timeslot = $dapnetMessageArr["6"];
 	$pocsag_ric = str_replace(',', '', $dapnetMessageArr["8"]);
@@ -206,7 +206,7 @@ if ((strcmp($origin, "admin") == 0) && isset($_SESSION['DAPNETAPIKeyConfigs'])) 
 				$utc_tz = new DateTimeZone('UTC');
 				$local_tz = new DateTimeZone(date_default_timezone_get ());
 				$dt = new DateTime($utc_time, $utc_tz);
-				$dt->setTimeZone($local_tz);
+				$dt->setTimezone($local_tz);
 				$local_time = $dt->format('H:i:s M jS');
 				
 				$pos = strpos($dapnetMessageLine, '"');

@@ -66,7 +66,7 @@ for ($i = 0; $i < count($localTXList); $i++) {
             $utc_tz =  new DateTimeZone('UTC');
             $local_tz = new DateTimeZone(date_default_timezone_get ());
             $dt = new DateTime($utc_time, $utc_tz);
-            $dt->setTimeZone($local_tz);
+            $dt->setTimezone($local_tz);
             $local_time = $dt->format('H:i:s M jS');
 	    
 	    echo"<tr>";

@@ -56,7 +56,6 @@ $lang = array (
   "mmdvm_display"               =>  "Typ wyświetlania MMDVM",
   "mode_hangtime"               =>  "Czas rozłączenia",
   // Config Page - General Configuration
-  "hostname"					=>	"Nazwa hosta",
   "node_call"                   =>  "Znak wywoławczy",
   "dmr_id"                      =>  "ID DMR użytkownika",
   "radio_freq"                  =>  "Częstotliwość",
@@ -120,7 +119,6 @@ $lang = array (
   "dstar_repeater"              =>  "D-Star Rypiter",
   "dstar_net"                   =>  "Sieć D-Star",
   "dmr_repeater"                =>  "DMR Rypiter",
-  "dmr_master"                  =>  "DMR Master",
   "ysf_net"                     =>  "Sieć YSF",
   "p25_radio"                   =>  "P25 Radio",
   "p25_net"                     =>  "Sieć P25",

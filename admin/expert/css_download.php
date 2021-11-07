@@ -22,7 +22,7 @@ if (file_exists('/etc/pistar-css.ini'))
 	$utc_tz =  new DateTimeZone('UTC');
 	$local_tz = new DateTimeZone(date_default_timezone_get ());
 	$dt = new DateTime($utc_time, $utc_tz);
-	$dt->setTimeZone($local_tz);
+	$dt->setTimezone($local_tz);
 	$local_time = $dt->format('d-M-Y');
 	header('Content-Description: File Transfer');
 	header('Content-Type: application/octet-stream');

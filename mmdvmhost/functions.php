@@ -945,7 +945,7 @@ function getActualMode($metaLastHeard, &$configs) {
     $local_tz = new DateTimeZone(date_default_timezone_get ());
     $listElem = $metaLastHeard[0];
     $timestamp = new DateTime($listElem[0], $utc_tz);
-    $timestamp->setTimeZone($local_tz); 
+    $timestamp->setTimezone($local_tz);
     $mode = $listElem[1];
     if (startsWith($mode, "DMR")) {
 	$mode = "DMR";

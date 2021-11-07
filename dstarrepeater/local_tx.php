@@ -58,7 +58,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translat
                 $utc_tz =  new DateTimeZone('UTC');
                 $local_tz = new DateTimeZone(date_default_timezone_get ());
                 $dt = new DateTime($utc_time, $utc_tz);
-                $dt->setTimeZone($local_tz);
+                $dt->setTimezone($local_tz);
                 $local_time = $dt->format('H:i:s M jS');
                 print "<td align=\"left\">$local_time</td>";
 		print "<td align=\"left\" width=\"180\"><a href=\"https://www.qrz.com/db/$MyCallLink\" target=\"_blank\">$MyCall</a>";
