@@ -473,6 +473,13 @@ if (($configmmdvm['General']['Display'] == "Nextion") && ($configmmdvm['NextionD
     $configmmdvm['Nextion']['Port'] = $configmmdvm['NextionDriver']['Port'];
 }
 
+// New MMDVMHost uart stuff
+if (!isset($configmmdvm['Modem']['Protocol']) || !isset($configmmdvm['Modem']['UARTPort']) || !isset($configmmdvm['Modem']['UARTSpeed'])) {
+    $configmmdvm['Modem']['Protocol'] = "uart";
+    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+    $configmmdvm['Modem']['UARTSpeed'] = 115200;
+}
+
 //
 // Build APRS password from callsign
 //
@@ -1661,8 +1668,10 @@ $MYCALL=strtoupper($callsign);
 		    if (empty($_POST['dmrMasterHost']) != TRUE ) {
 			$dmrMasterHostArr = explode(',', escapeshellcmd($_POST['dmrMasterHost']));
 			$configmmdvm['DMR Network']['Address'] = $dmrMasterHostArr[0];
+			$configmmdvm['DMR Network']['RemoteAddress'] = $dmrMasterHostArr[0];
 			$configmmdvm['DMR Network']['Password'] = '"'.$dmrMasterHostArr[1].'"';
 			$configmmdvm['DMR Network']['Port'] = $dmrMasterHostArr[2];
+			$configmmdvm['DMR Network']['RemotePort'] = $dmrMasterHostArr[2];
 			if (empty($_POST['bmHSSecurity']) != TRUE ) {
 			    $configModem['BrandMeister']['Password'] = '"'.$_POST['bmHSSecurity'].'"';
 			    if ($dmrMasterHostArr[0] != '127.0.0.1') {
@@ -1689,6 +1698,7 @@ $MYCALL=strtoupper($callsign);
 			    unset ($configmmdvm['DMR Network']['Options']);
 			    unset ($configdmrgateway['DMR Network 2']['Options']);
 			    unset ($configmmdvm['DMR Network']['Local']);
+			    unset ($configmmdvm['DMR Network']['LocalPort']);
 			    unset ($configysf2dmr['DMR Network']['Options']);
 			    unset ($configysf2dmr['DMR Network']['Local']);
 			}
@@ -1700,6 +1710,7 @@ $MYCALL=strtoupper($callsign);
 			    // F1RMB: don't erase DMR Network 2::Options
 			    //unset ($configdmrgateway['DMR Network 2']['Options']);
 			    $configmmdvm['DMR Network']['Local'] = "62032";
+			    $configmmdvm['DMR Network']['LocalPort'] = "62032";
 			    unset ($configysf2dmr['DMR Network']['Options']);
 			    $configysf2dmr['DMR Network']['Local'] = "62032";
 			    if (isset($configdmr2ysf['DMR Network']['LocalAddress'])) {
@@ -1719,6 +1730,7 @@ $MYCALL=strtoupper($callsign);
 			if ($dmrMasterHostArr[0] == '127.0.0.2' && $dmrMasterHostArr[2] == '62033') {
 			    unset ($configmmdvm['DMR Network']['Options']);
 			    $configmmdvm['DMR Network']['Local'] = "62034";
+			    $configmmdvm['DMR Network']['LocalPort'] = "62034";
 			    if (isset($configdmr2ysf['DMR Network']['LocalAddress'])) {
 				$configdmr2ysf['DMR Network']['LocalAddress'] = "127.0.0.2";
 			    }
@@ -1728,6 +1740,7 @@ $MYCALL=strtoupper($callsign);
 			if ($dmrMasterHostArr[0] == '127.0.0.3' && $dmrMasterHostArr[2] == '62035') {
 			    unset ($configmmdvm['DMR Network']['Options']);
 			    $configmmdvm['DMR Network']['Local'] = "62036";
+			    $configmmdvm['DMR Network']['LocalPort'] = "62036";
 			    if (isset($configdmr2nxdn['DMR Network']['LocalAddress'])) {
 				$configdmr2nxdn['DMR Network']['LocalAddress'] = "127.0.0.3";
 			    }
@@ -1736,6 +1749,7 @@ $MYCALL=strtoupper($callsign);
 			// Set the DMR+ / HBLink Options= line
 			if ((substr($dmrMasterHostArr[3], 0, 4) == "DMR+") || (substr($dmrMasterHostArr[3], 0, 3) == "HB_") || (substr($dmrMasterHostArr[3], 0, 3) == "FD_") || (substr($dmrMasterHostArr[3], 0, 8) == "FreeDMR_")) {
 			    unset ($configmmdvm['DMR Network']['Local']);
+			    unset ($configmmdvm['DMR Network']['LocalPort']);
 			    unset ($configysf2dmr['DMR Network']['Local']);
 			    if (empty($_POST['dmrNetworkOptions']) != TRUE ) {
 				$dmrOptionsLineStripped = str_replace('"', "", $_POST['dmrNetworkOptions']);
@@ -1923,11 +1937,19 @@ $MYCALL=strtoupper($callsign);
 			    if (substr($testNeworkConfig, 0, 1) === '0') {
 				exec('sudo sed -i "$ a\ \\nauto eth0:1\\nallow-hotplug eth0:1\\niface eth0:1 inet static\\n    address 172.16.0.20\\n    netmask 255.255.255.0" /etc/network/interfaces');
 			    }
+			    
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'icomTerminalAuto' ) {
 			    $configdstar['modemType'] = 'Icom Access Point/Terminal Mode';
 			    $configdstar['icomPort'] = '/dev/icom_ta';
 			    $configdstar['rpt1Validation'] = "0";
+			    
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmpis' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -1939,6 +1961,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+			    
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmpid' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -1950,6 +1976,10 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+			    
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmuadu' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -1961,6 +1991,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmuada' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -1972,6 +2006,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmbss' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -1985,6 +2023,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmbsd' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -1998,6 +2040,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmuagmsku' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -2006,6 +2052,10 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmuagmska' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -2014,6 +2064,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvrptr1' ) {
 			    $configdstar['modemType'] = "DV-RPTR V1";
@@ -2021,6 +2075,10 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvrptr2' ) {
 			    $configdstar['modemType'] = "DV-RPTR V2";
@@ -2028,6 +2086,10 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvrptr3' ) {
 			    $configdstar['modemType'] = "DV-RPTR V3";
@@ -2035,17 +2097,29 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'gmsk_modem' ) {
 			    $configdstar['modemType'] = "GMSK Modem";
 			    
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvap' ) {
 			    $configdstar['modemType'] = "DVAP";
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zumspotlibre' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2056,6 +2130,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zumspotusb' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2066,6 +2144,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'lsusb' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2076,6 +2158,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zumspotgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2086,6 +2172,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zumspotdualgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2096,6 +2186,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zumspotduplexgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2105,6 +2199,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zumradiopiusb' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2115,6 +2213,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zumradiopigpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2123,6 +2225,10 @@ $MYCALL=strtoupper($callsign);
 			    $configircddb['repeaterType1'] = "0";
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'zum' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2131,6 +2237,10 @@ $MYCALL=strtoupper($callsign);
 			    $configircddb['repeaterType1'] = "0";
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'stm32dvm' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2138,6 +2248,10 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configircddb['repeaterType1'] = "0";
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'stm32usb' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2146,6 +2260,10 @@ $MYCALL=strtoupper($callsign);
 			    $configircddb['repeaterType1'] = "0";
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'f4mgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2154,6 +2272,10 @@ $MYCALL=strtoupper($callsign);
 			    $configircddb['repeaterType1'] = "0";
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'f4mf7m' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2163,6 +2285,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmhshat' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2173,6 +2299,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'lshshatgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2183,6 +2313,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmhshatambe' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2193,6 +2327,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttySC0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmhsdualbandgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2202,6 +2340,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'sbhsdualbandgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2212,6 +2354,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmhsdualhatgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2221,6 +2367,10 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'lshsdualhatgpio' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2230,6 +2380,10 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmhsdualhatusb' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2239,6 +2393,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmrpthat' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2248,6 +2406,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmmdohat' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2258,6 +2420,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmvyehat' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2268,6 +2434,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mmdvmvyehatdual' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2277,6 +2447,10 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mnnano-spot' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2287,6 +2461,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'mnnano-teensy' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2297,6 +2475,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'nanodv' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2307,6 +2489,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'nanodvusb' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2317,6 +2503,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmpicast' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -2328,6 +2518,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmpicasths' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -2339,6 +2533,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyS2";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'dvmpicasthd' ) {
 			    $configdstar['modemType'] = "DVMEGA";
@@ -2350,6 +2548,10 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyS2";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			else if ( $confHardware == 'opengd77' ) {
 			    $configdstar['modemType'] = "MMDVM";
@@ -2365,6 +2567,10 @@ $MYCALL=strtoupper($callsign);
 				$configmmdvm['General']['Display'] = "CAST";
 				unset($_POST['mmdvmDisplayType']);
 			    }
+
+			    $configmmdvm['Modem']['Protocol'] = "uart";
+			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
+			    $configmmdvm['Modem']['UARTSpeed'] = 115200;
 			}
 			
 			// Set the Service start delay
@@ -2732,8 +2938,10 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configmmdvm['Modem']['TXDCOffset'])) { $configmmdvm['Modem']['TXDCOffset'] = "0"; }
 		    if (!isset($configmmdvm['Modem']['CWIdTXLevel'])) { $configmmdvm['Modem']['CWIdTXLevel'] = "50"; }
 		    if (!isset($configmmdvm['Modem']['NXDNTXLevel'])) { $configmmdvm['Modem']['NXDNTXLevel'] = "50"; }
+		    if (!isset($configmmdvm['Modem']['M17TXLevel'])) { $configmmdvm['Modem']['M17TXLevel'] = "50"; }
 		    if (!isset($configmmdvm['Modem']['POCSAGTXLevel'])) { $configmmdvm['Modem']['POCSAGTXLevel'] = "50"; }
 		    if (!isset($configmmdvm['Modem']['FMTXLevel'])) { $configmmdvm['Modem']['FMTXLevel'] = "50"; }
+		    if (!isset($configmmdvm['Modem']['AX25TXLevel'])) { $configmmdvm['Modem']['AX25TXLevel'] = "50"; }
 		    if (!isset($configmmdvm['Modem']['UseCOSAsLockout'])) { $configmmdvm['Modem']['UseCOSAsLockout'] = "0"; }
 		    if (!isset($configmmdvm['D-Star']['AckReply'])) { $configmmdvm['D-Star']['AckReply'] = "1"; }
 		    if (!isset($configmmdvm['D-Star']['AckTime'])) { $configmmdvm['D-Star']['AckTime'] = "750"; }
@@ -2750,12 +2958,35 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configmmdvm['NXDN']['SelfOnly'])) { $configmmdvm['NXDN']['SelfOnly'] = "1"; }
 		    if (!isset($configmmdvm['NXDN']['RemoteGateway'])) { $configmmdvm['NXDN']['RemoteGateway'] = "0"; }
 		    if (!isset($configmmdvm['NXDN']['TXHang'])) { $configmmdvm['NXDN']['TXHang'] = "5"; }
+		    if (!isset($configmmdvm['M17']['Enable'])) { $configmmdvm['M17']['Enable'] = "0"; }
+		    if (!isset($configmmdvm['M17']['CAN'])) { $configmmdvm['M17']['CAN'] = "0"; }
+		    if (!isset($configmmdvm['M17']['SelfOnly'])) { $configmmdvm['M17']['SelfOnly'] = "1"; }
+		    if (!isset($configmmdvm['M17']['TXHang'])) { $configmmdvm['M17']['TXHang'] = "5"; }
+		    if (!isset($configmmdvm['M17']['Enable'])) { $configmmdvm['M17']['Enable'] = "0"; }
+		    if (!isset($configmmdvm['M17']['ModeHang'])) { $configmmdvm['M17']['ModeHang'] = "20"; }
+		    if (!isset($configmmdvm['AX.25']['Enable'])) { $configmmdvm['AX.25']['Enable'] = "0"; }
+		    if (!isset($configmmdvm['AX.25']['TXDelay'])) { $configmmdvm['AX.25']['TXDelay'] = "300"; }
+		    if (!isset($configmmdvm['AX.25']['RXTwist'])) { $configmmdvm['AX.25']['RXTwist'] = "6"; }
+		    if (!isset($configmmdvm['AX.25']['SlotTime'])) { $configmmdvm['AX.25']['SlotTime'] = "30"; }
+		    if (!isset($configmmdvm['AX.25']['PPersist'])) { $configmmdvm['AX.25']['PPersist'] = "128"; }
+		    if (!isset($configmmdvm['AX.25']['Trace'])) { $configmmdvm['AX.25']['Trace'] = "0"; }
 		    if (!isset($configmmdvm['NXDN Network']['Enable'])) { $configmmdvm['NXDN Network']['Enable'] = "0"; }
 		    if (!isset($configmmdvm['NXDN Network']['LocalPort'])) { $configmmdvm['NXDN Network']['LocalPort'] = "3300"; }
 		    if (!isset($configmmdvm['NXDN Network']['GatewayAddress'])) { $configmmdvm['NXDN Network']['GatewayAddress'] = "127.0.0.1"; }
 		    if (!isset($configmmdvm['NXDN Network']['GatewayPort'])) { $configmmdvm['NXDN Network']['GatewayPort'] = "4300"; }
 		    if (!isset($configmmdvm['NXDN Network']['Protocol'])) { $configmmdvm['NXDN Network']['Protocol'] = "Icom"; }
 		    if (!isset($configmmdvm['NXDN Network']['Debug'])) { $configmmdvm['NXDN Network']['Debug'] = "0"; }
+		    if (!isset($configmmdvm['M17 Network']['Enable'])) { $configmmdvm['M17 Network']['Enable'] = "0"; }
+		    if (!isset($configmmdvm['M17 Network']['LocalAddress'])) { $configmmdvm['M17 Network']['LocalAddress'] = "127.0.0.1"; }
+		    if (!isset($configmmdvm['M17 Network']['LocalPort'])) { $configmmdvm['M17 Network']['LocalPort'] = "17011"; }
+		    if (!isset($configmmdvm['M17 Network']['GatewayAddress'])) { $configmmdvm['M17 Network']['GatewayAddress'] = "127.0.0.1"; }
+		    if (!isset($configmmdvm['M17 Network']['GatewayPort'])) { $configmmdvm['M17 Network']['GatewayPort'] = "17010"; }
+		    if (!isset($configmmdvm['M17 Network']['ModeHang'])) { $configmmdvm['M17 Network']['ModeHang'] = "20"; }
+		    if (!isset($configmmdvm['M17 Network']['Debug'])) { $configmmdvm['M17 Network']['Debug'] = "0"; }
+		    if (!isset($configmmdvm['AX.25 Network']['Enable'])) { $configmmdvm['AX.25 Network']['Enable'] = "0"; }
+		    if (!isset($configmmdvm['AX.25 Network']['Port'])) { $configmmdvm['AX.25 Network']['Port'] = "/dev/ttyp7"; }
+		    if (!isset($configmmdvm['AX.25 Network']['Speed'])) { $configmmdvm['AX.25 Network']['Speed'] = "9600"; }
+		    if (!isset($configmmdvm['AX.25 Network']['Debug'])) { $configmmdvm['AX.25 Network']['Debug'] = "0"; }
 		    if (!isset($configmmdvm['NXDN Id Lookup']['File'])) { $configmmdvm['NXDN Id Lookup']['File'] = "/usr/local/etc/NXDN.csv"; }
 		    if (!isset($configmmdvm['NXDN Id Lookup']['Time'])) { $configmmdvm['NXDN Id Lookup']['Time'] = "24"; }
 		    if (!isset($configmmdvm['System Fusion']['TXHang'])) { $configmmdvm['System Fusion']['TXHang'] = "3"; }
