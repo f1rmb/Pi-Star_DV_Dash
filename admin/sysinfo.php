@@ -229,7 +229,7 @@ function formatSize( $bytes ) {
 			echo "  <tr>";getStatusClass(isProcessRunning("P25Gateway"), true); echo "P25Gateway</td><td align=\"left\">".$P25Gateway_Ver."</td></tr>\n";
 		    }
 		    if (is_executable('/usr/local/bin/NXDNGateway')) {
-			$NXDNGateway_Ver = exec('/usr/local/bin/YSFGateway -v | cut -d\' \' -f 3-');
+			$NXDNGateway_Ver = exec('/usr/local/bin/NXDNGateway -v | cut -d\' \' -f 3-');
 			echo "  <tr>";getStatusClass(isProcessRunning("NXDNGateway"), true); echo "NXDNGateway</td><td align=\"left\">".$NXDNGateway_Ver."</td></tr>\n";
 		    }
 		    if (is_executable('/usr/local/bin/DAPNETGateway')) {
