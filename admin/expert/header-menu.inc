@@ -36,6 +36,7 @@
 			<li class="subs has-subs"><a href="#">SystemFusion</a>
 			    <ul class="dropdown">
 				<li class="subs"><a href="edit_ysfgateway.php">YSF Gateway</a></li>
+				<li class="subs"><a href="edit_dgidgateway.php">DGId Gateway</a></li>
 				<li class="subs"><a href="edit_ysf2dmr.php">YSF to DMR</a></li>
 				<li class="subs"><a href="edit_ysf2p25.php">YSF to P25</a></li>
 				<li class="subs"><a href="edit_ysf2nxdn.php">YSF to NXDN</a></li>
@@ -79,6 +80,7 @@
 			<li class="subs has-subs"><a href="#">SystemFusion</a>
 			    <ul class="dropdown">
 				<li class="subs"><a href="fulledit_ysfgateway.php">YSF Gateway</a></li>
+				<li class="subs"><a href="fulledit_dgidgateway.php">DGId Gateway</a></li>
 				<li class="subs"><a href="fulledit_ysf2dmr.php">YSF to DMR</a></li>
 				<li class="subs"><a href="fulledit_ysf2p25.php">YSF to P25</a></li>
 				<li class="subs"><a href="fulledit_ysf2nxdn.php">YSF to NXDN</a></li>

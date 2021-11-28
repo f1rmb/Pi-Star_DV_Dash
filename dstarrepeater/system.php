@@ -44,7 +44,7 @@ function getServiceStatusClass($active) {
 	<td class="disabled-service-cell"</td>
 	<td class="disabled-service-cell"</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('dstarrepeaterd')); ?>">DStarRepeater</td>
-	<td class="<?php getServiceStatusClass(isProcessRunning('YSFParrot')); ?>">YSFParrot</td>
+	<td class="<?php getServiceStatusClass(isProcessRunning('DGIdGateway')); ?>">DGIdGateway</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('P25Parrot')); ?>">P25Parrot</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('gpsd')); ?>">GPSd</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('NextionDriver')); ?>">NextionDriver</td>
@@ -53,7 +53,7 @@ function getServiceStatusClass($active) {
 	<td class="disabled-service-cell"</td>
 	<td class="disabled-service-cell"</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('timeserverd')); ?>">TimeServer</td>
-	<td class="disabled-service-cell"</td>
+	<td class="<?php getServiceStatusClass(isProcessRunning('YSFParrot')); ?>">YSFParrot</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('/usr/local/sbin/pistar-watchdog',true)); ?>">PiStar-Watchdog</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('/usr/local/sbin/pistar-remote',true)); ?>">PiStar-Remote</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('/usr/local/sbin/pistar-keeper',true)); ?>">PiStar-Keeper</td>

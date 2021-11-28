@@ -51,6 +51,14 @@ $configmmdvm = parse_ini_file($mmdvmConfigFile, true);
 $ysfgatewayConfigFile = '/etc/ysfgateway';
 $configysfgateway = parse_ini_file($ysfgatewayConfigFile, true);
 
+// Load the dgidgateway config file
+if (file_exists('/etc/dgidgateway')) {
+    $dgidgatewayConfigFile = '/etc/dgidgateway';
+    if (fopen($dgidgatewayConfigFile,'r')) {
+	$configdgidgateway = parse_ini_file($dgidgatewayConfigFile, true);
+    }
+}
+
 // File format has changed since the beginning, force some values.
 if (isset($configysfgateway['Network']['Port'])) { unset($configysfgateway['Network']['Port']); }
 
@@ -828,6 +836,7 @@ $MYCALL=strtoupper($callsign);
 		    exec('sudo systemctl stop pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
 		    exec('sudo systemctl stop pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
 		    exec('sudo systemctl stop ysfgateway.service > /dev/null 2>/dev/null &');		// YSFGateway
+		    exec('sudo systemctl stop dgidgateway.service > /dev/null 2>/dev/null &');		// DGIdGateway
 		    exec('sudo systemctl stop ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
 		    exec('sudo systemctl stop ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
 		    exec('sudo systemctl stop ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
@@ -963,6 +972,7 @@ $MYCALL=strtoupper($callsign);
 			$configircddb['latitude1'] = $newConfLatitude;
 			$configmmdvm['Info']['Latitude'] = $newConfLatitude;
 			$configysfgateway['Info']['Latitude'] = $newConfLatitude;
+			if (isset($configdgidgateway)) { $configdgidgateway['Info']['Latitude'] = $newConfLatitude; }
 			$configysf2dmr['Info']['Latitude'] = $newConfLatitude;
 			$configysf2nxdn['Info']['Latitude'] = $newConfLatitude;
 			$configysf2p25['Info']['Latitude'] = $newConfLatitude;
@@ -978,6 +988,7 @@ $MYCALL=strtoupper($callsign);
 			$configircddb['longitude1'] = $newConfLongitude;
 			$configmmdvm['Info']['Longitude'] = $newConfLongitude;
 			$configysfgateway['Info']['Longitude'] = $newConfLongitude;
+			if (isset($configdgidgateway)) { $configdgidgateway['Info']['Longitude'] = $newConfLongitude; }
 			$configysf2dmr['Info']['Longitude'] = $newConfLongitude;
 			$configysf2nxdn['Info']['Longitude'] = $newConfLongitude;
 			$configysf2p25['Info']['Longitude'] = $newConfLongitude;
@@ -991,6 +1002,7 @@ $MYCALL=strtoupper($callsign);
 			$gpsdEnabled = (escapeshellcmd($_POST['GPSD']) == 'ON' ) ? "1" : "0";
 			$configdmrgateway['GPSD']['Enable'] = $gpsdEnabled;
 			$configysfgateway['GPSD']['Enable'] = $gpsdEnabled;
+			$configdgidgateway['GPSD']['Enable'] = $gpsdEnabled;
 			$confignxdngateway['GPSD']['Enable'] = $gpsdEnabled;
 			
 			if (empty($_POST['gpsdPort']) != TRUE ) {
@@ -1001,9 +1013,12 @@ $MYCALL=strtoupper($callsign);
 			    $configdmrgateway['GPSD']['Address'] = escapeshellcmd($_POST['gpsdServer']);
 			}
 			
-			// Port and Address for YSF and NXDN gateways
+			// Port and Address for YSF, GDId and NXDN gateways
 			$configysfgateway['GPSD']['Port'] = $configdmrgateway['GPSD']['Port'];
 			$configysfgateway['GPSD']['Address'] = $configdmrgateway['GPSD']['Address'];
+
+			$configdgidgateway['GPSD']['Port'] = $configdmrgateway['GPSD']['Port'];
+			$configdgidgateway['GPSD']['Address'] = $configdmrgateway['GPSD']['Address'];
 			
 			$confignxdngateway['GPSD']['Port'] = $configdmrgateway['GPSD']['Port'];
 			$confignxdngateway['GPSD']['Address'] = $configdmrgateway['GPSD']['Address'];
@@ -1031,6 +1046,7 @@ $MYCALL=strtoupper($callsign);
 			$configmmdvm['Info']['Description'] = '"'.$newConfDesc2.'"';
 			$configdmrgateway['Info']['Description'] = '"'.$newConfDesc2.'"';
 			$configysfgateway['Info']['Description'] = '"'.$newConfDesc2.'"';
+			if (isset($configdgidgateway)) { $configdgidgateway['Info']['Description'] = '"'.$newConfDesc2.'"'; }
 			$confignxdngateway['Info']['Description'] = '"'.$newConfDesc2.'"';
 		    }
 		    
@@ -1181,6 +1197,9 @@ $MYCALL=strtoupper($callsign);
 			$configysfgateway['Info']['RXFrequency'] = $newFREQrx;
 			$configysfgateway['Info']['TXFrequency'] = $newFREQtx;
 			$configysfgateway['General']['Suffix'] = "RPT";
+			if (isset($configdgidgateway)) { $configdgidgateway['Info']['RXFrequency'] = $newFREQrx; }
+			if (isset($configdgidgateway)) { $configdgidgateway['Info']['TXFrequency'] = $newFREQtx; }
+			if (isset($configdgidgateway)) { $configdgidgateway['General']['Suffix'] = "RPT"; }
 			$configysf2dmr['Info']['RXFrequency'] = $newFREQrx;
 			$configysf2dmr['Info']['TXFrequency'] = $newFREQrx; // Present ourselves as a simplex device on the Network.
 			$configysf2dmr['YSF Network']['Suffix'] = "RPT";
@@ -1382,6 +1401,8 @@ $MYCALL=strtoupper($callsign);
 			$confignxdngateway['APRS']['Description'] = $configysfgateway['APRS']['Description'];
 			$confignxdngateway['General']['Callsign'] = $newCallsignUpper;
 			$configysfgateway['Info']['Description'] = $newCallsignUpper."_Pi-Star";
+			if (isset($configdgidgateway)) { $configdgidgateway['General']['Callsign'] = $newCallsignUpper; }
+			if (isset($configdgidgateway)) { $configdgidgateway['Info']['Description'] = $newCallsignUpper."_Pi-Star"; }
 			$configysf2dmr['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 			$configysf2nxdn['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 			$configysf2p25['Info']['Description'] = $newCallsignUpper."_Pi-Star";
@@ -1482,7 +1503,13 @@ $MYCALL=strtoupper($callsign);
 			    }
 	  		    else {
 				$configysfgateway['Network']['Startup'] = $newYSFStartupHostArr[1];
-				$configdmr2ysf['DMR Network']['DefaultDstTG'] = str_replace("FCS", "1", $newYSFStartupHostArr[0]);
+				if (substr($newYSFStartupHostArr[0], 0, 3 ) !== "FCS") {
+				    $configdmr2ysf['DMR Network']['DefaultDstTG'] = $newYSFStartupHostArr[0];
+				} 
+				else {
+				    $configdmr2ysf['DMR Network']['DefaultDstTG'] = "9";
+				}
+				//$configdmr2ysf['DMR Network']['DefaultDstTG'] = str_replace("FCS", "1", $newYSFStartupHostArr[0]);
 			    }
 			} 
 			else {
@@ -1492,7 +1519,13 @@ $MYCALL=strtoupper($callsign);
 			    }
 	  		    else {
 				$configysfgateway['Network']['Startup'] = $newYSFStartupHostArr[0];
-				$configdmr2ysf['DMR Network']['DefaultDstTG'] = str_replace("FCS", "1", $newYSFStartupHostArr[0]);
+				if (substr($newYSFStartupHostArr[0], 0, 3 ) !== "FCS") {
+				    $configdmr2ysf['DMR Network']['DefaultDstTG'] = $newYSFStartupHostArr[0];
+				}
+				else {
+				    $configdmr2ysf['DMR Network']['DefaultDstTG'] = "9";
+				}
+				//$configdmr2ysf['DMR Network']['DefaultDstTG'] = str_replace("FCS", "1", $newYSFStartupHostArr[0]);
 			    }
 			}
 		    }
@@ -1627,6 +1660,7 @@ $MYCALL=strtoupper($callsign);
 			$configmmdvm['General']['Id'] = $newPostDmrId;
 			$configmmdvm['DMR']['Id'] = $newPostDmrId;
 			$configysfgateway['General']['Id'] = $newPostDmrId;
+			if (isset($configdgidgateway)) { $configdgidgateway['General']['Id'] = $newPostDmrId; }
 			$configdmrgateway['XLX Network']['Id'] = $newPostDmrId;
 			$configdmr2ysf['DMR Network']['Id'] = $newPostDmrId;
 			$configdmr2nxdn['DMR Network']['Id'] = $newPostDmrId;
@@ -1893,9 +1927,21 @@ $MYCALL=strtoupper($callsign);
 		    // Set YSF Hang Timers
 		    if (empty($_POST['ysfRfHangTime']) != TRUE ) {
 			$configmmdvm['System Fusion']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['ysfRfHangTime']);
+			if (isset($configdgidgateway)) {
+			    $configdgidgateway['General']['RFHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfRfHangTime']);
+			    $configdgidgateway['YSF Network']['RFHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfRfHangTime']);
+			    $configdgidgateway['FCS Network']['RFHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfRfHangTime']);
+			    $configdgidgateway['IMRS Network']['RFHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfRfHangTime']);
+			}
 		    }
 		    if (empty($_POST['ysfNetHangTime']) != TRUE ) {
 			$configmmdvm['System Fusion Network']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['ysfNetHangTime']);
+			if (isset($configdgidgateway)) {
+			    $configdgidgateway['General']['NetHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfNetHangTime']);
+			    $configdgidgateway['YSF Network']['NetHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfNetHangTime']);
+			    $configdgidgateway['FCS Network']['NetHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfNetHangTime']);
+			    $configdgidgateway['IMRS Network']['NetHangTime'] = preg_replace('/[^0-9]/', '', $_POST['ysfNetHangTime']);
+			}
 		    }
 		    // Set P25 Hang Timers
 		    if (empty($_POST['p25RfHangTime']) != TRUE ) {
@@ -3150,6 +3196,18 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configysf2p25['YSF Network']['WiresXMakeUpper'])) { $configysf2p25['YSF Network']['WiresXMakeUpper'] = "1"; }
 		    if (!isset($configysf2p25['YSF Network']['DT1'])) { $configysf2p25['YSF Network']['DT1'] = "1,34,97,95,43,3,17,0,0,0"; }
 		    if (!isset($configysf2p25['YSF Network']['DT2'])) { $configysf2p25['YSF Network']['DT2'] = "0,0,0,0,108,32,28,32,3,8"; }
+
+		    // Defaults for DGIdGateway
+		    if (isset($configdgidgateway)) {
+			$configdgidgateway['General']['LocalPort'] = $configmmdvm['System Fusion Network']['GatewayPort'];
+			$configdgidgateway['General']['RptPort'] =  $configmmdvm['System Fusion Network']['LocalPort'];
+			$configdgidgateway['Log']['DisplayLevel'] = 1; 
+			$configdgidgateway['Log']['FileLevel'] = 1;
+			$configdgidgateway['Log']['FilePath'] = "/var/log/pi-star";
+			$configdgidgateway['Log']['FileRoot'] = "DGIdGateway";
+			$configdgidgateway['Log']['FileRotate'] = 0;
+			$configdgidgateway['YSF Network']['Hosts'] = "/usr/local/etc/YSFHosts.txt";
+		    }
 		    
 		    // Clean up for NXDN Gateway
 		    if (file_exists('/etc/nxdngateway')) {
@@ -3334,6 +3392,13 @@ $MYCALL=strtoupper($callsign);
 		    if (saveConfigFile($configysfgateway, '/tmp/eXNmZ2F0ZXdheQ.tmp', '/etc/ysfgateway', 35) == false) {
 			return false;
 		    }
+
+		    // Save DGIdGateway config file
+		    if (isset($configdgidgateway)) {
+			if (saveConfigFile($configdgidgateway, '/tmp/pJ5m9V5qwnNa5h.tmp', '/etc/dgidgateway', 30) == false) {
+			    return false;
+			}
+		    }		    
 		    
 		    // Save NXDNGateway config file
 		    if (saveConfigFile($confignxdngateway, '/tmp/kXKwkDKy793HF5.tmp', '/etc/nxdngateway', 30) == false) {
@@ -3417,6 +3482,7 @@ $MYCALL=strtoupper($callsign);
 		    exec('sudo systemctl start ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
 		    exec('sudo systemctl start ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
 		    exec('sudo systemctl start nxdn2dmr.service > /dev/null 2>/dev/null &');		// NXDN2DMR
+		    exec('sudo systemctl start dgidgateway.service > /dev/null 2>/dev/null &');		// DGIdGateway
 		    exec('sudo systemctl start ysfgateway.service > /dev/null 2>/dev/null &');		// YSFGateway
 		    exec('sudo systemctl start ysfparrot.service > /dev/null 2>/dev/null &');		// YSFParrot
 		    exec('sudo systemctl start p25gateway.service > /dev/null 2>/dev/null &');		// P25Gateway
