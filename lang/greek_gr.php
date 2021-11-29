@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "Χώρα",
   "url"                         =>  "URL",
   "radio_type"                  =>  "Τύπος Modem",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "Τύπος Κόμβου",
   "timezone"                    =>  "Ζώνη Ωρας",
   "dash_lang"                   =>  "Γλώσσα Πίνακα Ελέγχου",

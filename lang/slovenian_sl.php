@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "Država",
   "url"                         =>  "URL",
   "radio_type"                  =>  "Vrsta sprejemnika/modema",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "Vrsta vozlišča",
   "timezone"                    =>  "Časovni pas",
   "dash_lang"                   =>  "Jezik nadzorne plošče",

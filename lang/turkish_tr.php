@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "Ülke",
   "url"                         =>  "URL",
   "radio_type"                  =>  "Radyo/Modem Tipi",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "Yayın Tipi",
   "timezone"                    =>  "Sistem Saati Dilimi",
   "dash_lang"                   =>  "Pano Dili",

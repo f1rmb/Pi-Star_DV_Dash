@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "ประเทศ",
   "url"                         =>  "URL",
   "radio_type"                  =>  "ชนิดของอุปกรณ์",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "รูปแบบของสถานี",
   "timezone"                    =>  "เขตเวลาที่ใช้",
   "dash_lang"                   =>  "ภาษาสำหรับแผงควบคุม",

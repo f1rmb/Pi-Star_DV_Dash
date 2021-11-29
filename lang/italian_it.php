@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "Stato",
   "url"                         =>  "URL",
   "radio_type"                  =>  "Radio/Modem Modello",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "Tipo di Nodo",
   "timezone"                    =>  "Fuso Orario",
   "dash_lang"                   =>  "Linguaggio Cruscotto",

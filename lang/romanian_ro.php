@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "Tara",
   "url"                         =>  "URL",
   "radio_type"                  =>  "Model Radio/Modem",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "Model Node",
   "timezone"                    =>  "Time Zone Sistem",
   "dash_lang"                   =>  "Limba Panou Control",

@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "国",
   "url"                         =>  "URL",
   "radio_type"                  =>  "Radio/Modem タイプ",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "ノードタイプ",
   "timezone"                    =>  "タイムゾーン",
   "dash_lang"                   =>  "言語",

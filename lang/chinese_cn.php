@@ -64,6 +64,7 @@ $lang = array (
   "country"                     =>  "国家",
   "url"                         =>  "URL",
   "radio_type"                  =>  "电台/调制解调器类型",
+  "baudrate"                    =>  "Baudrate",
   "node_type"                   =>  "节点类型",
   "timezone"                    =>  "时区",
   "dash_lang"                   =>  "仪表盘语言",
