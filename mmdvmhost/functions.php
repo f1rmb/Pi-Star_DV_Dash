@@ -1,4 +1,8 @@
 <?php
+
+$CURRENT_CONFIGURATION_VERSION = 1;
+
+
 if (isset($_COOKIE['PHPSESSID']))
 {
     session_id($_COOKIE['PHPSESSID']); 

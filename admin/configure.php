@@ -3377,6 +3377,9 @@ $MYCALL=strtoupper($callsign);
 			ensureOptionsIsQuoted($configysf2dmr['DMR Network']['Options']);
 		    }
 
+		    // Put config version info
+		    $configmmdvm['Pi-Star Settings']['ConfigVersion'] = $CURRENT_CONFIGURATION_VERSION;
+
 		    // Save MMDVMHost config file
 		    if (saveConfigFile($configmmdvm, '/tmp/bW1kdm1ob3N0DQo.tmp', '/etc/mmdvmhost', 140) == false) {
 			return false;

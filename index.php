@@ -100,6 +100,28 @@ checkSessionValidity();
 		    </div> 
 		</p>
 	    </div>
+	    <?php
+	    // Check if configuration files are matching the current required version
+	    if (($_SERVER["PHP_SELF"] == "/admin/index.php") || ($_SERVER["PHP_SELF"] == "/index.php")) {
+		$configVersion = getConfigItem("Pi-Star Settings", "ConfigVersion", $_SESSION['MMDVMHostConfigs']);
+		
+		if (!isset($configVersion) || ($configVersion < $CURRENT_CONFIGURATION_VERSION)) {
+	    ?>
+		<div>
+		    <table align="center" width="100%" style="margin: 0px 0px 10px 0px; width: 100%;">
+			<tr>
+			    <td align="center" valign="top" style="background-color: #CA0000; color: #FFFFFF;">
+				-- ALERT --<br />
+				<br />
+				Your configuration needs to be updated.<br />
+				Please go in the Configuration page and click on any "Apply Changes" button.<br />
+			</tr>
+		    </table>
+		</div>
+	    <?php
+	        }
+	    }
+	    ?>
 	    
 	    <?php
 	    
