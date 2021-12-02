@@ -236,6 +236,10 @@ function formatSize( $bytes ) {
 			$NXDNGateway_Ver = exec('/usr/local/bin/NXDNGateway -v | cut -d\' \' -f 3-');
 			echo "  <tr>";getStatusClass(isProcessRunning("NXDNGateway"), true); echo "NXDNGateway</td><td align=\"left\">".$NXDNGateway_Ver."</td></tr>\n";
 		    }
+		    if (is_executable('/usr/local/bin/NXDN2DMR')) {
+			$NXDN2DMR_Ver = exec('/usr/local/bin/NXDN2DMR -v | cut -d\' \' -f 3-');
+			echo "  <tr>";getStatusClass(isProcessRunning("NXDN2DMR"), true); echo "NXDN2DMR</td><td align=\"left\">".$NXDN2DMR_Ver."</td></tr>\n";
+		    }
 		    if (is_executable('/usr/local/bin/DAPNETGateway')) {
 			$DAPNETGateway_Ver = exec('/usr/local/bin/DAPNETGateway -v | cut -d\' \' -f 3-');
 			echo "  <tr>";getStatusClass(isProcessRunning("DAPNETGateway"), true); echo "DAPNETGateway</td><td align=\"left\">".$DAPNETGateway_Ver."</td></tr>\n";
