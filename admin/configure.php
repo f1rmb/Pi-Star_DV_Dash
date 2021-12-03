@@ -2014,6 +2014,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			    
@@ -2029,6 +2031,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configircddb['repeaterType1'] = "0";
 			    
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 			    
@@ -2044,6 +2048,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
@@ -2058,6 +2064,8 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
@@ -2076,6 +2084,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
@@ -2093,6 +2103,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
@@ -2108,6 +2120,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2120,6 +2134,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2130,6 +2146,8 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2142,6 +2160,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2153,6 +2173,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2162,15 +2184,19 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configircddb['repeaterType1'] = "0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
 			}
 			else if ( $confHardware == 'dvap' ) {
 			    $configdstar['modemType'] = "DVAP";
-
+			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configircddb['repeaterType1'] = "0";
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2186,6 +2212,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2199,6 +2227,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2214,6 +2244,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2227,6 +2259,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2242,6 +2276,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2254,6 +2290,8 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2269,6 +2307,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2280,6 +2320,8 @@ $MYCALL=strtoupper($callsign);
 			    $configircddb['repeaterType1'] = "0";
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2293,6 +2335,8 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2303,6 +2347,8 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configircddb['repeaterType1'] = "0";
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2316,6 +2362,8 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2327,6 +2375,8 @@ $MYCALL=strtoupper($callsign);
 			    $configircddb['repeaterType1'] = "0";
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2340,6 +2390,8 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2355,6 +2407,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2368,6 +2422,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2383,6 +2439,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2395,6 +2453,8 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 0;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2410,6 +2470,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2422,6 +2484,8 @@ $MYCALL=strtoupper($callsign);
 			    
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2436,6 +2500,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2449,6 +2515,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 1;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2461,6 +2529,8 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2476,6 +2546,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2490,6 +2562,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2502,6 +2576,8 @@ $MYCALL=strtoupper($callsign);
 
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyAMA0";
 			    $configmmdvm['General']['Duplex'] = 1;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2517,6 +2593,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2530,6 +2608,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyUSB0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2545,6 +2625,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2558,6 +2640,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyACM0";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2574,6 +2658,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2589,6 +2675,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
 
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
+
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
 			    $configmmdvm['Modem']['UARTSpeed'] = $confHardwareSpeed;
@@ -2603,6 +2691,8 @@ $MYCALL=strtoupper($callsign);
 			    $configmmdvm['Modem']['Port'] = "/dev/ttyS2";
 			    $configmmdvm['General']['Duplex'] = 0;
 			    $configmmdvm['DMR Network']['Slot1'] = 0;
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
@@ -2622,6 +2712,8 @@ $MYCALL=strtoupper($callsign);
 				$configmmdvm['General']['Display'] = "CAST";
 				unset($_POST['mmdvmDisplayType']);
 			    }
+
+			    $configdstar['controllerType'] = 'Serial - '.$configmmdvm['Modem']['Port'].'';
 
 			    $configmmdvm['Modem']['Protocol'] = "uart";
 			    $configmmdvm['Modem']['UARTPort'] = $configmmdvm['Modem']['Port'];
