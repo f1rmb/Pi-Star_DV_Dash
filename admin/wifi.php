@@ -234,7 +234,7 @@ switch($page) {
 	    echo "<br />\n";
 	}
 	if (file_exists('/etc/wpa_supplicant/wpa_supplicant.conf')) {
-            exec('grep "country" /etc/wpa_supplicant/wpa_supplicant.conf', $wifiCountryArr);
+            exec('sudo grep "country" /etc/wpa_supplicant/wpa_supplicant.conf', $wifiCountryArr);
         }
 	if (isset($wifiCountryArr[0])) {
             $wifiCountry = explode("=", $wifiCountryArr[0]);
