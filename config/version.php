@@ -1,3 +1,3 @@
 <?php
-$version = '20211204-f1rmb';
+$version = '20220104-f1rmb';
 ?>
