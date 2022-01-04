@@ -80,6 +80,7 @@ function checkSessionValidity() {
     loadSessionConfigFile('APRSGatewayConfigs', '/etc/aprsgateway');
     loadSessionConfigFile('NXDNGatewayConfigs', '/etc/nxdngateway');
     loadSessionConfigFile('P25GatewayConfigs', '/etc/p25gateway');
+    loadSessionConfigFile('M17GatewayConfigs', '/etc/m17gateway');
     if (!isset($_SESSION['DvModemFWVersion']) || (count($_SESSION['DvModemFWVersion'], COUNT_RECURSIVE) < 1)) {
 	$_SESSION['DvModemFWVersion'] = getDVModemFirmware();
     }
@@ -295,6 +296,9 @@ function showMode($mode, $configs) {
 	else if ($mode == "NXDN Network") {
 	    getModeClass(isProcessRunning("NXDNGateway"));
 	}
+	else if ($mode == "M17 Network") {
+	    getModeClass(isProcessRunning("M17Gateway"));
+	}
 	else if ($mode == "POCSAG Network") {
 	    getModeClass(isProcessRunning("DAPNETGateway") && (isDAPNETGatewayConnected() == 1));
 	}
@@ -309,7 +313,7 @@ function showMode($mode, $configs) {
 	    }
 	}
 	else {
-	    if ($mode == "D-Star" || $mode == "DMR" || $mode == "System Fusion" || $mode == "P25" || $mode == "NXDN" || $mode == "POCSAG") {
+	    if ($mode == "D-Star" || $mode == "DMR" || $mode == "System Fusion" || $mode == "P25" || $mode == "NXDN" || $mode == "M17" || $mode == "POCSAG") {
 		getModeClass(isProcessRunning("MMDVMHost"));
 	    }
 	}
@@ -442,6 +446,32 @@ function getNXDNGatewayLog() {
     if (sizeof($logLines1) == 0) {
         if (file_exists("/var/log/pi-star/NXDNGateway-".gmdate("Y-m-d", time() - 86340).".log")) {
 	    $logPath2 = "/var/log/pi-star/NXDNGateway-".gmdate("Y-m-d", time() - 86340).".log";
+	    $logLines2 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|itched|Starting" $logPath2 | cut -d" " -f2- | tail -1`);
+        }
+	$logLines2 = array_filter($logLines2);
+    }
+    if (sizeof($logLines1) == 0) {
+	$logLines = $logLines2;
+    }
+    else {
+	$logLines = $logLines1;
+    }
+    return array_filter($logLines);
+}
+
+// Open Logfile and copy loglines into LogLines-Array()
+function getM17GatewayLog() {
+    $logLines = array();
+    $logLines1 = array();
+    $logLines2 = array();
+    if (file_exists("/var/log/pi-star/M17Gateway-".gmdate("Y-m-d").".log")) {
+	$logPath1 = "/var/log/pi-star/M17Gateway-".gmdate("Y-m-d").".log";
+	$logLines1 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|itched|Starting" $logPath1 | cut -d" " -f2- | tail -1`);
+    }
+    $logLines1 = array_filter($logLines1);
+    if (sizeof($logLines1) == 0) {
+        if (file_exists("/var/log/pi-star/M17Gateway-".gmdate("Y-m-d", time() - 86340).".log")) {
+	    $logPath2 = "/var/log/pi-star/M17Gateway-".gmdate("Y-m-d", time() - 86340).".log";
 	    $logLines2 = preg_split('/\r\n|\r|\n/', `egrep -h "ink|itched|Starting" $logPath2 | cut -d" " -f2- | tail -1`);
         }
 	$logLines2 = array_filter($logLines2);
@@ -655,6 +685,10 @@ function getDVModemTCXOFreq() {
 // M: 2000-00-00 00:00:00.000 NXDN, received network transmission from 10999 to TG 65000
 // M: 2000-00-00 00:00:00.000 NXDN, network end of transmission, 1.8 seconds, 0% packet loss
 // M: 2000-00-00 00:00:00.000 POCSAG, transmitted 1 frame(s) of data from 1 message(s)
+// M: 2000-00-00 00:00:00.000 M17, received RF late entry voice transmission from IU5BON to INFO
+// M: 2000-00-00 00:00:00.000 M17, received RF end of transmission from IU5BON to INFO, 2.1 seconds, BER: 0.2%, RSSI: -47/-47/-47 dBm
+// M: 2000-00-00 00:00:00.000 M17, received network voice transmission from IU5BON to ECHO
+// M: 2000-00-00 00:00:00.000 M17, received network end of transmission from IU5BON to ECHO, 13.4 seconds
 function getHeardList($logLines) {
     //array_multisort($logLines,SORT_DESC);
     $heardList = array();
@@ -683,6 +717,10 @@ function getHeardList($logLines) {
     $nxdnber	 = "";
     $nxdnrssi	 = "";
     $pocsagduration = "";
+    $m17duration= "";
+    $m17loss	 = "";
+    $m17ber	 = "";
+    $m17rssi	 = "";
     foreach ($logLines as $logLine) {
 	$duration	= "";
 	$loss		= "";
@@ -827,6 +865,12 @@ function getHeardList($logLines) {
 			$nxdnber	= $ber;
 			$nxdnrssi	= $rssi;
 			break;
+		    case "M17":
+			$m17duration	= $duration;
+			$m17loss	= $loss;
+			$m17ber		= $ber;
+			$m17rssi	= $rssi;
+			break;
 		    case "POCSAG":
 			$pocsagduration	= "";
 			break;
@@ -906,6 +950,12 @@ function getHeardList($logLines) {
                 $ber            = strlen($nxdnber) ? $nxdnber : "---";
 		$rssi		= $nxdnrssi;
                 break;
+	    case "M17":
+                $duration	= $m17duration;
+                $loss           = strlen($m17loss) ? $m17loss : "---";
+                $ber            = strlen($m17ber) ? $m17ber : "---";
+		$rssi		= $m17rssi;
+                break;
 	    case "POCSAG":
 		$callsign	= "DAPNET";
 		$target		= "DAPNET User";
@@ -933,7 +983,7 @@ function getLastHeard($logLines) {
     $heardCalls = array();
     $heardList = getHeardList($logLines);
     foreach ($heardList as $listElem) {
-	if ( ($listElem[1] == "D-Star") || ($listElem[1] == "YSF") || ($listElem[1] == "P25") || ($listElem[1] == "NXDN") || ($listElem[1] == "POCSAG") || (startsWith($listElem[1], "DMR")) ) {
+	if ( ($listElem[1] == "D-Star") || ($listElem[1] == "YSF") || ($listElem[1] == "P25") || ($listElem[1] == "NXDN") || ($listElem[1] == "M17") || ($listElem[1] == "POCSAG") || (startsWith($listElem[1], "DMR")) ) {
 	    $callUuid = $listElem[2]."#".$listElem[1].$listElem[3].$listElem[5];
 	    if(!(array_search($callUuid, $heardCalls) > -1)) {
 		array_push($heardCalls, $callUuid);
@@ -993,6 +1043,12 @@ function getActualMode($metaLastHeard, &$configs) {
 	}
 	else if ($source == "Net" && $mode === "NXDN") {
 	    $hangtime = getConfigItem("NXDN Network", "ModeHang", $configs);
+	}
+	else if ($source == "RF" && $mode === "M17") {
+	    $hangtime = getConfigItem("M17", "ModeHang", $configs);
+	}
+	else if ($source == "Net" && $mode === "M17") {
+	    $hangtime = getConfigItem("M17 Network", "ModeHang", $configs);
 	}
 	else if ($source == "Net" && $mode === "POCSAG") {
 	    $hangtime = getConfigItem("POCSAG Network", "ModeHang", $configs);
@@ -1227,6 +1283,23 @@ function getActualLink($logLines, $mode) {
             }
             break;
 	    
+	case "M17":
+            if (isProcessRunning("M17Gateway")) {
+		foreach($logLines as $logLine) {
+		    if(preg_match_all('/Linked .* reflector (M17-.{3} [A-Z])/', $logLine, $linx) > 0) {
+			return $linx[1][0];
+		    }
+		    else if (strpos($logLine,"Starting M17Gateway") || strpos($logLine,"Unlinking") || strpos($logLine,"Unlinked")) {
+			return "Not Linked";
+		    }
+		}
+		return "Not Linked";
+            }
+	    else {
+		return "Service Not Started";
+            }
+	    break;
+
 	case "P25":
 	    // 00000000001111111111222222222233333333334444444444555555555566666666667777777777888888888899999999990000000000111111111122
 	    // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901
@@ -1312,6 +1385,10 @@ if (!in_array($_SERVER["PHP_SELF"],array('/mmdvmhost/bm_links.php','/mmdvmhost/b
 	$logLinesP25Gateway = getP25GatewayLog();
 
 	$logLinesNXDNGateway = getNXDNGatewayLog();
+
+	$logLinesM17Gateway = getM17GatewayLog();
+	$reverseLogLinesM17Gateway = $logLinesM17Gateway;
+	array_multisort($reverseLogLinesM17Gateway,SORT_DESC);
     }
     
     // Only need these in index.php

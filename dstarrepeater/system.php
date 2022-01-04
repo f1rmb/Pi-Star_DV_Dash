@@ -38,7 +38,7 @@ function getServiceStatusClass($active) {
 	<td class="<?php getServiceStatusClass(isProcessRunning('YSFGateway')); ?>">YSFGateway</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('P25Gateway')); ?>">P25Gateway</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('NXDNGateway')); ?>">NXDNGateway</td>
-	<td class="<?php getServiceStatusClass(isProcessRunning('APRSGateway')); ?>">APRSGateway</td>
+	<td class="<?php getServiceStatusClass(isProcessRunning('M17Gateway')); ?>">M17Gateway</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('DAPNETGateway')); ?>">DAPNETGateway</td>
     </tr>
     <tr>
@@ -48,7 +48,7 @@ function getServiceStatusClass($active) {
 	<td class="<?php getServiceStatusClass(isProcessRunning('DGIdGateway')); ?>">DGIdGateway</td>
 	<td class="disabled-service-cell"</td>
 	<td class="disabled-service-cell"</td>
-	<td class="<?php getServiceStatusClass(isProcessRunning('gpsd')); ?>">GPSd</td>
+	<td class="disabled-service-cell"</td>
 	<td class="disabled-service-cell"</td>
     </tr>
     <tr>
@@ -78,7 +78,7 @@ function getServiceStatusClass($active) {
 	<td class="<?php getServiceStatusClass(isProcessRunning('YSF2NXDN')); ?>">YSF2NXDN</td>
 	<td class="disabled-service-cell"</td>
 	<td class="disabled-service-cell"</td>
-	<td class="disabled-service-cell"</td>
+	<td class="<?php getServiceStatusClass(isProcessRunning('APRSGateway')); ?>">APRSGateway</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('/usr/local/sbin/pistar-remote',true)); ?>">PiStar-Remote</td>
     </tr>
     <tr>
@@ -88,7 +88,7 @@ function getServiceStatusClass($active) {
 	<td class="<?php getServiceStatusClass(isProcessRunning('YSFParrot')); ?>">YSFParrot</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('P25Parrot')); ?>">P25Parrot</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('NXDNParrot')); ?>">NXDNParrot</td>
-	<td class="disabled-service-cell"</td>
+	<td class="<?php getServiceStatusClass(isProcessRunning('gpsd')); ?>">GPSd</td>
 	<td class="<?php getServiceStatusClass(isProcessRunning('/usr/local/sbin/pistar-keeper',true)); ?>">PiStar-Keeper</td>
     </tr>
 </table>

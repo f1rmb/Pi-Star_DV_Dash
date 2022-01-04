@@ -380,6 +380,13 @@ if (isset($configysfgateway['aprs.fi']) || !isset($configysfgateway['APRS'])) {
     clearAprsDotFi($configysfgateway, "Y");
 }
 
+//
+// Load the m17gateway config file
+ensureFileExists('m17gateway');
+if (file_exists('/etc/m17gateway')) {
+    $m17GatewayConfigFile = '/etc/m17gateway';
+    if (fopen($m17GatewayConfigFile,'r')) { $configm17gateway = parse_ini_file($m17GatewayConfigFile, true); }
+}
 
 // DAPNet Gateway config
 if (file_exists('/etc/dapnetgateway')) {
@@ -849,6 +856,7 @@ $MYCALL=strtoupper($callsign);
 		    exec('sudo systemctl stop dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
 		    exec('sudo systemctl stop dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2YSF
 		    exec('sudo systemctl stop dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
+		    exec('sudo systemctl stop m17gateway.service > /dev/null 2>/dev/null &');		// M17Gateway
 		    exec('sudo systemctl stop dapnetgateway.service > /dev/null 2>/dev/null &');	// DAPNetGateway
 		    exec('sudo systemctl stop nextiondriver.service > /dev/null 2>/dev/null &');	// NextionDriver Service
 		    
@@ -979,6 +987,7 @@ $MYCALL=strtoupper($callsign);
 			$confignxdn2dmr['Info']['Latitude'] = $newConfLatitude;
 			$configdmrgateway['Info']['Latitude'] = $newConfLatitude;
 			$confignxdngateway['Info']['Latitude'] = $newConfLatitude;
+			$configm17gateway['Info']['Latitude'] = $newConfLatitude;
 		    }
 		    
 		    // Set the Longitude
@@ -995,6 +1004,7 @@ $MYCALL=strtoupper($callsign);
 			$confignxdn2dmr['Info']['Longitude'] = $newConfLongitude;
 			$configdmrgateway['Info']['Longitude'] = $newConfLongitude;
 			$confignxdngateway['Info']['Longitude'] = $newConfLongitude;
+			$configm17gateway['Info']['Longitude'] = $newConfLongitude;
 		    }
 		    
 		    // Set GPSd
@@ -1004,6 +1014,7 @@ $MYCALL=strtoupper($callsign);
 			$configysfgateway['GPSD']['Enable'] = $gpsdEnabled;
 			$configdgidgateway['GPSD']['Enable'] = $gpsdEnabled;
 			$confignxdngateway['GPSD']['Enable'] = $gpsdEnabled;
+			$configm17gateway['GPSD']['Enable'] = $gpsdEnabled;
 			
 			if (empty($_POST['gpsdPort']) != TRUE ) {
 			    $configdmrgateway['GPSD']['Port'] = escapeshellcmd($_POST['gpsdPort']);
@@ -1013,13 +1024,16 @@ $MYCALL=strtoupper($callsign);
 			    $configdmrgateway['GPSD']['Address'] = escapeshellcmd($_POST['gpsdServer']);
 			}
 			
-			// Port and Address for YSF, GDId and NXDN gateways
+			// Port and Address for YSF, GDId, M17 and NXDN gateways
 			$configysfgateway['GPSD']['Port'] = $configdmrgateway['GPSD']['Port'];
 			$configysfgateway['GPSD']['Address'] = $configdmrgateway['GPSD']['Address'];
 
 			$configdgidgateway['GPSD']['Port'] = $configdmrgateway['GPSD']['Port'];
 			$configdgidgateway['GPSD']['Address'] = $configdmrgateway['GPSD']['Address'];
 			
+			$configm17gateway['GPSD']['Port'] = $configdmrgateway['GPSD']['Port'];
+			$configm17gateway['GPSD']['Address'] = $configdmrgateway['GPSD']['Address'];
+
 			$confignxdngateway['GPSD']['Port'] = $configdmrgateway['GPSD']['Port'];
 			$confignxdngateway['GPSD']['Address'] = $configdmrgateway['GPSD']['Address'];
 		    }
@@ -1036,6 +1050,7 @@ $MYCALL=strtoupper($callsign);
 			$configysf2p25['Info']['Location'] = '"'.$newConfDesc1.'"';
 			$confignxdn2dmr['Info']['Location'] = '"'.$newConfDesc1.'"';
 			$confignxdngateway['Info']['Name'] = '"'.$newConfDesc1.'"';
+			$configm17gateway['Info']['Name'] = '"'.$newConfDesc1.'"';
 		    }
 		    
 		    // Set the Country
@@ -1048,6 +1063,7 @@ $MYCALL=strtoupper($callsign);
 			$configysfgateway['Info']['Description'] = '"'.$newConfDesc2.'"';
 			if (isset($configdgidgateway)) { $configdgidgateway['Info']['Description'] = '"'.$newConfDesc2.'"'; }
 			$confignxdngateway['Info']['Description'] = '"'.$newConfDesc2.'"';
+			$configm17gateway['Info']['Description'] = '"'.$newConfDesc2.'"';
 		    }
 		    
 		    // Set the URL
@@ -1070,6 +1086,7 @@ $MYCALL=strtoupper($callsign);
 			$configysf2p25['Info']['URL'] = '"'.$txtURL.'"';
 			$confignxdn2dmr['Info']['URL'] = '"'.$txtURL.'"';
 			$configdmrgateway['Info']['URL'] = '"'.$txtURL.'"';
+			$configm17gateway['Info']['URL'] = '"'.$txtURL.'"';
 		    }
 		    
 		    // Set the APRS Server for APRSGateway
@@ -1214,6 +1231,9 @@ $MYCALL=strtoupper($callsign);
 			$confignxdngateway['Info']['RXFrequency'] = $newFREQrx;
 			$confignxdngateway['Info']['TXFrequency'] = $newFREQtx;
 			$confignxdngateway['General']['Suffix'] = "RPT";
+			$configm17gateway['Info']['RXFrequency'] = $newFREQrx;
+			$configm17gateway['Info']['TXFrequency'] = $newFREQtx;
+			$configm17gateway['General']['Suffix'] = "R";
 			
 			// Set RPT1 and RPT2
 			if (empty($_POST['confDStarModuleSuffix'])) {
@@ -1305,6 +1325,9 @@ $MYCALL=strtoupper($callsign);
 			$confignxdngateway['Info']['RXFrequency'] = $newFREQ;
 			$confignxdngateway['Info']['TXFrequency'] = $newFREQ;
 			$confignxdngateway['General']['Suffix'] = "ND";
+			$configm17gateway['Info']['RXFrequency'] = $newFREQ;
+			$configm17gateway['Info']['TXFrequency'] = $newFREQ;
+			$configm17gateway['General']['Suffix'] = "H";
 			
 			// Set RPT1 and RPT2
 			if (empty($_POST['confDStarModuleSuffix'])) {
@@ -1400,6 +1423,7 @@ $MYCALL=strtoupper($callsign);
 			$configp25gateway['General']['Callsign'] = $newCallsignUpper;
 			$confignxdngateway['APRS']['Description'] = $configysfgateway['APRS']['Description'];
 			$confignxdngateway['General']['Callsign'] = $newCallsignUpper;
+			$configm17gateway['General']['Callsign'] = $newCallsignUpper;
 			$configysfgateway['Info']['Description'] = $newCallsignUpper."_Pi-Star";
 			if (isset($configdgidgateway)) { $configdgidgateway['General']['Callsign'] = $newCallsignUpper; }
 			if (isset($configdgidgateway)) { $configdgidgateway['Info']['Description'] = $newCallsignUpper."_Pi-Star"; }
@@ -1490,6 +1514,20 @@ $MYCALL=strtoupper($callsign);
 			$confignxdngateway['Network']['Static'] = $_POST['nxdnStaticTGList'];
 		    }
 
+		    // Set the M17 Startup Reflector
+		    if (empty($_POST['m17StartupRef']) != TRUE ) {
+			$newM17StartupReflector = strtoupper(escapeshellcmd($_POST['m17StartupRef']));
+			if ($newM17StartupReflector === "NONE") {
+			    if (isset($configm17gateway['Network']['Startup'])) {
+				unset($configm17gateway['Network']['Startup']);
+			    }
+			}
+			else {
+			    $newM17StartupModule = strtoupper(escapeshellcmd($_POST['m17StartupModule']));
+			    $configm17gateway['Network']['Startup'] = "".$newM17StartupReflector."_".$newM17StartupModule."";
+			}
+		    }
+		    
 		    // Set the YSF Startup Host
 		    if (empty($_POST['ysfStartupHost']) != TRUE ) {
 			$newYSFStartupHostArr = explode(',', escapeshellcmd($_POST['ysfStartupHost']));
@@ -1968,6 +2006,15 @@ $MYCALL=strtoupper($callsign);
 		    if (empty($_POST['nxdnNetHangTime']) != TRUE ) {
 			$configmmdvm['NXDN Network']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['nxdnNetHangTime']);
 			$confignxdngateway['Network']['NetHangTime'] = "0";
+		    }
+		    // Set M17 Hang Timers
+		    if (empty($_POST['m17RfHangTime']) != TRUE ) {
+			$configmmdvm['M17']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['m17RfHangTime']);
+			$configm17gateway['Network']['RFHangTime'] = "0";
+		    }
+		    if (empty($_POST['m17NetHangTime']) != TRUE ) {
+			$configmmdvm['M17 Network']['ModeHang'] = preg_replace('/[^0-9]/', '', $_POST['m17NetHangTime']);
+			$configm17gateway['Network']['NetHangTime'] = "0";
 		    }
 		    
 		    // Set the hardware type
@@ -2801,6 +2848,12 @@ $MYCALL=strtoupper($callsign);
 			if (escapeshellcmd($_POST['MMDVMModeNXDN']) == 'OFF' ) { $configmmdvm['NXDN']['Enable'] = "0"; $configmmdvm['NXDN Network']['Enable'] = "0"; }
 		    }
 		    
+		    // Set MMDVMHost M17 Mode
+		    if (empty($_POST['MMDVMModeM17']) != TRUE ) {
+			if (escapeshellcmd($_POST['MMDVMModeM17']) == 'ON' )  { $configmmdvm['M17']['Enable'] = "1"; $configmmdvm['M17 Network']['Enable'] = "1"; }
+			if (escapeshellcmd($_POST['MMDVMModeM17']) == 'OFF' ) { $configmmdvm['M17']['Enable'] = "0"; $configmmdvm['M17 Network']['Enable'] = "0"; }
+		    }
+		    
 		    // Set YSF2DMR Mode
 		    if (empty($_POST['MMDVMModeYSF2DMR']) != TRUE ) {
 			if (escapeshellcmd($_POST['MMDVMModeYSF2DMR']) == 'ON' )  { $configysf2dmr['Enabled']['Enabled'] = "1"; }
@@ -3298,6 +3351,44 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configysf2p25['YSF Network']['DT1'])) { $configysf2p25['YSF Network']['DT1'] = "1,34,97,95,43,3,17,0,0,0"; }
 		    if (!isset($configysf2p25['YSF Network']['DT2'])) { $configysf2p25['YSF Network']['DT2'] = "0,0,0,0,108,32,28,32,3,8"; }
 
+		    // Add missing values to M17Gateway
+		    if (!isset($configm17gateway['General']['RptAddress'])) { $configm17gateway['General']['RptAddress'] = '127.0.0.1'; }
+		    if (!isset($configm17gateway['General']['RptPort'])) { $configm17gateway['General']['RptPort'] = '17011'; }
+		    if (!isset($configm17gateway['General']['LocalPort'])) { $configm17gateway['General']['LocalPort'] = '17010'; }
+		    if (!isset($configm17gateway['General']['Debug'])) { $configm17gateway['General']['Debug'] = '0'; }
+		    if (!isset($configm17gateway['General']['Daemon'])) { $configm17gateway['General']['Daemon'] = '1'; }
+		    if (!isset($configm17gateway['Info']['Power'])) { $configm17gateway['Info']['Power'] = $configmmdvm['Info']['Power']; }
+		    if (!isset($configm17gateway['Info']['Height'])) { $configm17gateway['Info']['Height'] = $configmmdvm['Info']['Height']; }
+		    if (!isset($configm17gateway['Network']['HostsFile1'])) { $configm17gateway['Network']['HostsFile1'] = "/usr/local/etc/M17Hosts.txt"; }
+		    //if (!isset($configm17gateway['Network']['HostsFile2'])) { $configm17gateway['Network']['HostsFile2'] = "/root/M17Hosts.txt"; }
+		    if (!isset($configm17gateway['Network']['Port'])) { $configm17gateway['Network']['Port'] = "17000"; }
+		    if (!isset($configm17gateway['Network']['ReloadTime'])) { $configm17gateway['Network']['ReloadTime'] = "60"; }
+		    if (!isset($configm17gateway['Network']['HangTime'])) { $configm17gateway['Network']['HangTime'] = "240"; }
+		    if (!isset($configm17gateway['Network']['Revert'])) { $configm17gateway['Network']['Revert'] = "1"; }
+		    if (!isset($configm17gateway['Network']['Debug'])) { $configm17gateway['Network']['Debug'] = "0"; }
+		    if (!isset($configm17gateway['APRS'])) {
+			$configm17gateway['APRS']['Enable'] = "1";
+			$configm17gateway['APRS']['Address'] = "127.0.0.1";
+			$configm17gateway['APRS']['Port'] = "8673";
+			$configm17gateway['APRS']['Suffix'] = "N";
+			$configm17gateway['APRS']['Description'] = "APRS for M17Gateway";
+		    }
+		    if (!isset($configm17gateway['Remote Commands'])) {
+			$configm17gateway['Remote Commands']['Enabled'] = "1";
+			$configm17gateway['Remote Commands']['Port'] = "6075";
+		    }
+		    if (!isset($configm17gateway['Log'])) {
+			$configm17gateway['Log']['DisplayLevel'] = "0";
+			$configm17gateway['Log']['FileLevel'] = "1";
+			$configm17gateway['Log']['FilePath'] = "/var/log/pi-star";
+			$configm17gateway['Log']['FileRoot'] = "M17Gateway";
+		    }
+		    if (!isset($configm17gateway['Voice'])) {
+			$configm17gateway['Voice']['Enabled'] = "1";
+			$configm17gateway['Voice']['Language'] = "en_GB";
+			$configm17gateway['Voice']['Directory'] = "/usr/local/etc/M17_Audio";
+		    }
+		    		    
 		    // Defaults for DGIdGateway
 		    if (isset($configdgidgateway)) {
 			$configdgidgateway['General']['LocalPort'] = $configmmdvm['System Fusion Network']['GatewayPort'];
@@ -3514,6 +3605,11 @@ $MYCALL=strtoupper($callsign);
 			return false;
 		    }
 		    
+		    // Save M17Gateway config file
+		    if (saveConfigFile($configm17gateway, '/tmp/rforHfnDVlS0SaF.tmp', '/etc/m17gateway', 30) == false) {
+			return false;
+		    }
+
 		    // Save APRSGateway config file
 		    if (saveConfigFile($configaprsgateway, '/tmp/oDFuttgksHSRb8.tmp', '/etc/aprsgateway', 17) == false) {
 			return false;
@@ -3596,6 +3692,7 @@ $MYCALL=strtoupper($callsign);
 		    exec('sudo systemctl start dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
 		    exec('sudo systemctl start dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2NXDN
 		    exec('sudo systemctl start dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
+		    exec('sudo systemctl start m17gateway.service > /dev/null 2>/dev/null &');		// M17Gateway
 		    exec('sudo systemctl start dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
 		    
 		    // Set the system timezone
@@ -3663,6 +3760,7 @@ $MYCALL=strtoupper($callsign);
 			    <input type="hidden" name="MMDVMModeFUSION" value="OFF" />
 			    <input type="hidden" name="MMDVMModeP25" value="OFF" />
 			    <input type="hidden" name="MMDVMModeNXDN" value="OFF" />
+			    <input type="hidden" name="MMDVMModeM17" value="OFF" />
 			    <input type="hidden" name="MMDVMModeYSF2DMR" value="OFF" />
 			    <input type="hidden" name="MMDVMModeYSF2NXDN" value="OFF" />
 			    <input type="hidden" name="MMDVMModeYSF2P25" value="OFF" />
@@ -3746,6 +3844,20 @@ $MYCALL=strtoupper($callsign);
 				    ?>
 				    <td>RF Hangtime: <input type="text" name="nxdnRfHangTime" size="7" maxlength="3" value="<?php if (isset($configmmdvm['NXDN']['ModeHang'])) { echo $configmmdvm['NXDN']['ModeHang']; } else { echo "20"; } ?>" />
 					Net Hangtime: <input type="text" name="nxdnNetHangTime" size="7" maxlength="3" value="<?php if (isset($configmmdvm['NXDN Network']['ModeHang'])) { echo $configmmdvm['NXDN Network']['ModeHang']; } else { echo "20"; } ?>" />
+				    </td>
+				</tr>
+				<tr>
+				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['m17_mode'];?>:<span><b>M17 Mode</b>Turn on M17 Features</span></a></td>
+				    <?php
+				    if ( $configmmdvm['M17']['Enable'] == 1 ) {
+					echo "<td align=\"left\"><div class=\"switch\"><input id=\"toggle-m17\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"MMDVMModeM17\" value=\"ON\" checked=\"checked\" /><label for=\"toggle-m17\"></label></div></td>\n";
+				    }
+				    else {
+					echo "<td align=\"left\"><div class=\"switch\"><input id=\"toggle-m17\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"MMDVMModeM17\" value=\"ON\" /><label for=\"toggle-m17\"></label></div></td>\n";
+				    }
+				    ?>
+				    <td>RF Hangtime: <input type="text" name="m17RfHangTime" size="7" maxlength="3" value="<?php if (isset($configmmdvm['M17']['ModeHang'])) { echo $configmmdvm['M17']['ModeHang']; } else { echo "20"; } ?>" />
+					Net Hangtime: <input type="text" name="m17NetHangTime" size="7" maxlength="3" value="<?php if (isset($configmmdvm['M17 Network']['ModeHang'])) { echo $configmmdvm['M17 Network']['ModeHang']; } else { echo "20"; } ?>" />
 				    </td>
 				</tr>
 				<tr>
@@ -5214,6 +5326,92 @@ $MYCALL=strtoupper($callsign);
 			    </table>
 			    <div><input type="button" value="<?php echo $lang['apply'];?>" onclick="submitform()" /><br /><br /></div>
 			<?php } ?>
+			
+			<!-- M17 -->
+			<?php if (file_exists('/etc/dstar-radio.mmdvmhost') && $configmmdvm['M17 Network']['Enable'] == 1 ) { ?>
+			    <h2><?php echo $lang['m17_config'];?></h2>
+			    <table>
+				<tr>
+				    <th width="200"><a class="tooltip" href="#"><?php echo $lang['setting'];?><span><b>Setting</b></span></a></th>
+				    <th colspan="2"><a class="tooltip" href="#"><?php echo $lang['value'];?><span><b>Value</b>The current value from the<br />configuration files</span></a></th>
+				</tr>
+				<tr>
+				    <td align="left"><a class="tooltip2" href="#"><?php echo $lang['m17_startup_reflector'];?>:<span><b>Startup Reflector</b>Set your prefered M17 reflector here</span></a></td>
+				    <td style="text-align: left;"><select name="m17StartupRef">
+					<?php
+					if ($m17MasterHandle = @fopen("/usr/local/etc/M17Hosts.txt", 'r'))
+					{
+					    $m17StartupHostWithModule = (isset($configm17gateway['Network']['Startup']) ? $configm17gateway['Network']['Startup'] : "");
+					    $m17StartupHost = "";
+					    $m17StartupModule = "";
+
+					    if ($m17StartupHostWithModule != "") {
+						$m17StartupHost = substr($m17StartupHostWithModule, 0, -2);
+						$m17StartupModule = substr($m17StartupHostWithModule, -1);
+					    }
+
+					    if (empty($m17StartupModule)) { $m17StartupModule = "A"; }
+
+					    
+					    if ($m17StartupHost == "") {
+						echo "      <option value=\"NONE\" selected=\"selected\">None</option>\n";
+					    }
+					    else {
+						echo "      <option value=\"NONE\">None</option>\n";
+					    }
+
+					    while ($m17MasterLine = fgets($m17MasterHandle)) {
+						$m17MasterHost = preg_split('/\s+/', $m17MasterLine);
+						if ((strpos($m17MasterHost[0], '#') === FALSE) && ($m17MasterHost[0] != '')) {
+						    if ($m17MasterHost[0] == $m17StartupHost) {
+							echo "      <option value=\"$m17MasterHost[0]\" selected=\"selected\">$m17MasterHost[0]</option>\n";
+						    }
+						    else {
+							echo "      <option value=\"$m17MasterHost[0]\">$m17MasterHost[0]</option>\n";
+						    }
+						}
+					    }
+					    fclose($m17MasterHandle);
+					}
+					?>
+				    </select>
+				    
+				    <select name="m17StartupModule">
+					<?php echo "  <option value=\"".$m17StartupModule."\" selected=\"selected\">".$m17StartupModule."</option>\n"; ?>
+					<option>A</option>
+					<option>B</option>
+					<option>C</option>
+					<option>D</option>
+					<option>E</option>
+					<option>F</option>
+					<option>G</option>
+					<option>H</option>
+					<option>I</option>
+					<option>J</option>
+					<option>K</option>
+					<option>L</option>
+					<option>M</option>
+					<option>N</option>
+					<option>O</option>
+					<option>P</option>
+					<option>Q</option>
+					<option>R</option>
+					<option>S</option>
+					<option>T</option>
+					<option>U</option>
+					<option>V</option>
+					<option>W</option>
+					<option>X</option>
+					<option>Y</option>
+					<option>Z</option>
+				    </select>
+				    
+				    </td>
+				</tr>
+			    </table>
+			    <div><input type="button" value="<?php echo $lang['apply'];?>" onclick="submitform()" /><br /><br /></div>
+			<?php } ?>
+			<!-- M17 -->
 			
 			<!-- GPSd -->
 			<?php if ( $configdmrgateway['GPSD']['Enable'] == 1 ) { ?>

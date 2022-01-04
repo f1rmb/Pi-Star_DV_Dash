@@ -92,6 +92,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/config_backup.php") {
 			    $output .= shell_exec("sudo cp /etc/ysfgateway $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/dgidgateway $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/nxdngateway $backupDir 2>&1")."\n";
+			    $output .= shell_exec("sudo cp /etc/m17gateway $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/dmr2nxdn $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/dmr2ysf $backupDir 2>&1")."\n";
 			    $output .= shell_exec("sudo cp /etc/nxdn2dmr $backupDir 2>&1")."\n";

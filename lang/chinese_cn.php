@@ -151,6 +151,12 @@ $lang = array (
   "active_starnet_members"      =>  "激活的 Starnet 组成员",
   "d-star_link_manager"         =>  "D-Star 连接管理器",
   "d-star_link_status"          =>  "D-Star 连接信息",
-  "service_status"              =>  "服务状态"
+  "service_status"              =>  "服务状态",
+  // M17
+  "m17_config"                  =>  "M17 Configuration",
+  "m17_mode"                    =>  "M17 Mode",
+  "m17_startup_reflector"       =>  "M17 Startup Reflector",
+  "m17_repeater"                =>  "M17 Repeater",
+  "m17_net"                     =>  "M17 Network"
 );
 ?>

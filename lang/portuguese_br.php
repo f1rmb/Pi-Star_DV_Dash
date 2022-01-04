@@ -151,6 +151,12 @@ $lang = array (
   "active_starnet_members"      =>  "Grupo de Membros Ativos na Starnet",
   "d-star_link_manager"         =>  "Gerenciar Conexão D-Star",
   "d-star_link_status"          =>  "Informações do Link D-Star",
-  "service_status"              =>  "Status do Sistema"
+  "service_status"              =>  "Status do Sistema",
+  // M17
+  "m17_config"                  =>  "M17 Configuration",
+  "m17_mode"                    =>  "M17 Mode",
+  "m17_startup_reflector"       =>  "M17 Startup Reflector",
+  "m17_repeater"                =>  "M17 Repeater",
+  "m17_net"                     =>  "M17 Network"
 );
 ?>

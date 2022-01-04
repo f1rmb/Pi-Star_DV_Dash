@@ -85,7 +85,7 @@ $lang = array (
   "dstar_rpt1"                  =>  "Indicatif RPT1",
   "dstar_rpt2"                  =>  "Indicatif RPT2",
   "dstar_irc_password"          =>  "Mot de passe ircDDBGateway",
-  "dstar_default_ref"           =>  "Reflecteur par d&eacute;faut",
+  "dstar_default_ref"           =>  "R&eacute;flecteur par d&eacute;faut",
   "aprs_host"                   =>  "H&ocirc;te APRS",
   "dstar_irc_lang"              =>  "Langage ircDDBGateway",
   "dstar_irc_time"              =>  "Annonces horaires",
@@ -151,6 +151,12 @@ $lang = array (
   "active_starnet_members"      =>  "Active Starnet Group Members",
   "d-star_link_manager"         =>  "Administrateur du lien D-Star",
   "d-star_link_status"          =>  "Informations du lien D-Star",
-  "service_status"              =>  "&Eacute;tat du service"
+  "service_status"              =>  "&Eacute;tat du service",
+  // M17
+  "m17_config"                  =>  "Configuration M17",
+  "m17_mode"                    =>  "Mode M17",
+  "m17_startup_reflector"       =>  "R&eacute;flecteur M17 au d&eacute;marrage",
+  "m17_repeater"                =>  "Relais M17",
+  "m17_net"                     =>  "R&eacute;seau M17"
 );
 ?>

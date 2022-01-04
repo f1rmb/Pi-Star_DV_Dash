@@ -1,7 +1,7 @@
 <?php
 if (isset($_COOKIE['PHPSESSID']))
 {
-    session_id($_COOKIE['PHPSESSID']); 
+    session_id($_COOKIE['PHPSESSID']);
 }
 if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
@@ -9,7 +9,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 
 if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSIVE) < 10)) {
     session_start();
-    
+
     include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
     include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
     include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
@@ -75,8 +75,9 @@ if (isProcessRunning("DMRGateway")) {
     <tr><th colspan="2"><?php echo $lang['modes_enabled'];?></th></tr>
     <tr><?php showMode("D-Star", $_SESSION['MMDVMHostConfigs']);?><?php showMode("DMR", $_SESSION['MMDVMHostConfigs']);?></tr>
     <tr><?php showMode("System Fusion", $_SESSION['MMDVMHostConfigs']);?><?php showMode("P25", $_SESSION['MMDVMHostConfigs']);?></tr>
-    <tr><?php showMode("YSF XMode", $_SESSION['MMDVMHostConfigs']);?><?php showMode("NXDN", $_SESSION['MMDVMHostConfigs']);?></tr>
-    <tr><?php showMode("DMR XMode", $_SESSION['MMDVMHostConfigs']);?><?php showMode("POCSAG", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("M17", $_SESSION['MMDVMHostConfigs']);?><?php showMode("NXDN", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("YSF XMode", $_SESSION['MMDVMHostConfigs']);?><?php showMode("DMR XMode", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("", $_SESSION['MMDVMHostConfigs']);?><?php showMode("POCSAG", $_SESSION['MMDVMHostConfigs']);?></tr>
 </table>
 <br />
 
@@ -84,11 +85,10 @@ if (isProcessRunning("DMRGateway")) {
     <tr><th colspan="2"><?php echo $lang['net_status'];?></th></tr>
     <tr><?php showMode("D-Star Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("DMR Network", $_SESSION['MMDVMHostConfigs']);?></tr>
     <tr><?php showMode("System Fusion Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("P25 Network", $_SESSION['MMDVMHostConfigs']);?></tr>
-    <tr><?php showMode("YSF2DMR Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("NXDN Network", $_SESSION['MMDVMHostConfigs']);?></tr>
-    <tr><?php showMode("YSF2NXDN Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("YSF2P25 Network", $_SESSION['MMDVMHostConfigs']);?></tr>
-    <tr><?php showMode("DMR2NXDN Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("DMR2YSF Network", $_SESSION['MMDVMHostConfigs']);?></tr>
-    <!--  <tr><td style="background:#606060; color:#b0b0b0;"></td><?php showMode("POCSAG Network", $_SESSION['MMDVMHostConfigs']);?></tr> -->
-    <tr><?php showMode("", $_SESSION['MMDVMHostConfigs']);?></td><?php showMode("POCSAG Network", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("M17 Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("NXDN Network", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("YSF2DMR Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("YSF2P25 Network", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("YSF2NXDN Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("DMR2YSF Network", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("DMR2NXDN Network", $_SESSION['MMDVMHostConfigs']);?></td><?php showMode("POCSAG Network", $_SESSION['MMDVMHostConfigs']);?></tr>
 </table>
 <br />
 
@@ -99,24 +99,24 @@ if (isProcessRunning("DMRGateway")) {
 	// TRX Status code
 	if (isset($lastHeard[0])) {
 	    $isTXing = false;
-	    
+
 	    // Go through the whole LH array, backward, looking for transmission.
 	    for (end($lastHeard); (($currentKey = key($lastHeard)) !== null); prev($lastHeard)) {
 		$listElem = current($lastHeard);
-		
+
 		if ($listElem[2] && ($listElem[6] == null) && ($listElem[5] !== 'RF')) {
 		    $isTXing = true;
-		    
+
 		    // Get rid of 'Slot x' for DMR, as it is meaningless, when 2 slots are txing at the same time.
 		    $txMode = preg_split('#\s+#', $listElem[1])[0];
 		    echo "<td style=\"background:#f33;\">TX $txMode</td>";
 		    break;
 		}
 	    }
-	    
+
 	    if ($isTXing == false) {
 		$listElem = $lastHeard[0];
-		
+
 	        if (getActualMode($lastHeard, $_SESSION['MMDVMHostConfigs']) === 'idle') {
 	            echo "<td style=\"background:#0b0; color:#030;\">Listening</td>";
 	        }
@@ -157,6 +157,12 @@ if (isProcessRunning("DMRGateway")) {
         	}
         	else if (getActualMode($lastHeard, $_SESSION['MMDVMHostConfigs']) === 'NXDN') {
         	    echo "<td style=\"background:#c9f;\">Listening NXDN</td>";
+        	}
+		else if ($listElem[2] && $listElem[6] == null && getActualMode($lastHeard, $_SESSION['MMDVMHostConfigs']) === 'M17') {
+        	    echo "<td style=\"background:#4aa361;\">RX M17</td>";
+        	}
+        	else if (getActualMode($lastHeard, $_SESSION['MMDVMHostConfigs']) === 'M17') {
+        	    echo "<td style=\"background:#c9f;\">Listening M17</td>";
         	}
 		else if (getActualMode($lastHeard, $_SESSION['MMDVMHostConfigs']) === 'POCSAG') {
         	    echo "<td style=\"background:#4aa361;\">POCSAG</td>";
@@ -204,7 +210,7 @@ if (isProcessRunning("DMRGateway")) {
 	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "dstar")." title=\"".$linkedTo."\">".$linkedTo."</td></tr>\n";
 	    echo "</table>\n";
 	}
-	
+
 	$testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( $testMMDVModeDMR == 1 ) { //Hide the DMR information when DMR mode not enabled.
 	    $dmrMasterFile = fopen("/usr/local/etc/DMR_Hosts.txt", "r");
@@ -242,7 +248,7 @@ if (isProcessRunning("DMRGateway")) {
 		        }
 		    }
 		}
-		
+
 		$xlxMasterHost1Tooltip = $xlxMasterHost1.' ('.$xlxMasterIP.')';
 		$dmrMasterHost1Tooltip = $dmrMasterHost1.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 1']['Address'].')';
 		$dmrMasterHost2Tooltip = $dmrMasterHost2.' ('.$_SESSION['DMRGatewayConfigs']['DMR Network 2']['Address'].')';
@@ -294,14 +300,14 @@ if (isProcessRunning("DMRGateway")) {
 		}
 	    }
 	    fclose($dmrMasterFile);
-	    
+
 	    echo "<br />\n";
 	    echo "<table>\n";
 	    echo "<tr><th colspan=\"2\">".$lang['dmr_repeater']."</th></tr>\n";
 	    echo "<tr><th>DMR ID</th><td style=\"background: #ffffff;\">".getConfigItem("General", "Id", $_SESSION['MMDVMHostConfigs'])."</td></tr>\n";
 	    echo "<tr><th>DMR CC</th><td style=\"background: #ffffff;\">".getConfigItem("DMR", "ColorCode", $_SESSION['MMDVMHostConfigs'])."</td></tr>\n";
 	    echo "<tr><th>TS1</th>";
-	    
+
 	    if (getConfigItem("DMR Network", "Slot1", $_SESSION['MMDVMHostConfigs']) == 1) {
 		echo "<td class=\"active-mode-cell\">enabled</td></tr>\n";
 	    }
@@ -326,7 +332,7 @@ if (isProcessRunning("DMRGateway")) {
 			else {
 			    $xlxMasterHost1 = exec('grep \'XLX, Linking\|XLX, Unlinking\|XLX, Logged\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d", time() - 86340).'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
 			}
-			
+
 			if ( strpos($xlxMasterHost1, 'Linking') !== false ) {
 			    $xlxMasterHost1 = str_replace('Linking ', '', $xlxMasterHost1);
 			}
@@ -367,14 +373,14 @@ if (isProcessRunning("DMRGateway")) {
 	    }
 	    echo "</table>\n";
 	}
-	
+
 	$testMMDVModeYSF = getConfigItem("System Fusion Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( isset($_SESSION['DMR2YSFConfigs']['Enabled']['Enabled']) ) {
 	    $testDMR2YSF = $_SESSION['DMR2YSFConfigs']['Enabled']['Enabled'];
 	}
 	if ( $testMMDVModeYSF == 1 || (isset($testDMR2YSF) && $testDMR2YSF == 1) ) { //Hide the YSF information when System Fusion Network mode not enabled.
             $ysfLinkedTo = getActualLink($reverseLogLinesYSFGateway, "YSF");
-	    
+
 	    if ($ysfLinkedTo == 'Not Linked' || $ysfLinkedTo == 'Service Not Started') {
                 $ysfLinkedToTxt = $ysfLinkedTo;
 		$ysfLinkState = '';
@@ -386,16 +392,16 @@ if (isProcessRunning("DMRGateway")) {
                 while (!feof($ysfHostFile)) {
                     $ysfHostFileLine = fgets($ysfHostFile);
                     $ysfRoomTxtLine = preg_split('/;/', $ysfHostFileLine);
-		    
+
 		    if (empty($ysfRoomTxtLine[0]) || empty($ysfRoomTxtLine[1]))
 			continue;
-		    
+
                     if (($ysfRoomTxtLine[0] == $ysfLinkedTo) || ($ysfRoomTxtLine[1] == $ysfLinkedTo)) {
                         $ysfLinkedToTxt = $ysfRoomTxtLine[1];
                         break;
                     }
                 }
-		
+
 		if ($ysfLinkedToTxt != "null") {
 		    $ysfLinkState = ' [Room]';
 		    $ysfLinkStateTooltip = 'Room: ';
@@ -405,7 +411,7 @@ if (isProcessRunning("DMRGateway")) {
 		    $ysfLinkState = ' [Lnkd]';
 		    $ysfLinkStateTooltip = 'Linked to ';
 		}
-		
+
                 $ysfLinkedToTxt = str_replace('_', ' ', $ysfLinkedToTxt);
             }
 
@@ -419,7 +425,7 @@ if (isProcessRunning("DMRGateway")) {
 	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "ysf")." title=\"".$ysfLinkedToTooltip."\">".$ysfLinkedToTxt."</td></tr>\n";
             echo "</table>\n";
 	}
-	
+
 	$testYSF2DMR = 0;
 	if ( isset($_SESSION['YSF2DMRConfigs']['Enabled']['Enabled']) ) {
 	    $testYSF2DMR = $_SESSION['YSF2DMRConfigs']['Enabled']['Enabled'];
@@ -442,7 +448,7 @@ if (isProcessRunning("DMRGateway")) {
 		$dmrMasterHost = substr($dmrMasterHost, 0, 17) . '..';
 	    }
             fclose($dmrMasterFile);
-	    
+
             echo "<br />\n";
             echo "<table>\n";
             echo "<tr><th colspan=\"2\">YSF2DMR</th></tr>\n";
@@ -451,7 +457,7 @@ if (isProcessRunning("DMRGateway")) {
             echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\" title=\"".$dmrMasterHostTooltip."\">".$dmrMasterHost."</td></tr>\n";
             echo "</table>\n";
 	}
-	
+
 	$testMMDVModeP25 = getConfigItem("P25 Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( isset($_SESSION['YSF2P25Configs']['Enabled']['Enabled']) ) { $testYSF2P25 = $_SESSION['YSF2P25Configs']['Enabled']['Enabled']; }
 	if ( $testMMDVModeP25 == 1 || $testYSF2P25 ) { //Hide the P25 information when P25 Network mode not enabled.
@@ -465,7 +471,7 @@ if (isProcessRunning("DMRGateway")) {
 	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "p25").">".getActualLink($logLinesP25Gateway, "P25")."</td></tr>\n";
 	    echo "</table>\n";
 	}
-	
+
 	$testMMDVModeNXDN = getConfigItem("NXDN Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( isset($_SESSION['YSF2NXDNConfigs']['Enabled']['Enabled']) ) {
 	    if ($_SESSION['YSF2NXDNConfigs']['Enabled']['Enabled'] == 1) {
@@ -493,7 +499,18 @@ if (isProcessRunning("DMRGateway")) {
 	    }
 	    echo "</table>\n";
 	}
-	
+
+	$testMMDVModeM17 = getConfigItem("M17 Network", "Enable", $_SESSION['MMDVMHostConfigs']);
+	if ($testMMDVModeM17 == 1) {
+	    echo "<br />\n";
+	    echo "<table>\n";
+	    echo "<tr><th colspan=\"2\">".$lang['m17_repeater']."</th></tr>\n";
+	    echo "<tr><th>RPT</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['M17GatewayConfigs']['General']['Callsign'])."&nbsp;".str_replace(' ', '&nbsp;', $_SESSION['M17GatewayConfigs']['General']['Suffix'])."</td></tr>\n";
+	    echo "<tr><th colspan=\"2\">".$lang['m17_net']."</th></tr>\n";
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "m17").">".getActualLink($reverseLogLinesM17Gateway, "M17")."</td></tr>\n";
+	    echo "</table>\n";
+	}
+
 	$testMMDVModePOCSAG = getConfigItem("POCSAG Network", "Enable", $_SESSION['MMDVMHostConfigs']);
 	if ( $testMMDVModePOCSAG == 1 ) { //Hide the POCSAG information when POCSAG Network mode not enabled.
 	    echo "<br />\n";
