@@ -266,6 +266,12 @@ checkSessionValidity();
 			include 'mmdvmhost/nxdn_manager.php';		// NXDN Links
 		    }
 		}
+		$testMMDVModeM17net = getConfigItem("M17 Network", "Enable", $_SESSION['MMDVMHostConfigs']);
+		if ( $testMMDVModeM17net == 1 ) {				// If M17 network is enabled, add these extra features.
+		    if ($_SERVER["PHP_SELF"] == "/admin/index.php") { 	// Admin Only Option
+			include 'mmdvmhost/m17_manager.php';		// M17 Links
+		    }
+		}
 		
 		echo '<script type="text/javascript">'."\n";
 		echo 'var lhto;'."\n";

@@ -1284,10 +1284,31 @@ function getActualLink($logLines, $mode) {
             break;
 	    
 	case "M17":
+            // 00000000000001111111111222222222233333333334444444444555555555566666666667777777777888888888899999999990000000000111111111122
+            // 00001234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901
+	    // I: 2022-01-04 17:03:39.209 Linked at startup to M17-DMR X
+	    // M: 2022-01-04 21:01:54.711 Link lost to reflector M17-DMR X
+	    // M: 2022-01-05 06:48:31.073 Unlinked from reflector M17-DMR X by remote command
+	    // M: 2022-01-05 06:53:42.254 Switched to reflector M17-DMR U by remote command
+	    // M: 2022-01-05 06:57:42.331 Relinked from M17-DMR U to M17-DMR X due to inactivity
+	    // M: 2022-01-05 06:57:42.331 Linking to reflector M17-DMR U triggered by M17-DMR X
+	    // M: 2022-01-05 06:57:42.331 Relinking to reflector M17-DMR U
             if (isProcessRunning("M17Gateway")) {
 		foreach($logLines as $logLine) {
 		    if(preg_match_all('/Linked .* reflector (M17-.{3} [A-Z])/', $logLine, $linx) > 0) {
 			return $linx[1][0];
+		    }
+		    else if (strpos($logLine, "Switched to reflector")) {
+			return (substr($logLine, 46, 9));
+		    }
+		    else if (strpos($logLine, "Linking to reflector")) {
+			return (substr($logLine, 45, 9));
+		    }
+		    else if (strpos($logLine, "Relinked from")) {
+			return (substr($logLine, 51, 9));
+		    }
+		    else if (strpos($logLine, "Relinking to")) {
+			return (substr($logLine, 47, 9));
 		    }
 		    else if (strpos($logLine,"Starting M17Gateway") || strpos($logLine,"Unlinking") || strpos($logLine,"Unlinked")) {
 			return "Not Linked";
@@ -1299,7 +1320,7 @@ function getActualLink($logLines, $mode) {
 		return "Service Not Started";
             }
 	    break;
-
+	    
 	case "P25":
 	    // 00000000001111111111222222222233333333334444444444555555555566666666667777777777888888888899999999990000000000111111111122
 	    // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901

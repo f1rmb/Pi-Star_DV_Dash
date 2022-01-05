@@ -5343,16 +5343,13 @@ $MYCALL=strtoupper($callsign);
 					{
 					    $m17StartupHostWithModule = (isset($configm17gateway['Network']['Startup']) ? $configm17gateway['Network']['Startup'] : "");
 					    $m17StartupHost = "";
-					    $m17StartupModule = "";
+					    $m17StartupModule = "A";
 
 					    if ($m17StartupHostWithModule != "") {
 						$m17StartupHost = substr($m17StartupHostWithModule, 0, -2);
 						$m17StartupModule = substr($m17StartupHostWithModule, -1);
 					    }
 
-					    if (empty($m17StartupModule)) { $m17StartupModule = "A"; }
-
-					    
 					    if ($m17StartupHost == "") {
 						echo "      <option value=\"NONE\" selected=\"selected\">None</option>\n";
 					    }
@@ -5377,33 +5374,17 @@ $MYCALL=strtoupper($callsign);
 				    </select>
 				    
 				    <select name="m17StartupModule">
-					<?php echo "  <option value=\"".$m17StartupModule."\" selected=\"selected\">".$m17StartupModule."</option>\n"; ?>
-					<option>A</option>
-					<option>B</option>
-					<option>C</option>
-					<option>D</option>
-					<option>E</option>
-					<option>F</option>
-					<option>G</option>
-					<option>H</option>
-					<option>I</option>
-					<option>J</option>
-					<option>K</option>
-					<option>L</option>
-					<option>M</option>
-					<option>N</option>
-					<option>O</option>
-					<option>P</option>
-					<option>Q</option>
-					<option>R</option>
-					<option>S</option>
-					<option>T</option>
-					<option>U</option>
-					<option>V</option>
-					<option>W</option>
-					<option>X</option>
-					<option>Y</option>
-					<option>Z</option>
+					<?php
+					$m17ModuleList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+					foreach ($m17ModuleList as $module) {
+					    if ($m17StartupModule == $module) {
+						echo "  <option value=\"".$module."\" selected=\"selected\">".$module."</option>\n";
+					    }
+					    else {
+						echo "  <option value=\"".$module."\">".$module."</option>\n";
+					    }
+					}
+					?>
 				    </select>
 				    
 				    </td>
