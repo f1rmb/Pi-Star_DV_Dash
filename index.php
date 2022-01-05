@@ -101,10 +101,26 @@ checkSessionValidity();
 		</p>
 	    </div>
 	    <?php
-	    // Check if configuration files are matching the current required version
-	    if (($_SERVER["PHP_SELF"] == "/admin/index.php") || ($_SERVER["PHP_SELF"] == "/index.php")) {
-		$configVersion = getConfigItem("Pi-Star Settings", "ConfigVersion", $_SESSION['MMDVMHostConfigs']);
+		// Check if configuration files are matching the current required version
+		if (($_SERVER["PHP_SELF"] == "/admin/index.php") || ($_SERVER["PHP_SELF"] == "/index.php")) {
+		    $configVersion = getConfigItem("Pi-Star Settings", "ConfigVersion", $_SESSION['MMDVMHostConfigs']);
 		
+		    if ($_SESSION['PiStarRelease']['Pi-Star']['Version'] < "4.1") {
+	    ?>
+		<div>
+		    <table align="center" width="100%" style="margin: 0px 0px 10px 0px; width: 100%;">
+			<tr>
+			    <td align="center" valign="top" style="background-color: #CA0000; color: #FFFFFF;">
+				-- IMPORTANT NOTICE --<br />
+				<br />
+				Your Pi-Star version has reached its end of support.<br />
+				You should consider upgrading to a fresh new 4 series installation..<br />
+				Make a backup of your configuration, which you will be able to restore on the new installation.<br />
+			</tr>
+		    </table>
+		</div>
+	    <?php
+	    }
 		if (!isset($configVersion) || ($configVersion < $CURRENT_CONFIGURATION_VERSION)) {
 	    ?>
 		<div>

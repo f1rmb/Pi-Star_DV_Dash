@@ -1,7 +1,7 @@
 <?php
 if (isset($_COOKIE['PHPSESSID']))
 {
-    session_id($_COOKIE['PHPSESSID']); 
+    session_id($_COOKIE['PHPSESSID']);
 }
 if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
@@ -10,14 +10,14 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSIVE) < 10)) {
     session_id('pistardashsess');
     session_start();
-    
+
     include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
     include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
     include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
     include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
     checkSessionValidity();
 }
-    
+
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
@@ -28,7 +28,7 @@ $testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['MMDVMHostConfigs'])
 
 if ( $testMMDVModeDMR == 1 ) {
     $bmEnabled = true;
-    
+
     // Get the current DMR Master from the config
     $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
     if ( $dmrMasterHost == '127.0.0.1' ) {
@@ -42,10 +42,10 @@ if ( $testMMDVModeDMR == 1 ) {
     else {
 	$dmrID = getConfigItem("General", "Id", $_SESSION['MMDVMHostConfigs']);
     }
-    
+
     // Store the DMR Master IP, we will need this for the JSON lookup
     $dmrMasterHostIP = $dmrMasterHost;
-    
+
     // Make sure the master is a BrandMeister Master
     if (($dmrMasterFile = fopen("/usr/local/etc/DMR_Hosts.txt", "r")) != FALSE) {
 	while (!feof($dmrMasterFile)) {
@@ -69,20 +69,38 @@ if ( $testMMDVModeDMR == 1 ) {
 	    unset($bmAPIkey);
 	}
 
-	
+	$opts = array(
+	    'http' => array(
+		'timeout' => 2,
+		'header'  => 'User-Agent: Pi-Star '.$_SESSION['PiStarRelease']['Pi-Star']['Version'].'-f1rmb Dashboard for '.$dmrID
+	    ),
+	);
+
+	// Hack for old Jessie
+	if ($_SESSION['PiStarRelease']['Pi-Star']['Version'] < "4.1") {
+	    $noverify = array(
+		'ssl' => array(
+		    'verify_peer' => false,
+		    'verify_peer_name' => false,
+		),
+	    );
+
+	    $opts = array_merge($opts, $noverify);
+	}
+
 	// Use BM API to get information about current TGs
-	$jsonContext = stream_context_create(array('http'=>array('timeout' => 2, 'header' => 'User-Agent: Pi-Star '.$_SESSION['PiStarRelease']['Pi-Star']['Version'].'-f1rmb Dashboard for '.$dmrID) )); // Add Timout and User Agent to include DMRID
+	$jsonContext = stream_context_create($opts); // Add Timout and User Agent to include DMRID
 	if (isset($bmAPIkeyV2)) {
 	    $json = json_decode(@file_get_contents("https://api.brandmeister.network/v2/device/$dmrID/profile", true, $jsonContext));
 	}
 	else {
 	    $json = json_decode(@file_get_contents("https://api.brandmeister.network/v1.0/repeater/?action=PROFILE&q=$dmrID", true, $jsonContext));
 	}
-	
+
 	// Set some Variable
 	$bmStaticTGList = "";
 	$bmDynamicTGList = "";
-	
+
 	// Pull the information form JSON
 	if (isset($json->staticSubscriptions)) { $bmStaticTGListJson = $json->staticSubscriptions;
             foreach($bmStaticTGListJson as $staticTG) {
@@ -115,7 +133,7 @@ if ( $testMMDVModeDMR == 1 ) {
             $bmDynamicTGList = wordwrap($bmDynamicTGList, 15, "<br />\n");
             if (preg_match('/TG/', $bmDynamicTGList) == false) { $bmDynamicTGList = "None"; }
         } else { $bmDynamicTGList = "None"; }
-	
+
 	echo '<b>Active BrandMeister Connections</b>
   <table>
     <tr>
@@ -124,7 +142,7 @@ if ( $testMMDVModeDMR == 1 ) {
       <th><a class=tooltip href="#">Static TGs<span><b>Statically linked talkgroups</b></span></a></th>
       <th><a class=tooltip href="#">Dynamic TGs<span><b>Dynamically linked talkgroups</b></span></a></th>
     </tr>'."\n";
-	
+
 	echo '    <tr>'."\n";
 	echo '     <td>'.$dmrMasterHost.'</td>';
 	echo '     <td>'.$dmrID.'</td>';

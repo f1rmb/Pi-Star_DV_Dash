@@ -1,7 +1,7 @@
 <?php
 if (isset($_COOKIE['PHPSESSID']))
 {
-    session_id($_COOKIE['PHPSESSID']); 
+    session_id($_COOKIE['PHPSESSID']);
 }
 if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
@@ -10,14 +10,14 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSIVE) < 10)) {
     session_id('pistardashsess');
     session_start();
-    
+
     include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
     include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
     include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
     include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
     checkSessionValidity();
 }
-    
+
 include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
 include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
@@ -28,7 +28,7 @@ $testMMDVModeDMR = getConfigItem("DMR", "Enable", $_SESSION['MMDVMHostConfigs'])
 
 if ( $testMMDVModeDMR == 1 ) {
     $bmEnabled = true;
-    
+
     // Get the current DMR Master from the config
     $dmrMasterHost = getConfigItem("DMR Network", "Address", $_SESSION['MMDVMHostConfigs']);
     if ( $dmrMasterHost == '127.0.0.1' ) {
@@ -42,10 +42,10 @@ if ( $testMMDVModeDMR == 1 ) {
     else {
 	$dmrID = getConfigItem("General", "Id", $_SESSION['MMDVMHostConfigs']);
     }
-    
+
     // Store the DMR Master IP, we will need this for the JSON lookup
     $dmrMasterHostIP = $dmrMasterHost;
-    
+
     // Make sure the master is a BrandMeister Master
     if (($dmrMasterFile = fopen("/usr/local/etc/DMR_Hosts.txt", "r")) != FALSE) {
 	while (!feof($dmrMasterFile)) {
@@ -57,10 +57,10 @@ if ( $testMMDVModeDMR == 1 ) {
 	}
 	fclose($dmrMasterFile);
     }
-    
+
     if ((substr($dmrMasterHost, 0, 3) == "BM ") && ($bmEnabled == true) && isset($_SESSION['BMAPIKey'])) {
 	// OK this is Brandmeister, get some config and output the HTML
-	
+
 	// If there is a BM API Key
 	$bmAPIkey = $_SESSION['BMAPIKey'];
 
@@ -73,7 +73,7 @@ if ( $testMMDVModeDMR == 1 ) {
 	    unset($bmAPIkey);
 	}
 
-	
+
 	if ( !empty($_POST) && ( isset($_POST["dropDyn"]) || isset($_POST["dropQso"]) || isset($_POST["tgSubmit"]))) {  // Data has been posted for this page
 	    if (isset($bmAPIkey)) {
 		$bmAPIurl = 'https://api.brandmeister.network/v1.0/repeater/';
@@ -109,7 +109,7 @@ if ( $testMMDVModeDMR == 1 ) {
 		    'Authorization: Basic '.base64_encode($bmAPIkey.':'),
 		    'User-Agent: Pi-Star '.$_SESSION['PiStarRelease']['Pi-Star']['Version'].'-f1rmb Dashboard for '.$dmrID,
 		);
-		
+
 		$opts = array(
 		    'http' => array(
 			'header'  => $postHeaders,
@@ -120,6 +120,19 @@ if ( $testMMDVModeDMR == 1 ) {
 			'timeout' => 2,
 		    ),
 		);
+
+		// Hack for old Jessie
+		if ($_SESSION['PiStarRelease']['Pi-Star']['Version'] < "4.1") {
+		    $noverify = array(
+			'ssl' => array(
+			    'verify_peer' => false,
+			    'verify_peer_name' => false,
+			),
+		    );
+
+		    $opts = array_merge($opts, $noverify);
+		}
+
 		$context = stream_context_create($opts);
 		$result = @file_get_contents($bmAPIurl, false, $context);
 		$feeback=json_decode($result);
@@ -172,7 +185,7 @@ if ( $testMMDVModeDMR == 1 ) {
 		    'Authorization: '.$bmAPIkeyV2,
 		    'User-Agent: Pi-Star '.$_SESSION['PiStarRelease']['Pi-Star']['Version'].'-f1rmb Dashboard for '.$dmrID,
 		);
-		
+
 		$opts = array(
 		    'http' => array(
 			'header'  => $postHeaders,
@@ -183,6 +196,19 @@ if ( $testMMDVModeDMR == 1 ) {
 			'timeout' => 2,
 		    ),
 		);
+
+		if ($_SESSION['PiStarRelease']['Pi-Star']['Version'] < "4.1")
+		{
+		    $nossl = array(
+			'ssl' => array(
+			    'verify_peer' => false,
+			    'verify_peer_name' => false,
+			),
+		    );
+
+		    $opts = array_merge($opts, $nossl);
+		}
+
 		$context = stream_context_create($opts);
 		$result = @file_get_contents($bmAPIurl, false, $context);
 		$feeback=json_decode($result);
@@ -201,7 +227,7 @@ if ( $testMMDVModeDMR == 1 ) {
 		else {
 		    print "BrandMeister APIv2: No Responce";
 		}
-		
+
 		echo "</td></tr>\n</table>\n";
 		echo "<br />\n";
 		// Clean up...
