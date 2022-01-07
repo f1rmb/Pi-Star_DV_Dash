@@ -30,15 +30,39 @@ if ($_SERVER["PHP_SELF"] == "/admin/index.php") { // Stop this working outside o
     if ( $testMMDVModeM17 == 1 ) {
 	// Check that the remote is enabled
 	if (isset($_SESSION['M17GatewayConfigs']['Remote Commands']['Enable']) && (isset($_SESSION['M17GatewayConfigs']['Remote Commands']['Port'])) && ($_SESSION['M17GatewayConfigs']['Remote Commands']['Enable'] == 1)) {
-	    $remotePort = $_SESSION['M17GatewayConfigs']['Remote Commands']['Port'];
 	    if (!empty($_POST) && isset($_POST["m17MgrSubmit"])) {
+		$remoteCommand = "";
+		$remotePort = $_SESSION['M17GatewayConfigs']['Remote Commands']['Port'];
+		
 		// Handle Posted Data
-		$m17LinkHost = $_POST['m17LinkHost'];
-		$m17LinkToHost = "";
-		if ($m17LinkHost != "none") { // Unlinking
-		    $m17LinkToHost = "".$m17LinkHost."_".$_POST['m17LinkModule']."";
+		if ($_POST["Link"] == "LINK") {
+		    $m17LinkHost = $_POST['m17LinkHost'];
+		    $m17LinkToHost = "";
+		    if ($m17LinkHost != "none") { // Unlinking
+			$m17LinkToHost = "".$m17LinkHost."_".$_POST['m17LinkModule']."";
+		    }
+		    $remoteCommand = "cd /var/log/pi-star && sudo /usr/local/bin/RemoteCommand ".$remotePort." Reflector ".$m17LinkToHost."";
 		}
-		$remoteCommand = "cd /var/log/pi-star && sudo /usr/local/bin/RemoteCommand ".$remotePort." Reflector ".$m17LinkToHost."";
+		else if ($_POST["Link"] == "UNLINK") {
+		    $remoteCommand = "cd /var/log/pi-star && sudo /usr/local/bin/RemoteCommand ".$remotePort." Reflector";
+		}
+		else {
+		    echo "<b>M17 Link Manager</b>\n";
+		    echo "<table>\n<tr><th>Command Output</th></tr>\n<tr><td>";
+		    echo "Something wrong with your input, (Neither Link nor Unlink Sent) - please try again";
+		    echo "</td></tr>\n</table>\n<br />\n";
+		    unset($_POST);
+		    echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},2000);</script>';
+		}
+		if (empty($_POST['m17LinkHost'])) {
+		    echo "<b>M17 Link Manager</b>\n";
+		    echo "<table>\n<tr><th>Command Output</th></tr>\n<tr><td>";
+		    echo "Something wrong with your input, (No target specified) -  please try again";
+		    echo "</td></tr>\n</table>\n<br />\n";
+		    unset($_POST);
+		    echo '<script type="text/javascript">setTimeout(function() { window.location=window.location;},2000);</script>';
+		}
+		
 		if (isset($remoteCommand)) {
 		    echo "<b>M17 Link Manager</b>\n";
 		    echo "<table>\n<tr><th>Command Output</th></tr>\n<tr><td>";
@@ -56,7 +80,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/index.php") { // Stop this working outside o
 			<tr>
 			    <th width="150"><a class="tooltip" href="#">Reflector<span><b>Reflector</b></span></a></th>
 			    <th width="150"><a class="tooltip" href="#">Module<span><b>Module</b></span></a></th>
-			    <!--<th width="150"><a class="tooltip" href="#">Link / Un-Link<span><b>Link / Un-Link</b></span></a></th>-->
+			    <th width="150"><a class="tooltip" href="#">Link / Un-Link<span><b>Link / Un-Link</b></span></a></th>
 			    <th width="150"><a class="tooltip" href="#">Action<span><b>Action</b></span></a></th>
 			</tr>
 			<tr>
@@ -109,6 +133,10 @@ if ($_SERVER["PHP_SELF"] == "/admin/index.php") { // Stop this working outside o
 				    }
 				    ?>
 				</select>
+			    </td>
+			    <td>
+				<input type="radio" name="Link" value="LINK" checked="checked" />Link
+				<input type="radio" name="Link" value="UNLINK" />UnLink
 			    </td>
 			    <td>
 				<input type="submit" name="m17MgrSubmit" value="Request Change" />
