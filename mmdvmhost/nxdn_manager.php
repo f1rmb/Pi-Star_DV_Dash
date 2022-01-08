@@ -79,7 +79,7 @@ if ($_SERVER["PHP_SELF"] == "/admin/index.php") { // Stop this working outside o
 		    <table>
 			<tr>
 			    <th width="150"><a class="tooltip" href="#">Reflector<span><b>Reflector</b></span></a></th>
-			    <th width="150"><a class="tooltip" href="#">Link / Un-Link<span><b>Link / Un-Link</b></span></a></th>
+			    <th width="150"><a class="tooltip" href="#">Link / UnLink<span><b>Link / UnLink</b></span></a></th>
 			    <th width="150"><a class="tooltip" href="#">Action<span><b>Action</b></span></a></th>
 			</tr>
 			<tr>
