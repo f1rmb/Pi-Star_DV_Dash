@@ -1438,8 +1438,15 @@ $MYCALL=strtoupper($callsign);
 			exec($rollSTARNETSERVERirc);
 
 			if (empty($_POST['APRSGatewayEnable']) != TRUE ) {
-			    if (escapeshellcmd($_POST['APRSGatewayEnable']) == 'ON')  { $configircddb['aprsEnabled'] = "1"; }
-			    if (escapeshellcmd($_POST['APRSGatewayEnable']) == 'OFF') { $configircddb['aprsEnabled'] = "0"; }
+			    if (escapeshellcmd($_POST['APRSGatewayEnable']) == 'ON') {
+				$configircddb['aprsEnabled'] = "1";
+				$configaprsgateway['Enabled']['Enabled'] = "1";
+			    }
+
+			    if (escapeshellcmd($_POST['APRSGatewayEnable']) == 'OFF') {
+				$configircddb['aprsEnabled'] = "0";
+				$configaprsgateway['Enabled']['Enabled'] = "0";
+			    }
 			}
 		    }
 		    
@@ -3093,6 +3100,13 @@ $MYCALL=strtoupper($callsign);
 			$configdmrgateway['Dynamic TG Control']['Enabled'] = "1";
 			$configdmrgateway['Dynamic TG Control']['Port'] = "3769";
 		    }
+		    if (!isset($configdmrgateway['APRS'])) {
+			$configdmrgateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
+			$configdmrgateway['APRS']['Address'] = "127.0.0.1";
+			$configdmrgateway['APRS']['Port'] = "8673";
+			$configdmrgateway['APRS']['Suffix'] = "D";
+			$configdmrgateway['APRS']['Description'] = "APRS for DMRGateway";
+		    }
 
 		    // DMRGateway can break the lines with quotes in, when DMRGateway is off...
 		    if (isset($configdmrgateway['Info']['Location']) && substr($configdmrgateway['Info']['Location'], 0, 1) !== '"' ) {
@@ -3367,7 +3381,7 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configm17gateway['Network']['Revert'])) { $configm17gateway['Network']['Revert'] = "1"; }
 		    if (!isset($configm17gateway['Network']['Debug'])) { $configm17gateway['Network']['Debug'] = "0"; }
 		    if (!isset($configm17gateway['APRS'])) {
-			$configm17gateway['APRS']['Enable'] = "1";
+			$configm17gateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
 			$configm17gateway['APRS']['Address'] = "127.0.0.1";
 			$configm17gateway['APRS']['Port'] = "8673";
 			$configm17gateway['APRS']['Suffix'] = "N";
@@ -3399,6 +3413,15 @@ $MYCALL=strtoupper($callsign);
 			$configdgidgateway['Log']['FileRoot'] = "DGIdGateway";
 			$configdgidgateway['Log']['FileRotate'] = 1;
 			$configdgidgateway['YSF Network']['Hosts'] = "/usr/local/etc/YSFHosts.txt";
+
+			if (!isset($configdgidgateway['APRS'])) {
+			    $configdgidgateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
+			    $configdgidgateway['APRS']['Address'] = "127.0.0.1";
+			    $configdgidgateway['APRS']['Port'] = "8673";
+			    $configdgidgateway['APRS']['Suffix'] = "Y";
+			    $configdgidgateway['APRS']['Description'] = "APRS for DGIdGateway";
+			}
+			
 		    }
 		    
 		    // Clean up for NXDN Gateway
@@ -3431,7 +3454,7 @@ $MYCALL=strtoupper($callsign);
 			// Add in all the APRS stuff
 			if(!isset($confignxdngateway['Info']['Power'])) { $confignxdngateway['Info']['Power'] = "1"; }
 			if(!isset($confignxdngateway['Info']['Height'])) { $confignxdngateway['Info']['Height'] = "0"; }
-			if(!isset($confignxdngateway['APRS']['Enable'])) { $confignxdngateway['APRS']['Enable'] = "0"; }
+			if(!isset($confignxdngateway['APRS']['Enable'])) { $confignxdngateway['APRS']['Enable'] = $configircddb['aprsEnabled']; }
 			if(!isset($confignxdngateway['APRS']['Address'])) { $confignxdngateway['APRS']['Server'] = "127.0.0.1"; }
 			if(!isset($confignxdngateway['APRS']['Port'])) { $confignxdngateway['APRS']['Port'] = "8673"; }
 			if(!isset($confignxdngateway['APRS']['Suffix'])) { $confignxdngateway['APRS']['Suffix'] = "N"; }
@@ -3460,7 +3483,7 @@ $MYCALL=strtoupper($callsign);
 		    
 
 		    if (isset($configysfgateway['Network']['Startup'])) { $ysfTmpStartup = $configysfgateway['Network']['Startup']; }
-		    if (!isset($configysfgateway['APRS']['Enable'])) { $configysfgateway['APRS']['Enable'] = "1"; }
+		    if (!isset($configysfgateway['APRS']['Enable'])) { $configysfgateway['APRS']['Enable'] = $configircddb['aprsEnabled']; }
 		    //unset($configysfgateway['Network']);
 		    if (isset($ysfTmpStartup)) { $configysfgateway['Network']['Startup'] = $ysfTmpStartup; }
 		    if (!isset($configysfgateway['Network']['InactivityTimeout'])) { $configysfgateway['Network']['InactivityTimeout'] = "0"; }
@@ -3511,7 +3534,14 @@ $MYCALL=strtoupper($callsign);
 		    if (!isset($configmmdvm['POCSAG Network']['ModeHang'])) { $configmmdvm['POCSAG Network']['ModeHang'] = "5"; }
 		    if (!isset($configmmdvm['POCSAG Network']['Debug'])) { $configmmdvm['POCSAG Network']['Debug'] = "0"; }
 		    if (!isset($configmmdvm['POCSAG Network']['ModeHang'])) { $configmmdvm['POCSAG Network']['ModeHang'] = "5"; }
-		    
+
+		    // Handle APRSGateway usage
+		    $configdmrgateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
+		    $configysfgateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
+		    $configdgidgateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
+		    $configm17gateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
+		    $confignxdngateway['APRS']['Enable'] = $configircddb['aprsEnabled'];
+
 		    // Create the hostfiles.nodextra file if required
 		    if (empty($_POST['confHostFilesNoDExtra']) != TRUE ) {
 			if (escapeshellcmd($_POST['confHostFilesNoDExtra']) == 'ON' )  {
