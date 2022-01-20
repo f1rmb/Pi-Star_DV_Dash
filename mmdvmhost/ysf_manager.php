@@ -40,7 +40,10 @@ if ($_SERVER["PHP_SELF"] == "/admin/index.php") { // Stop this working outside o
 			$remoteCommand = "cd /var/log/pi-star && sudo /usr/local/bin/RemoteCommand ".$remotePort." UnLink";
 		    }
 		    else {
-			$remoteCommand = "cd /var/log/pi-star && sudo /usr/local/bin/RemoteCommand ".$remotePort." Link".$_POST['ysfLinkHost'];
+			$ysfLinkHost = $_POST['ysfLinkHost'];
+			$ysfType = substr($ysfLinkHost, 0, 3);
+			$ysfID = substr($ysfLinkHost, 3);
+			$remoteCommand = "cd /var/log/pi-star && sudo /usr/local/bin/RemoteCommand ".$remotePort." Link".$ysfType." ".$ysfID."";
 		    }
 		}
 		else if ($_POST["Link"] == "UNLINK") {
