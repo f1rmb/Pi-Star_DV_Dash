@@ -1136,7 +1136,7 @@ function getActualLink($logLines, $mode) {
 		return getDSTARLinks();
     	    } 
 	    else {
-    		return "No D-Star Network";
+		return "Service Not Started";
     	    }
             break;
 	    
@@ -1146,39 +1146,44 @@ function getActualLink($logLines, $mode) {
 	    //M: 2020-01-22 01:54:50.780 DMR Slot 2, received network voice header from 4000 to TG 9
 	    //M: 2016-04-03 19:30:03.099 DMR Slot 2, received network voice header from 4020 to 2625094
 	    //M: 2017-09-03 08:10:42.862 DMR Slot 2, received network data header from M6JQD to TG 9, 5 blocks
-            foreach ($logLines as $logLine) {
-        	if(strpos($logLine,"unable to decode the network CSBK")) {
-		    continue;
+            if (isProcessRunning("MMDVMHost") || isProcessRunning("DMRGateway")) {
+		foreach ($logLines as $logLine) {
+        	    if(strpos($logLine,"unable to decode the network CSBK")) {
+			continue;
+		    }
+		    else if(substr($logLine, 27, strpos($logLine,",") - 27) == $mode) {
+			$to = "";
+			$from = "";
+			if (strpos($logLine, "from") != FALSE) {
+			    $from = trim(get_string_between($logLine, "from", "to"));
+			}
+			if (strpos($logLine,"to")) {
+			    $to = trim(substr($logLine, strpos($logLine,"to") + 3));
+			}
+			if ($from !== "") {
+			    if ($from === "4000") {
+				return "No TG";
+			    }
+			}
+			if ($to !== "") {
+			    if (substr($to, 0, 3) !== 'TG ') {
+				continue;
+			    }
+			    if ($to === "TG 4000") {
+				return "No TG";
+			    }
+			    if (strpos($to, ',') !== false) {
+				$to = substr($to, 0, strpos($to, ','));
+			    }
+			    return $to;
+			}
+		    }
 		}
-		else if(substr($logLine, 27, strpos($logLine,",") - 27) == $mode) {
-		    $to = "";
-		    $from = "";
-		    if (strpos($logLine, "from") != FALSE) {
-			$from = trim(get_string_between($logLine, "from", "to"));
-		    }
-		    if (strpos($logLine,"to")) {
-			$to = trim(substr($logLine, strpos($logLine,"to") + 3));
-		    }
-		    if ($from !== "") {
-			if ($from === "4000") {
-			    return "No TG";
-			}
-		    }
-		    if ($to !== "") {
-			if (substr($to, 0, 3) !== 'TG ') {
-			    continue;
-			}
-			if ($to === "TG 4000") {
-			    return "No TG";
-			}
-			if (strpos($to, ',') !== false) {
-			    $to = substr($to, 0, strpos($to, ','));
-			}
-			return $to;
-		    }
-		}
+		return "No TG";
 	    }
-	    return "No TG";
+	    else {
+		return "Service Not Started";
+	    }
             break;
 	    
 	case "YSF":

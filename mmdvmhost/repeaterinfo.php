@@ -24,6 +24,21 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translat
 require_once($_SERVER['DOCUMENT_ROOT'].'/config/ircddblocal.php');
 
 
+function FillConnectionHosts(&$destArray, $remoteEnabled, $remotePort) {
+    if (($remoteEnabled == 1) && ($remotePort != 0)) {
+	$remoteOutput = null;
+	$remoteRetval = null;
+	exec('/usr/local/bin/RemoteCommand '.$remotePort.' hosts', $remoteOutput, $remoteRetval);
+	if (($remoteRetval == 0) && (count($remoteOutput) >= 2)) {
+	    $expOutput = preg_split('/"[^"]*"(*SKIP)(*F)|\x20/', $remoteOutput[1]);
+	    foreach ($expOutput as $entry) {
+		$keysValues = explode(":", $entry);
+		$destArray[$keysValues[0]] = $keysValues[1];
+	    }
+	}
+    }
+}
+
 function FillConnectionStatus(&$destArray, $remoteEnabled, $remotePort) {
     if (($remoteEnabled == 1) && ($remotePort != 0)) {
 	$remoteOutput = null;
@@ -57,6 +72,10 @@ function GetActiveConnectionStyle($masterStates, $key) {
 //
 $remoteMMDVMResults = [];
 $remoteDMRGResults = [];
+$remoteYSFGResults = [];
+$remoteP25GResults = [];
+$remoteNXDNGResults = [];
+$remoteM17GResults = [];
 
 if (isProcessRunning("MMDVMHost")) {
     $cfgItemEnabled = getConfigItem("Remote Control", "Enable", $_SESSION['MMDVMHostConfigs']);
@@ -68,6 +87,30 @@ if (isProcessRunning("DMRGateway")) {
     $remoteCommandEnabled = (isset($_SESSION['DMRGatewayConfigs']['Remote Control']) ? $_SESSION['DMRGatewayConfigs']['Remote Control']['Enable'] : 0);
     $remoteCommandPort = (isset($_SESSION['DMRGatewayConfigs']['Remote Control']) ? $_SESSION['DMRGatewayConfigs']['Remote Control']['Port'] : 0);
     FillConnectionStatus($remoteDMRGResults, $remoteCommandEnabled, $remoteCommandPort);
+}
+
+if (isProcessRunning("YSFGateway")) {
+    $remoteCommandEnabled = (isset($_SESSION['YSFGatewayConfigs']['Remote Commands']) ? $_SESSION['YSFGatewayConfigs']['Remote Commands']['Enable'] : 0);
+    $remoteCommandPort = (isset($_SESSION['YSFGatewayConfigs']['Remote Commands']) ? $_SESSION['YSFGatewayConfigs']['Remote Commands']['Port'] : 0);
+    FillConnectionStatus($remoteYSFGResults, $remoteCommandEnabled, $remoteCommandPort);
+}
+
+if (isProcessRunning("P25Gateway")) {
+    $remoteCommandEnabled = (isset($_SESSION['P25GatewayConfigs']['Remote Commands']) ? $_SESSION['P25GatewayConfigs']['Remote Commands']['Enable'] : 0);
+    $remoteCommandPort = (isset($_SESSION['P25GatewayConfigs']['Remote Commands']) ? $_SESSION['P25GatewayConfigs']['Remote Commands']['Port'] : 0);
+    FillConnectionStatus($remoteP25GResults, $remoteCommandEnabled, $remoteCommandPort);
+}
+
+if (isProcessRunning("NXDNGateway")) {
+    $remoteCommandEnabled = (isset($_SESSION['NXDNGatewayConfigs']['Remote Commands']) ? $_SESSION['NXDNGatewayConfigs']['Remote Commands']['Enable'] : 0);
+    $remoteCommandPort = (isset($_SESSION['NXDNGatewayConfigs']['Remote Commands']) ? $_SESSION['NXDNGatewayConfigs']['Remote Commands']['Port'] : 0);
+    FillConnectionStatus($remoteNXDNGResults, $remoteCommandEnabled, $remoteCommandPort);
+}
+
+if (isProcessRunning("M17Gateway")) {
+    $remoteCommandEnabled = (isset($_SESSION['M17GatewayConfigs']['Remote Commands']) ? $_SESSION['M17GatewayConfigs']['Remote Commands']['Enable'] : 0);
+    $remoteCommandPort = (isset($_SESSION['M17GatewayConfigs']['Remote Commands']) ? $_SESSION['M17GatewayConfigs']['Remote Commands']['Port'] : 0);
+    FillConnectionStatus($remoteM17GResults, $remoteCommandEnabled, $remoteCommandPort);
 }
 
 ?>
@@ -324,52 +367,57 @@ if (isProcessRunning("DMRGateway")) {
 	    echo "<tr><th colspan=\"2\">".$lang['dmr_master']."</th></tr>\n";
 	    if (getEnabled("DMR Network", $_SESSION['MMDVMHostConfigs']) == 1) {
 		if ($dmrMasterHost == '127.0.0.1') {
-                    if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
-			$xlxMasterHostLinkState = "";
-			
-                        if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
-			    $xlxMasterHostLinkState = exec('grep \'XLX, Linking\|XLX, Unlinking\|XLX, Logged\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
-			}
-			else {
-			    $xlxMasterHostLinkState = exec('grep \'XLX, Linking\|XLX, Unlinking\|XLX, Logged\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d", time() - 86340).'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
-			}
-
-			if ($xlxMasterHostLinkState != "") {
-			    if ( strpos($xlxMasterHostLinkState, 'Linking') !== false ) {
-				$xlxMasterHost1 = str_replace('Linking ', '', $xlxMasterHostLinkState);
+		    if (isProcessRunning("DMRGateway")) {
+			if ( !isset($_SESSION['DMRGatewayConfigs']['XLX Network 1']['Enabled']) && isset($_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled']) && $_SESSION['DMRGatewayConfigs']['XLX Network']['Enabled'] == 1) {
+			    $xlxMasterHostLinkState = "";
+			    
+                            if (file_exists("/var/log/pi-star/DMRGateway-".gmdate("Y-m-d").".log")) {
+				$xlxMasterHostLinkState = exec('grep \'XLX, Linking\|XLX, Unlinking\|XLX, Logged\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d").'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
 			    }
-			    else if ( strpos($xlxMasterHostLinkState, 'Unlinking') !== false ) {
-				$xlxMasterHost1 = "XLX Not Linked";
+			    else {
+				$xlxMasterHostLinkState = exec('grep \'XLX, Linking\|XLX, Unlinking\|XLX, Logged\' /var/log/pi-star/DMRGateway-'.gmdate("Y-m-d", time() - 86340).'.log | tail -1 | awk \'{print $5 " " $8 " " $9}\'');
 			    }
-			    else if ( strpos($xlxMasterHostLinkState, 'Logged') !== false ) {
-				$xlxMasterHost1 = "XLX Not Linked";
+			    
+			    if ($xlxMasterHostLinkState != "") {
+				if ( strpos($xlxMasterHostLinkState, 'Linking') !== false ) {
+				    $xlxMasterHost1 = str_replace('Linking ', '', $xlxMasterHostLinkState);
+				}
+				else if ( strpos($xlxMasterHostLinkState, 'Unlinking') !== false ) {
+				    $xlxMasterHost1 = "XLX Not Linked";
+				}
+				else if ( strpos($xlxMasterHostLinkState, 'Logged') !== false ) {
+				    $xlxMasterHost1 = "XLX Not Linked";
+				}
+			    }
+			    else {
+				// There is no trace of XLX in the logfile.
+				$xlxMasterHost1 = "".$xlxMasterHost1." ".$_SESSION['DMRGatewayConfigs']['XLX Network']['Module']."";
+			    }
+			    
+			    echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "xlx")." colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
+			}
+			if ($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Enabled'] == 1) {
+			    echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net1")." colspan=\"2\" title=\"".$dmrMasterHost1Tooltip."\">".$dmrMasterHost1."</td></tr>\n";
+			}
+			if ($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Enabled'] == 1) {
+			    echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net2")." colspan=\"2\" title=\"".$dmrMasterHost2Tooltip."\">".$dmrMasterHost2."</td></tr>\n";
+			}
+			if ($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Enabled'] == 1) {
+			    echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net3")." colspan=\"2\" title=\"".$dmrMasterHost3Tooltip."\">".$dmrMasterHost3."</td></tr>\n";
+			}
+			if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'])) {
+			    if ($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'] == 1) {
+				echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net4")." colspan=\"2\" title=\"".$dmrMasterHost4Tooltip."\">".$dmrMasterHost4."</td></tr>\n";
 			    }
 			}
-			else {
-			    // There is no trace of XLX in the logfile.
-			    $xlxMasterHost1 = "".$xlxMasterHost1." ".$_SESSION['DMRGatewayConfigs']['XLX Network']['Module']."";
-			}
-			
-			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "xlx")." colspan=\"2\" title=\"".$xlxMasterHost1Tooltip."\">".$xlxMasterHost1."</td></tr>\n";
-                    }
-		    if ($_SESSION['DMRGatewayConfigs']['DMR Network 1']['Enabled'] == 1) {
-			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net1")." colspan=\"2\" title=\"".$dmrMasterHost1Tooltip."\">".$dmrMasterHost1."</td></tr>\n";
-		    }
-		    if ($_SESSION['DMRGatewayConfigs']['DMR Network 2']['Enabled'] == 1) {
-			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net2")." colspan=\"2\" title=\"".$dmrMasterHost2Tooltip."\">".$dmrMasterHost2."</td></tr>\n";
-		    }
-		    if ($_SESSION['DMRGatewayConfigs']['DMR Network 3']['Enabled'] == 1) {
-			echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net3")." colspan=\"2\" title=\"".$dmrMasterHost3Tooltip."\">".$dmrMasterHost3."</td></tr>\n";
-		    }
-		    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'])) {
-			if ($_SESSION['DMRGatewayConfigs']['DMR Network 4']['Enabled'] == 1) {
-                            echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net4")." colspan=\"2\" title=\"".$dmrMasterHost4Tooltip."\">".$dmrMasterHost4."</td></tr>\n";
+			if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'])) {
+			    if ($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'] == 1) {
+				echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net5")." colspan=\"2\" title=\"".$dmrMasterHost5Tooltip."\">".$dmrMasterHost5."</td></tr>\n";
+			    }
 			}
 		    }
-		    if (isset($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'])) {
-			if ($_SESSION['DMRGatewayConfigs']['DMR Network 5']['Enabled'] == 1) {
-                            echo "<tr><td ".GetActiveConnectionStyle($remoteDMRGResults, "net5")." colspan=\"2\" title=\"".$dmrMasterHost5Tooltip."\">".$dmrMasterHost5."</td></tr>\n";
-			}
+		    else {
+			echo "<tr><td colspan=\"2\" style=\"background:#ffffff;\">Service Not Started</td></tr>\n";
 		    }
 		}
 		else {
@@ -430,7 +478,7 @@ if (isProcessRunning("DMRGateway")) {
             echo "<br />\n";
             echo "<table>\n";
 	    echo "<tr><th colspan=\"2\">".$lang['ysf_net']."".$ysfLinkState."</th></tr>\n";
-	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "ysf")." title=\"".$ysfLinkedToTooltip."\">".$ysfLinkedToTxt."</td></tr>\n";
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteYSFGResults, "ysf")." title=\"".$ysfLinkedToTooltip."\">".$ysfLinkedToTxt."</td></tr>\n";
             echo "</table>\n";
 	}
 
@@ -476,7 +524,7 @@ if (isProcessRunning("DMRGateway")) {
 		echo "<tr><th style=\"width:70px\">NAC</th><td>".getConfigItem("P25", "NAC", $_SESSION['MMDVMHostConfigs'])."</td></tr>\n";
 	    }
 	    echo "<tr><th colspan=\"2\">".$lang['p25_net']."</th></tr>\n";
-	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "p25").">".getActualLink($logLinesP25Gateway, "P25")."</td></tr>\n";
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteP25GResults, "p25").">".getActualLink($logLinesP25Gateway, "P25")."</td></tr>\n";
 	    echo "</table>\n";
 	}
 
@@ -499,12 +547,12 @@ if (isProcessRunning("DMRGateway")) {
 		echo "<tr><th style=\"width:70px\">RAN</th><td>".getConfigItem("NXDN", "RAN", $_SESSION['MMDVMHostConfigs'])."</td></tr>\n";
 	    }
 	    echo "<tr><th colspan=\"2\">".$lang['nxdn_net']."</th></tr>\n";
-	    if (file_exists('/etc/nxdngateway')) {
-		echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "nxdn")." >".getActualLink($logLinesNXDNGateway, "NXDN")."</td></tr>\n";
-	    }
-	    else {
-		echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "nxdn")." >TG65000</td></tr>\n";
-	    }
+	    //if (file_exists('/etc/nxdngateway')) {
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteNXDNGResults, "nxdn")." >".getActualLink($logLinesNXDNGateway, "NXDN")."</td></tr>\n";
+	    //}
+	    //else {
+		//echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "nxdn")." >TG65000</td></tr>\n";
+	    //}
 	    echo "</table>\n";
 	}
 
@@ -515,7 +563,7 @@ if (isProcessRunning("DMRGateway")) {
 	    echo "<tr><th colspan=\"2\">".$lang['m17_repeater']."</th></tr>\n";
 	    echo "<tr><th>RPT</th><td style=\"background: #ffffff;\">".str_replace(' ', '&nbsp;', $_SESSION['M17GatewayConfigs']['General']['Callsign'])."&nbsp;".str_replace(' ', '&nbsp;', $_SESSION['M17GatewayConfigs']['General']['Suffix'])."</td></tr>\n";
 	    echo "<tr><th colspan=\"2\">".$lang['m17_net']."</th></tr>\n";
-	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteMMDVMResults, "m17").">".getActualLink($reverseLogLinesM17Gateway, "M17")."</td></tr>\n";
+	    echo "<tr><td colspan=\"2\" ".GetActiveConnectionStyle($remoteM17GResults, "m17").">".getActualLink($reverseLogLinesM17Gateway, "M17")."</td></tr>\n";
 	    echo "</table>\n";
 	}
 
@@ -532,7 +580,12 @@ if (isProcessRunning("DMRGateway")) {
 		    $dapnetGatewayRemoteAddr = substr($dapnetGatewayRemoteAddr, 0, 17) . '..';
 		}
 		echo "<tr><th colspan=\"2\">POCSAG Master</th></tr>\n";
-		echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\" title=\"".$dapnetGatewayRemoteTooltip."\">".$dapnetGatewayRemoteAddr."</td></tr>\n";
+		if (isProcessRunning("DAPNETGateway")) {
+		    echo "<tr><td colspan=\"2\"style=\"background: #ffffff;\" title=\"".$dapnetGatewayRemoteTooltip."\">".$dapnetGatewayRemoteAddr."</td></tr>\n";
+		}
+		else {
+		    echo "<tr><td colspan=\"2\" style=\"background:#ffffff;\">Service Not Started</td></tr>\n";
+		}
 	    }
 	    echo "</table>\n";
 	}

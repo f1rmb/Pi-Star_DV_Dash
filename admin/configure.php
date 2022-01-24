@@ -496,6 +496,14 @@ if (!isset($configmmdvm['Modem']['Protocol']) || !isset($configmmdvm['Modem']['U
 }
 
 //
+// Handle RemoteControl Port collision between NXDNGateway and M17Gateway
+//
+if ($configm17gateway['Remote Commands']['Port'] == $confignxdngateway['Remote Commands']['Port']) {
+    $configm17gateway['Remote Commands']['Port'] = 6076;
+    $confignxdngateway['Remote Commands']['Port'] = 6075;
+}
+
+//
 // Build APRS password from callsign
 //
 function aprspass($callsign) {
