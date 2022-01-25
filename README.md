@@ -12,7 +12,7 @@ Two possible options are:
   - Prepare an SDCard using the disk image available [here](https://tny.sh/PiStar-V4-RMB).
   - An **easy** manual installation, over a pristine running Pi-Star system, following the below procedure:
 
-	 * you need a working Pi-Star, from [here](http://www.pistar.uk/downloads/). Pi-Star 3 and 4 are supported.
+	 * you need a working Pi-Star, from [here](http://www.pistar.uk/downloads/). Only Pi-Star v4.1.x are supported.
 
 	 * **MAKE A BACKUP OF YOUR Pi-Star CONFIGURATION**
 	 * connect your Pi-Star
