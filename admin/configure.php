@@ -3710,28 +3710,29 @@ $MYCALL=strtoupper($callsign);
 		    exec('sudo systemctl start nextiondriver.service > /dev/null 2>/dev/null &');	// NextionDriver Service
 		    exec('sudo systemctl start gpsd.service > /dev/null 2>/dev/null &');			// GPSd Service
 		    exec('sudo systemctl start aprsgateway.service > /dev/null 2>/dev/null &');		// APRSGateway Service
-		    exec('sudo systemctl start dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
-		    exec('sudo systemctl start mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
-		    exec('sudo systemctl start ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service
-		    exec('sudo systemctl start timeserver.service > /dev/null 2>/dev/null &');		// Time Server Service
-		    exec('sudo systemctl start pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
-		    exec('sudo systemctl start pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
-		    exec('sudo systemctl start ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
-		    exec('sudo systemctl start ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
-		    exec('sudo systemctl start ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
-		    exec('sudo systemctl start nxdn2dmr.service > /dev/null 2>/dev/null &');		// NXDN2DMR
+		    exec('sudo systemctl start dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
+		    exec('sudo systemctl start dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
+		    exec('sudo systemctl start p25gateway.service > /dev/null 2>/dev/null &');		// P25Gateway
+		    exec('sudo systemctl start p25parrot.service > /dev/null 2>/dev/null &');		// P25Parrot
+		    exec('sudo systemctl start m17gateway.service > /dev/null 2>/dev/null &');		// M17Gateway
+		    exec('sudo systemctl start nxdngateway.service > /dev/null 2>/dev/null &');		// NXDNGateway
+		    exec('sudo systemctl start nxdnparrot.service > /dev/null 2>/dev/null &');		// NXDNParrot
 		    exec('sudo systemctl start dgidgateway.service > /dev/null 2>/dev/null &');		// DGIdGateway
 		    exec('sudo systemctl start ysfgateway.service > /dev/null 2>/dev/null &');		// YSFGateway
 		    exec('sudo systemctl start ysfparrot.service > /dev/null 2>/dev/null &');		// YSFParrot
-		    exec('sudo systemctl start p25gateway.service > /dev/null 2>/dev/null &');		// P25Gateway
-		    exec('sudo systemctl start p25parrot.service > /dev/null 2>/dev/null &');		// P25Parrot
-		    exec('sudo systemctl start nxdngateway.service > /dev/null 2>/dev/null &');		// NXDNGateway
-		    exec('sudo systemctl start nxdnparrot.service > /dev/null 2>/dev/null &');		// NXDNParrot
+		    exec('sudo systemctl start ysf2p25.service > /dev/null 2>/dev/null &');		// YSF2P25
+		    exec('sudo systemctl start ysf2nxdn.service > /dev/null 2>/dev/null &');		// YSF2NXDN
+		    exec('sudo systemctl start ysf2dmr.service > /dev/null 2>/dev/null &');		// YSF2DMR
 		    exec('sudo systemctl start dmr2ysf.service > /dev/null 2>/dev/null &');		// DMR2YSF
 		    exec('sudo systemctl start dmr2nxdn.service > /dev/null 2>/dev/null &');		// DMR2NXDN
-		    exec('sudo systemctl start dmrgateway.service > /dev/null 2>/dev/null &');		// DMRGateway
-		    exec('sudo systemctl start m17gateway.service > /dev/null 2>/dev/null &');		// M17Gateway
-		    exec('sudo systemctl start dapnetgateway.service > /dev/null 2>/dev/null &');		// DAPNetGateway
+		    exec('sudo systemctl start nxdn2dmr.service > /dev/null 2>/dev/null &');		// NXDN2DMR
+		    exec('sudo systemctl start timeserver.service > /dev/null 2>/dev/null &');		// Time Server Service
+		    exec('sudo systemctl start mmdvmhost.service > /dev/null 2>/dev/null &');		// MMDVMHost Radio Service
+		    // Now managed by MMDVMHost service file
+		    //exec('sudo systemctl start ircddbgateway.service > /dev/null 2>/dev/null &');		// ircDDBGateway Service
+		    exec('sudo systemctl start dstarrepeater.service > /dev/null 2>/dev/null &');		// D-Star Radio Service
+		    exec('sudo systemctl start pistar-watchdog.service > /dev/null 2>/dev/null &');	// PiStar-Watchdog Service
+		    exec('sudo systemctl start pistar-remote.service > /dev/null 2>/dev/null &');		// PiStar-Remote Service
 		    
 		    // Set the system timezone
 		    if (empty($_POST['systemTimezone']) != TRUE) {
