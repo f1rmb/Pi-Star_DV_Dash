@@ -28,7 +28,7 @@ function FillConnectionHosts(&$destArray, $remoteEnabled, $remotePort) {
     if (($remoteEnabled == 1) && ($remotePort != 0)) {
 	$remoteOutput = null;
 	$remoteRetval = null;
-	exec('/usr/local/bin/RemoteCommand '.$remotePort.' hosts', $remoteOutput, $remoteRetval);
+	exec('cd /var/log/pi-star; /usr/local/bin/RemoteCommand '.$remotePort.' hosts', $remoteOutput, $remoteRetval);
 	if (($remoteRetval == 0) && (count($remoteOutput) >= 2)) {
 	    $expOutput = preg_split('/"[^"]*"(*SKIP)(*F)|\x20/', $remoteOutput[1]);
 	    foreach ($expOutput as $entry) {
@@ -43,7 +43,7 @@ function FillConnectionStatus(&$destArray, $remoteEnabled, $remotePort) {
     if (($remoteEnabled == 1) && ($remotePort != 0)) {
 	$remoteOutput = null;
 	$remoteRetval = null;
-	exec('/usr/local/bin/RemoteCommand '.$remotePort.' status', $remoteOutput, $remoteRetval);
+	exec('cd /var/log/pi-star; /usr/local/bin/RemoteCommand '.$remotePort.' status', $remoteOutput, $remoteRetval);
 	if (($remoteRetval == 0) && (count($remoteOutput) >= 2)) {
 	    $tok = strtok($remoteOutput[1], " \n\t");
 	    while ($tok !== false) {
