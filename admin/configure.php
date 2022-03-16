@@ -4439,7 +4439,7 @@ $MYCALL=strtoupper($callsign);
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#"><?php echo $lang['dmr_plus_network'];?>:<span><b>DMR+ Network</b>Set your options= for DMR+ here</span></a></td>
 					<td align="left">
-					    Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="100" value="<?php if (isset($configdmrgateway['DMR Network 2']['Options'])) { echo $configdmrgateway['DMR Network 2']['Options']; } ?>" />
+					    Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="250" value="<?php if (isset($configdmrgateway['DMR Network 2']['Options'])) { echo $configdmrgateway['DMR Network 2']['Options']; } ?>" />
 					</td>
 				    </tr>
 				    <tr>
@@ -4619,7 +4619,7 @@ $MYCALL=strtoupper($callsign);
 				    echo '    <tr>
     <td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR Network</b>Set your options= for DMR here</span></a></td>
     <td align="left">
-    Options=<input type="text" name="dmrNetworkOptions" size="65" maxlength="100" value="';
+    Options=<input type="text" name="dmrNetworkOptions" size="65" maxlength="250" value="';
 				    if (isset($configmmdvm['DMR Network']['Options'])) {
 					echo $configmmdvm['DMR Network']['Options'];
 				    }
@@ -4635,7 +4635,7 @@ $MYCALL=strtoupper($callsign);
     </tr>'."\n";
 				}
 				else if ((substr($dmrMasterNow, 0, 4) == "DMR+") || (substr($dmrMasterNow, 0, 3) == "HB_") || (substr($dmrMasterNow, 0, 3) == "FD_")) {
-				    echo '    <tr><td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR+ Network</b>Set your options= for here</span></a></td><td align="left">Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="100" value="';
+				    echo '    <tr><td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR+ Network</b>Set your options= for here</span></a></td><td align="left">Options=<input type="text" name="dmrNetworkOptions" size="40" maxlength="250" value="';
 
 				    if (isset($configmmdvm['DMR Network']['Options'])) {
 					echo $configmmdvm['DMR Network']['Options'];
@@ -5127,7 +5127,7 @@ $MYCALL=strtoupper($callsign);
 				    <tr>
 					<td align="left"><a class="tooltip2" href="#">DMR Options:<span><b>DMR Options (YSF2DMR)</b>Set your Options= for the DMR master above</span></a></td>
 					<td align="left" colspan="2">
-					    Options=<input type="text" name="ysf2dmrNetworkOptions" size="40" maxlength="100" value="<?php if (isset($configysf2dmr['DMR Network']['Options'])) { echo $configysf2dmr['DMR Network']['Options']; } ?>" />
+					    Options=<input type="text" name="ysf2dmrNetworkOptions" size="40" maxlength="250" value="<?php if (isset($configysf2dmr['DMR Network']['Options'])) { echo $configysf2dmr['DMR Network']['Options']; } ?>" />
 					</td>
 				    </tr>
 				    <tr>
