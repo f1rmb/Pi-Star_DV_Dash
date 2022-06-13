@@ -136,12 +136,12 @@
 				<li class="subs"><a href="jitter_test.php?group=hblink">HBLink</a></li>
 			    </ul>
 			</li>
-			<li class="subs has-subs"><a href="#">Extras</a>
+			<li class="subs has-subs"><a href="#">Extra</a>
 			    <ul class="dropdown">
 				<?php if (file_exists("/etc/theshield.enabled")) { ?>
-				    <li class="subs"><a href="services.php?action=disabletheshield">Disable &lsquo;The Shield&rsquo; IDs</a></li>
+				    <li class="subs"><a href="services.php?action=disabletheshield">Disable &lsquo;The Shield&rsquo;</a></li>
 				<?php } else { ?>
-				    <li class="subs"><a href="services.php?action=enabletheshield">Enable &lsquo;The Shield&rsquo; IDs</a></li>
+				    <li class="subs"><a href="services.php?action=enabletheshield">Enable &lsquo;The Shield&rsquo;</a></li>
 				<?php } ?>
 				<li class="subs"><a href="services.php?action=updatehostsfiles">Update Hosts Files</a></li>
 			    </ul>
