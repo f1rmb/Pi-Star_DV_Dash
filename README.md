@@ -78,7 +78,7 @@ Two possible options are:
  * ***pistar-cli*** and ***pistar-services*** scripts added
     - it's possible to use ***pistar-cli*** with [Raspi Check](https://github.com/eidottermihi/rpicheck) ([Google Play](https://play.google.com/store/apps/details?id=de.eidottermihi.raspicheck&hl=en&gl=US)) to switch the hostpot's configuration on the fly.
 
- * Continuous backport of upstream's relevant fixes and improvments.
+ * Continuous backport of upstream's relevant fixes and improvements.
 
  * Tons of small modifications and tweaks that can't be enumerated here.
 
