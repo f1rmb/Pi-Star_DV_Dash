@@ -55,12 +55,6 @@ require_once('../config/version.php');
 		else if (strcmp($action, 'status') == 0) {
 		    $action_msg = 'Services Status';
 		}
-		else if (strcmp($action, 'enabletheshield') == 0) {
-		    $action_msg = 'Enabling "The Shield" DMR IDs support';
-		}
-		else if (strcmp($action, 'disabletheshield') == 0) {
-		    $action_msg = 'Disabling "The Shield" DMR IDs support';
-		}
 		else if (strcmp($action, 'updatehostsfiles') == 0) {
 		    $action_msg = 'Updating The Hosts Files';
 		}

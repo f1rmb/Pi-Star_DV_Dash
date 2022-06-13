@@ -71,8 +71,6 @@ Two possible options are:
 
  * Complete support of configuration files edition.
 
- * TheShield and alike (Libre DMR) support.
-
  * Support of latest G4KLX software suite (one gateway per mode, DMR Master connections handled by DMRGateway only, etc...).
 
  * Pi-Star services management integrated in the web interface
