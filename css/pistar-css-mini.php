@@ -2,7 +2,7 @@
 include_once('css-base.php');
 ?>
 .container {
-    width: 100%;
+    width: 80%;
     text-align: left;
     margin: auto;
     background : <?php echo $backgroundContent; ?>;

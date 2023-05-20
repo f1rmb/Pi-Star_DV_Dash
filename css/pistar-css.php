@@ -2,7 +2,7 @@
 include_once('css-base.php');
 ?>
 .container {
-    width: 820px;
+    width: 1024px;
     text-align: left;
     margin: auto;
     border-radius: 10px 10px 10px 10px;
@@ -47,14 +47,14 @@ body, font {
     float : left;
     margin : 0;
     padding : 3px 3px 3px 3px;
-    width : 160px;
+    width : 200px;
     background : <?php echo $backgroundNavPanel; ?>;
     font-weight : normal;
     min-height : 100%;
 }
 
 .content {
-    margin : 0 0 0 166px;
+    margin : 0 0 0 206px;
     padding : 1px 5px 5px 5px;
     color : <?php echo $textContent; ?>;
     background : <?php echo $backgroundContent; ?>;
