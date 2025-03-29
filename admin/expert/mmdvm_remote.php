@@ -13,6 +13,8 @@ if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSI
 }
 
 // Load the language support
+require_once('../config/config.php');
+require_once('../mmdvmhost/functions.php');
 require_once('../config/language.php');
 require_once('../config/version.php');
 ?>
@@ -43,11 +45,12 @@ require_once('../config/version.php');
 		<?php
 		$command = isset($_GET['command']) ? $_GET['command'] : '';
 		$arg = isset($_GET['arg']) ? $_GET['arg'] : '';
+		$port = getConfigItem('Remote Control', 'Port', $_SESSION['MMDVMHostConfigs']);
 		$command_msg = '';
 		$arg_msg = '';
 		$message = '';
 		$has_args = TRUE;
-		$command_url = '?command='.$command;
+		$command_url = '?command='.$command.'&port='.$port;
 
 		if (!empty($arg)) {
 		    $command_url = $command_url.'&arg='.$arg;
@@ -107,7 +110,7 @@ require_once('../config/version.php');
 			echo '<script type="text/javascript">'."\n";
 			echo 'function executeMMDVMRemoteCommand(optStr){'."\n";
 			echo '  $("#command_result").load("/admin/expert/mmdvm_remote_exec.php"+optStr);'."\n";
-			echo '  setTimeout(function() { window.location="/admin/expert/index.php";}, ("'.$command.'" == "status" ? 20000: 10000));'."\n";
+			echo '  setTimeout(function() { window.location="/admin/expert/index.php";}, ("'.$command.'" == "status" ? 5000: 2000));'."\n";
 			echo '}'."\n";
 			echo 'setTimeout(executeMMDVMRemoteCommand, 100, "'.$command_url.'");'."\n";
 			echo '$(window).trigger(\'resize\');'."\n";

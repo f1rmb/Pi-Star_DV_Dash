@@ -5,11 +5,6 @@ if (isset($_COOKIE['PHPSESSID']))
 }
 if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
-
-    include_once $_SERVER['DOCUMENT_ROOT'].'/config/config.php';          // MMDVMDash Config
-    include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/tools.php';        // MMDVMDash Tools
-    include_once $_SERVER['DOCUMENT_ROOT'].'/mmdvmhost/functions.php';    // MMDVMDash Functions
-    include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';        // Translation Code
 }
 
 if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSIVE) < 10)) {
@@ -19,7 +14,7 @@ if (!isset($_SESSION) || !is_array($_SESSION) || (count($_SESSION, COUNT_RECURSI
 
 $command = isset($_GET['command']) ? $_GET['command'] : '';
 $arg = isset($_GET['arg']) ? $_GET['arg'] : '';
-$port = getConfigItem("Remote Control", "Port", $_SESSION['MMDVMHostConfigs']);
+$port = isset($_GET['port']) ? $_GET['port'] : '7642';
 
 $cmdoutput = array();
 
