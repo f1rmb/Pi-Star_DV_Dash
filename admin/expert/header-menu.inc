@@ -141,23 +141,31 @@
 				<li class="subs"><a href="services.php?action=updatehostsfiles">Update Hosts Files</a></li>
 			    </ul>
 			</li>
-			<li class="subs has-subs"><a href="#">MMDVM</a>
+			<li class="subs has-subs"><a href="#">MMDVMHost</a>
 			  <ul class="dropdown">
 			    <li class="subs"><a href="mmdvm_remote.php?command=status">Get Status</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=enable&arg=dstar">D-Star Enable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=disable&arg=dstar">D-Star Disable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=enable&arg=dmr">DMR Enable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=disable&arg=dmr">DMR Disable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=enable&arg=ysf">YSF Enable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=disable&arg=ysf">YSF Disable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=enable&arg=p25">P25 Enable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=disable&arg=p25">P25 Disable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=enable&arg=nxdn">NXDN Enable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=disable&arg=nxdn">NXDN Disable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=enable&arg=m17">M17 Enable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=disable&arg=m17">M17 Disable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=enable&arg=fm">FM Enable</a></li>
-			    <li class="subs"><a href="mmdvm_remote.php?command=disable&arg=rm">FM Disable</a></li>
+			    <li class="subs has-subs"><a href="#">Enable</a>
+			      <ul class="dropdown">
+				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=dstar">D-Star</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=dmr">DMR</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=ysf">YSF</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=p25">P25</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=nxdn">NXDN</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=m17">M17</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=fm">FM</a></li>
+			      </ul>
+			    </li>
+			    <li class="subs has-subs"><a href="#">Disable</a>
+			      <ul class="dropdown">
+				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=dstar">D-Star</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=dmr">DMR</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=ysf">YSF</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=p25">P25</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=nxdn">NXDN</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=m17">M17</a></li>
+				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=rm">FM</a></li>
+			      </ul>
+			    </li>
 			  </ul>
 			</li>
 			<li class="subs"><a href="security_upgrades.php">Security Upgrades</a></li>

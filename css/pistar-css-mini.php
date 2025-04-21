@@ -48,7 +48,7 @@ body, font {
     float : left;
     margin : 0;
     padding : 3px 3px 3px 3px;
-    width : 160px;
+    width : 140px;
     background : <?php echo $backgroundNavPanel; ?>;
     font-weight : normal;
     min-height : 100%;
@@ -437,7 +437,7 @@ input.toggle-round-flat:focus + label {
 .dropdown {
     position: absolute;
     top: 123px;
-    width: 170px;
+    width: 140px;
     opacity: 0;
     visibility: hidden;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -469,7 +469,7 @@ input.toggle-round-flat:focus + label {
     font-family : verdana, arial, sans-serif;
     font-size: 14px;
     color: <?php echo $textNavbar; ?>;
-    text-align: center;
+    text-align: left;
     text-decoration: none;
 }
 
@@ -482,7 +482,9 @@ input.toggle-round-flat:focus + label {
     padding-left: 1em;
 }
 
-.mainnav .has-subs .dropdown .subs a:after {
+.mainnav .has-subs .dropdown .subs a:after,
+.mainnav .has-subs .dropdown .subs .dropdown .subs a:after,
+.mainnav .has-subs .dropdown .subs .dropdown .subs .dropdown .subs a:after {
     content: "";
 }
 
@@ -498,39 +500,33 @@ input.toggle-round-flat:focus + label {
 /* First Level */
 .subs {
     position: relative;
-    width: 170px;
+    width: 140px;
 }
 
-.has-subs:hover .dropdown,
-.has-subs .has-subs:hover .dropdown {
+.has-subs:hover .dropdown, /* 1st level */
+.has-subs .has-subs:hover .dropdown, /* 2nd level */
+.has-subs .subs .has-subs:hover .dropdown { /* 3rd level */
     opacity: 1;
     visibility: visible;
 }
 
-.mainnav ul li,
-.mainav ul li ul li  a {
+.mainnav li:hover ul a, /* 1st level */
+.mainnav li:hover ul li ul li a, /* 2nd level */
+.mainnav li:hover ul li ul li ul li a { /* 3rd level */
     color: <?php echo $textDropdown; ?>;
     background-color: <?php echo $backgroundDropdown; ?>;
+    width: 120px;
 }
 
-.mainnav li:hover ul a,
-.mainnav li:hover ul li ul li a {
-    color: <?php echo $textDropdown; ?>;
-    background-color: <?php echo $backgroundDropdown; ?>;
-}
-
-.mainnav li ul li:hover,
-.mainnav li ul li ul li:hover {
-    background-color: <?php echo $backgroundDropdownHover; ?>;
-}
-
-.mainnav li ul li:hover a,
-.mainnav li ul li ul li:hover a {
+.mainnav li ul li:hover a, /* 1st level */
+.mainnav li ul li ul li:hover a, /* 2nd level */
+.mainnav li ul li ul li ul li:hover a { /* 3rd level */
     color: <?php echo $textDropdownHover; ?>;
     background-color: <?php echo $backgroundDropdownHover; ?>;
 }
 
-.mainnav .has-subs .dropdown .has-subs a:after {
+.mainnav .has-subs .dropdown .has-subs a:after,
+.mainnav .has-subs .dropdown .has-subs .dropdown .has-subs a:after {
     content: "\f0da";
     font-family: FontAwesome;
     font-style: normal;
@@ -542,23 +538,21 @@ input.toggle-round-flat:focus + label {
 }
 
 /* Second Level */
-.has-subs .has-subs .dropdown .subs {
+.has-subs .has-subs .dropdown .subs,
+.has-subs .has-subs .has-subs .dropdown .subs {
     position: relative;
     top: -133px;
-    width: 170px;
+    width: 140px;
     border-style: none none none solid;
     border-width: 1px;
     border-color: <?php echo $backgroundDropdownHover; ?>;
 }
 
-.has-subs .has-subs .dropdown .subs a:after {
-    content:"";
-}
-
-.has-subs .has-subs .dropdown {
+.has-subs .has-subs .dropdown,
+.has-subs .has-subs .has-subs .dropdown {
     position: absolute;
-    width: 170px;
-    left: 170px;
+    width: 140px;
+    left: 140px;
     opacity: 0;
     visibility: hidden;
     box-shadow: 0px -123px 16px 0px rgba(0,0,0,0.2);
