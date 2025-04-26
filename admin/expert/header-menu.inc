@@ -144,6 +144,7 @@
 			<li class="subs has-subs"><a href="#">MMDVMHost</a>
 			  <ul class="dropdown">
 			    <li class="subs"><a href="mmdvm_remote.php?command=status">Get Status</a></li>
+			    <li class="subs"><a href="mmdvm_remote.php?command=hosts">Get Hosts</a></li>
 			    <li class="subs has-subs"><a href="#">Enable</a>
 			      <ul class="dropdown">
 				<li class="subs"><a href="mmdvm_remote.php?command=enable&arg=dstar">D-Star</a></li>
@@ -164,6 +165,32 @@
 				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=nxdn">NXDN</a></li>
 				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=m17">M17</a></li>
 				<li class="subs"><a href="mmdvm_remote.php?command=disable&arg=rm">FM</a></li>
+			      </ul>
+			    </li>
+			  </ul>
+			</li>
+			<li class="subs has-subs"><a href="#">DMRGateway</a>
+			  <ul class="dropdown">
+			    <li class="subs"><a href="dmrgateway_remote.php?command=status">Get Status</a></li>
+			    <li class="subs"><a href="dmrgateway_remote.php?command=hosts">Get Hosts</a></li>
+			    <li class="subs has-subs"><a href="#">Enable</a>
+			      <ul class="dropdown">
+				<li class="subs"><a href="dmrgateway_remote.php?command=enable&arg=xlx">XLXr</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=enable&arg=net1">Network 1</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=enable&arg=net2">Network 2</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=enable&arg=net3">Network 3</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=enable&arg=net5">Network 4</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=enable&arg=net5">Network 5</a></li>
+			      </ul>
+			    </li>
+			    <li class="subs has-subs"><a href="#">Disable</a>
+			      <ul class="dropdown">
+				<li class="subs"><a href="dmrgateway_remote.php?command=disable&arg=xlx">XLX</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=disable&arg=net1">Network 1</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=disable&arg=net2">Network 2</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=disable&arg=net3">Network 3</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=disable&arg=net4">Network 4</a></li>
+				<li class="subs"><a href="dmrgateway_remote.php?command=disable&arg=net5">Network 5</a></li>
 			      </ul>
 			    </li>
 			  </ul>

@@ -45,7 +45,7 @@ require_once('../config/version.php');
 		<?php
 		$command = isset($_GET['command']) ? $_GET['command'] : '';
 		$arg = isset($_GET['arg']) ? $_GET['arg'] : '';
-		$port = getConfigItem('Remote Control', 'Port', $_SESSION['MMDVMHostConfigs']);
+		$port = $_SESSION['DMRGatewayConfigs']['Remote Control']['Port'];
 		$command_msg = '';
 		$arg_msg = '';
 		$message = '';
@@ -59,11 +59,11 @@ require_once('../config/version.php');
 		if (!empty($command)) {
 
 		    if (strcmp($command, 'status') == 0) {
-			$command_msg = 'MMDVM Status';
+			$command_msg = 'DMRGateway Status';
 			$has_args = FALSE;
 		    }
 		    else if (strcmp($command, 'hosts') == 0) {
-			$command_msg = 'MMDVM Hosts';
+			$command_msg = 'DMRGateway Hosts';
 			$has_args = FALSE;
 		    }
 		    else if (strcmp($command, 'enable') == 0) {
@@ -74,29 +74,23 @@ require_once('../config/version.php');
 		    }
 
 		    if ($has_args == TRUE && !empty($arg)) {
-			if (strcmp($arg, 'dstar') == 0) {
-			    $arg_msg = 'D-Star';
+			if (strcmp($arg, 'xlx') == 0) {
+			    $arg_msg = 'xlx';
 			}
-			else if (strcmp($arg, 'dmr') == 0) {
-			    $arg_msg = 'DMR';
+			else if (strcmp($arg, 'net1') == 0) {
+			    $arg_msg = 'net1';
 			}
-			else if (strcmp($arg, 'ysf') == 0) {
-			    $arg_msg = 'YSF';
+			else if (strcmp($arg, 'net2') == 0) {
+			    $arg_msg = 'net2';
 			}
-			else if (strcmp($arg, 'p25') == 0) {
-			    $arg_msg = 'P25';
+			else if (strcmp($arg, 'net3') == 0) {
+			    $arg_msg = 'net3';
 			}
-			else if (strcmp($arg, 'nxdn') == 0) {
-			    $arg_msg = 'NXDN';
+			else if (strcmp($arg, 'net4') == 0) {
+			    $arg_msg = 'net4';
 			}
-			else if (strcmp($arg, 'm17') == 0) {
-			    $arg_msg = 'M17';
-			}
-			else if (strcmp($arg, 'fm') == 0) {
-			    $arg_msg = 'FM';
-			}
-			else if (strcmp($arg, 'ax25') == 0) {
-			    $arg_msg = 'AX25';
+			else if (strcmp($arg, 'net5') == 0) {
+			    $arg_msg = 'net5';
 			}
 		    }
 
@@ -112,11 +106,11 @@ require_once('../config/version.php');
 		    <tr><td align="center">
 			<?php
 			echo '<script type="text/javascript">'."\n";
-			echo 'function executeMMDVMRemoteCommand(optStr){'."\n";
-			echo '  $("#command_result").load("/admin/expert/mmdvm_remote_exec.php"+optStr);'."\n";
+			echo 'function executeDMRGatewayRemoteCommand(optStr){'."\n";
+			echo '  $("#command_result").load("/admin/expert/dmrgateway_remote_exec.php"+optStr);'."\n";
 			echo '  setTimeout(function() { window.location="/admin/expert/index.php";}, ("'.$command.'" == "status" || "'.$command.'" == "hosts" ? 5000: 2000));'."\n";
 			echo '}'."\n";
-			echo 'setTimeout(executeMMDVMRemoteCommand, 100, "'.$command_url.'");'."\n";
+			echo 'setTimeout(executeDMRGatewayRemoteCommand, 100, "'.$command_url.'");'."\n";
 			echo '$(window).trigger(\'resize\');'."\n";
 			echo '</script>'."\n";
 			?>
