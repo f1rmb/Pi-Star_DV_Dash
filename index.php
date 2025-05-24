@@ -94,6 +94,7 @@ checkSessionValidity();
 			    echo ' <a class="menupower" href="/admin/power.php">'.$lang['power'].'</a>'."\n";
 			    echo ' <a class="menusysinfo" href="/admin/sysinfo.php">Sysinfo</a>'."\n";
 			    echo ' <a class="menulogs" href="/admin/live_modem_log.php">'.$lang['live_logs'].'</a>'."\n";
+			    echo ' <a class="menuexpert" href="/admin/expert/">Expert</a>'."\n";
 			} ?>
 			<a class="menuadmin" href="/admin/"><?php echo $lang['admin'];?></a>
 			<a class="menudashboard" href="/"><?php echo $lang['dashboard'];?></a>
