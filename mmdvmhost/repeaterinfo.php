@@ -120,6 +120,7 @@ if (isProcessRunning("M17Gateway")) {
     <tr><?php showMode("System Fusion", $_SESSION['MMDVMHostConfigs']);?><?php showMode("P25", $_SESSION['MMDVMHostConfigs']);?></tr>
     <tr><?php showMode("M17", $_SESSION['MMDVMHostConfigs']);?><?php showMode("NXDN", $_SESSION['MMDVMHostConfigs']);?></tr>
     <tr><?php showMode("YSF XMode", $_SESSION['MMDVMHostConfigs']);?><?php showMode("DMR XMode", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("NXDN XMode", $_SESSION['MMDVMHostConfigs']);?><?php showMode("", $_SESSION['MMDVMHostConfigs']);?></tr>
     <tr><?php showMode("", $_SESSION['MMDVMHostConfigs']);?><?php showMode("POCSAG", $_SESSION['MMDVMHostConfigs']);?></tr>
 </table>
 <br />
@@ -131,8 +132,8 @@ if (isProcessRunning("M17Gateway")) {
     <tr><?php showMode("M17 Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("NXDN Network", $_SESSION['MMDVMHostConfigs']);?></tr>
     <tr><?php showMode("YSF2DMR Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("YSF2P25 Network", $_SESSION['MMDVMHostConfigs']);?></tr>
     <tr><?php showMode("YSF2NXDN Network", $_SESSION['MMDVMHostConfigs']);?><?php showMode("DMR2YSF Network", $_SESSION['MMDVMHostConfigs']);?></tr>
-    <tr><?php showMode("DMR2NXDN Network", $_SESSION['MMDVMHostConfigs']);?></td><?php showMode("POCSAG Network", $_SESSION['MMDVMHostConfigs']);?></tr>
-</table>
+    <tr><?php showMode("DMR2NXDN Network", $_SESSION['MMDVMHostConfigs']);?></td><?php showMode("NXDN2DMR Network", $_SESSION['MMDVMHostConfigs']);?></tr>
+    <tr><?php showMode("", $_SESSION['MMDVMHostConfigs']);?></td><?php showMode("POCSAG Network", $_SESSION['MMDVMHostConfigs']);?></tr></table>
 <br />
 
 <table>

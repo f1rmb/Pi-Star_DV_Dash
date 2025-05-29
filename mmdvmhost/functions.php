@@ -75,6 +75,7 @@ function checkSessionValidity() {
     loadSessionConfigFile('YSF2DMRConfigs', '/etc/ysf2dmr');
     loadSessionConfigFile('YSF2NXDNConfigs', '/etc/ysf2nxdn');
     loadSessionConfigFile('YSF2P25Configs', '/etc/ysf2p25');
+    loadSessionConfigFile('NXDN2DMRConfigs', '/etc/nxdn2dmr');
     loadSessionConfigFile('DMR2YSFConfigs', '/etc/dmr2ysf');
     loadSessionConfigFile('DMR2NXDNConfigs', '/etc/dmr2nxdn');
     loadSessionConfigFile('APRSGatewayConfigs', '/etc/aprsgateway');
@@ -326,6 +327,10 @@ function showMode($mode, $configs) {
 	getModeClass((isProcessRunning("MMDVMHost") && (isProcessRunning("DMR2YSF") || isProcessRunning("DMR2NXDN"))),
 		      ($_SESSION['DMR2YSFConfigs']['Enabled']['Enabled'] || $_SESSION['DMR2NXDNConfigs']['Enabled']['Enabled']) == false);
     }
+    else if ( ($mode == "NXDN XMode") && (getEnabled("NXDN", $configs) == 1) ) {
+	getModeClass((isProcessRunning("MMDVMHost") && (isProcessRunning("NXDN2DMR"))),
+		      ($_SESSION['NXDN2DMRConfigs']['Enabled']['Enabled']) == false);
+    }
     else if ( ($mode == "YSF2DMR Network") && (getEnabled("System Fusion", $configs) == 1) ) {
 	getModeClass(isProcessRunning("YSF2DMR"), ($_SESSION['YSF2DMRConfigs']['Enabled']['Enabled']) == false);
     }
@@ -340,6 +345,9 @@ function showMode($mode, $configs) {
     }
     else if ( ($mode == "DMR2YSF Network") && (getEnabled("DMR", $configs) == 1) ) {
 	getModeClass(isProcessRunning("DMR2YSF"), ($_SESSION['DMR2YSFConfigs']['Enabled']['Enabled']) == false);
+    }
+    else if ( ($mode == "NXDN2DMR Network") && (getEnabled("NXDN", $configs) == 1) ) {
+	getModeClass(isProcessRunning("NXDN2DMR"), ($_SESSION['NXDN2DMRConfigs']['Enabled']['Enabled']) == false);
     }
     else {
 	getModeClass(false, true);
