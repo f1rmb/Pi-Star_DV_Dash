@@ -355,10 +355,7 @@ function showMode($mode, $configs) {
     
     $mode = str_replace("System Fusion", "YSF", $mode);
     $mode = str_replace("Network", "Net", $mode);
-    if (strpos($mode, 'YSF2') > -1) {
-	$mode = str_replace(" Net", "", $mode);
-    }
-    if (strpos($mode, 'DMR2') > -1) {
+    if ((strpos($mode, 'YSF2') > -1) || (strpos($mode, 'DMR2') > -1) || (strpos($mode, 'NXDN2') > -1)) {
 	$mode = str_replace(" Net", "", $mode);
     }
     echo $mode."</td>\n";
