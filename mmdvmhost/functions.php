@@ -1303,10 +1303,14 @@ function getActualLink($logLines, $mode) {
 	    // M: 2022-01-05 06:57:42.331 Relinked from M17-DMR U to M17-DMR X due to inactivity
 	    // M: 2022-01-05 06:57:42.331 Linking to reflector M17-DMR U triggered by M17-DMR X
 	    // M: 2022-01-05 06:57:42.331 Relinking to reflector M17-DMR U
+	    // M: 2025-06-03 03:21:31.253 Linked to M17-DEU C
             if (isProcessRunning("M17Gateway")) {
 		foreach($logLines as $logLine) {
 		    if(preg_match_all('/Linked .* reflector (M17-.{3} [A-Z])/', $logLine, $linx) > 0) {
 			return $linx[1][0];
+		    }
+		    else if (strpos($logLine, "Linked to")) {
+			return (substr($logLine, 34, 9));
 		    }
 		    else if (strpos($logLine, "Switched to reflector")) {
 			return (substr($logLine, 46, 9));

@@ -76,12 +76,10 @@ checkSessionValidity();
 		<h1>Pi-Star <?php echo $lang['digital_voice']." ".$lang['dashboard_for']." ".$_SESSION['MYCALL']; ?></h1>
 		<?php
 		if (isset($piStarCssBannerH1)) {
-		    exec('echo piStarCssBannerH1 >> /tmp/trace.txt');
 		    echo "<h1>".$piStarCssBannerH1."</h1>\n";
 		}
 		
 		if (isset($piStarCssBannerExtTxt)) {
-		    exec('echo piStarCssBannerExtTxt >> /tmp/trace.txt');
 		    echo "<p class=\"bannerext\";\">".$piStarCssBannerExtTxt."</p>\n";
 		}
 		?>

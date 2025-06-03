@@ -36,7 +36,6 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/config/language.php';	      // Translat
     $stngrp = array();
     for($i = 1; $i < 6; $i++) {
 	$param = "starNetCallsign" . $i;
-	exec('echo T:\"'.$_SESSION['ircDDBConfigs'][$param].'\" >> /tmp/trace.txt');
 	if(isset($_SESSION['ircDDBConfigs'][$param]) && !empty($_SESSION['ircDDBConfigs'][$param])) {
 	    $gname = $_SESSION['ircDDBConfigs'][$param];
 	    $stngrp[$gname] = $i;
