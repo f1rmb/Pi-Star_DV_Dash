@@ -3855,6 +3855,7 @@ $MYCALL=strtoupper($callsign);
 			    <input type="hidden" name="MMDVMModeYSF2P25" value="OFF" />
 			    <input type="hidden" name="MMDVMModeDMR2YSF" value="OFF" />
 			    <input type="hidden" name="MMDVMModeDMR2NXDN" value="OFF" />
+			    <input type="hidden" name="MMDVMModeNXDN2DMR" value="OFF" />
 			    <input type="hidden" name="MMDVMModePOCSAG" value="OFF" />
 			    <input type="hidden" name="GPSD" value="OFF" />
 			    <input type="hidden" name="pocsagWhitelist" value="<?php if (isset($configdapnetgw['General']['WhiteList'])) { echo $configdapnetgw['General']['WhiteList']; } else { echo ""; } ?>" />
@@ -4012,6 +4013,19 @@ $MYCALL=strtoupper($callsign);
 					}
 					?>
 					<td>Uses 7 prefix on DMRGateway</td>
+				    </tr>
+				<?php } ?>
+				<?php if (file_exists('/etc/nxdn2dmr')) { ?>
+				    <tr>
+					<td align="left"><a class="tooltip2" href="#">NXDN2DMR:<span><b>NXDN2DMR Mode</b>Turn on NXDN2DMR Features</span></a></td>
+					<?php
+					if ( $confignxdn2dmr['Enabled']['Enabled'] == 1 ) {
+					    echo "<td colspan=\"2\" align=\"left\"><div class=\"switch\"><input id=\"toggle-nxdn2dmr\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"MMDVMModeNXDN2DMR\" value=\"ON\" checked=\"checked\" /><label for=\"toggle-nxdn2dmr\"></label></div></td>\n";
+					}
+					else {
+					    echo "<td colspan=\"2\" align=\"left\"><div class=\"switch\"><input id=\"toggle-nxdn2dmr\" class=\"toggle toggle-round-flat\" type=\"checkbox\" name=\"MMDVMModeNXDN2DMR\" value=\"ON\" /><label for=\"toggle-nxdn2dmr\"></label></div></td>\n";
+					}
+					?>
 				    </tr>
 				<?php } ?>
 				<?php if (file_exists('/etc/dapnetgateway')) { ?>
