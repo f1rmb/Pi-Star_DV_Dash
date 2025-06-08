@@ -195,6 +195,30 @@
 			    </li>
 			  </ul>
 			</li>
+			<li class="subs has-subs"><a href="#">YSFGateway</a>
+			  <ul class="dropdown">
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=YSFGateway&command=status">Get Status</a></li>
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=YSFGateway&command=hosts">Get Hosts</a></li>
+			  </ul>
+			</li>
+			<li class="subs has-subs"><a href="#">P25Gateway</a>
+			  <ul class="dropdown">
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=P25Gateway&command=status">Get Status</a></li>
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=P25Gateway&command=hosts">Get Hosts</a></li>
+			  </ul>
+			</li>
+			<li class="subs has-subs"><a href="#">M17Gateway</a>
+			  <ul class="dropdown">
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=M17Gateway&command=status">Get Status</a></li>
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=M17Gateway&command=hosts">Get Hosts</a></li>
+			  </ul>
+			</li>
+			<li class="subs has-subs"><a href="#">NXDNGateway</a>
+			  <ul class="dropdown">
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=NXDNGateway&command=status">Get Status</a></li>
+			    <li class="subs"><a href="genericgateway_remote.php?gateway=NXDNGateway&command=hosts">Get Hosts</a></li>
+			  </ul>
+			</li>
 			<li class="subs"><a href="security_upgrades.php">Security Upgrades</a></li>
 			<li class="subs"><a href="filemanager.php">File Manager</a></li>
 			<li class="subs"><a href="edit_dashboard.php">CSS Tool</a></li>
